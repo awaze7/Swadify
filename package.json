@@ -1,0 +1,31 @@
+{
+  "name": "swadify",
+  "version": "1.0.0",
+  "description": "Swadify - food ordering app",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awaze7/Swadify.git"
+  },
+  "author": "Awaze Shaikh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/awaze7/Swadify/issues"
+  },
+  "homepage": "https://github.com/awaze7/Swadify#readme",
+  "devDependencies": {
+    "parcel": "^2.11.0",
+    "process": "^0.11.10"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "browserlist": [
+    "last 2 versions"
+  ]
+}
