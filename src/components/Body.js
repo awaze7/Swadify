@@ -10,6 +10,7 @@ const Body = () => {
 
     const [searchText, setSearchText] = useState("");
 
+    const [loading,setLoading] = useState("true");
     // console.log("body render");
 
     useEffect(() => {
@@ -34,9 +35,10 @@ const Body = () => {
             }
     
             const resData = await checkJsonData(json);
-    
+            console.log(resData);
             setListOfRestaurants(resData);
             setFilteredRestaurants(resData);
+            setLoading(false);
         } catch (error) {
             console.log(error);
         }
@@ -46,19 +48,23 @@ const Body = () => {
 
     if(!onlineStatus) return <h1>Looks like you are offline!! please check your internet connection</h1>;
 
-    return listOfRestaurants.length === 0 ? <Shimmer /> : (
-        <div className="body">
-            <div className="filter">
-                <div className="search">
+    // return listOfRestaurants.length === 0 ? <Shimmer /> : (
+    return loading ? <Shimmer /> : (
+        <div className="body mx-40">
+            <div className="filter flex">
+                <div className="m-4 p-4">
                     <input 
                         type="text" 
-                        className="search-box" 
+                        className="border border-solid border-black rounded-lg py-1 px-4" 
+                        placeholder="Search for restaurants"
                         value={searchText}
                         onChange = {(e)=>{
                             setSearchText(e.target.value);
                         }} 
                     />
-                    <button onClick={()=>{
+                    <button 
+                    className="px-3 py-2 m-2 font-semibold bg-green-500 rounded-lg"
+                    onClick={()=>{
                         //filter the restaurant-cards and update the UI
                         //Search-text
                         // console.log(searchText);
@@ -70,25 +76,28 @@ const Body = () => {
                     }>
                     Search</button>                
                 </div>
-                <button 
-                className="filter-btn" 
-                onClick={() => {
-                    filteredList = listOfRestaurants.filter(
-                        (res) => res.info.avgRating >= 4.5
-                    );
-                    setFilteredRestaurants(filteredList);
-                }}
-            >
-                Top Rated Restaurants
-                </button>
+                <div className="m-1 flex items-center">
+                    <button 
+                        className="px-3 py-2 font-semibold bg-green-500 rounded-lg" 
+                        onClick={() => {
+                            filteredList = listOfRestaurants.filter(
+                                (res) => res.info.avgRating >= 4.5
+                            );
+                            setFilteredRestaurants(filteredList);
+                        }}
+                    >
+                    Top Rated Restaurants
+                    </button>
+                </div>
             </div>
-            <div className="res-container">
+            <div className="flex flex-wrap">
                 {
                     filteredRestaurant.map(restaurant => 
                         <Link 
                             key={restaurant.info.id} 
                             to={"/restaurants/" + restaurant.info.id}
                         >
+                            {/* If we want the restaurant is pure veg, add a veg label to it*/}
                             <RestaurantCard resData={restaurant} />
                         </Link>
                     )
