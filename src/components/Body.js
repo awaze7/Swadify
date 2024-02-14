@@ -1,8 +1,9 @@
-import RestaurantCard from "./RestaurantCard";
+import RestaurantCard, { withVegLabel } from "./RestaurantCard";
 import { useState,useEffect } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import { SWIGGY_RESTAURANT_URL } from "../utils/constants";
 
 const Body = () => {
     const [listOfRestaurants, setListOfRestaurants] = useState([]);
@@ -10,8 +11,9 @@ const Body = () => {
 
     const [searchText, setSearchText] = useState("");
 
-    const [loading,setLoading] = useState("true");
-    // console.log("body render");
+    const [loading, setLoading] = useState("true");
+
+    const RestaurantCardWithVegLabel = withVegLabel(RestaurantCard);
 
     useEffect(() => {
         fetchData();
@@ -20,7 +22,7 @@ const Body = () => {
     const fetchData = async () => {
         // handle the error using try-catch
         try {
-            const response = await fetch("https://www.swiggy.com/dapi/restaurants/list/v5?lat=18.5204303&lng=73.8567437&page_type=DESKTOP_WEB_LISTING");
+            const response = await fetch(SWIGGY_RESTAURANT_URL); 
             const json = await response.json();
     
             // initialize checkJsonData() function to check Swiggy Restaurant data
@@ -35,7 +37,9 @@ const Body = () => {
             }
     
             const resData = await checkJsonData(json);
-            console.log(resData);
+
+            // console.log(resData);
+
             setListOfRestaurants(resData);
             setFilteredRestaurants(resData);
             setLoading(false);
@@ -48,8 +52,8 @@ const Body = () => {
 
     if(!onlineStatus) return <h1>Looks like you are offline!! please check your internet connection</h1>;
 
-    // return listOfRestaurants.length === 0 ? <Shimmer /> : (
-    return loading ? <Shimmer /> : (
+    return listOfRestaurants.length === 0 ? <Shimmer /> : (
+    // return loading ? <Shimmer /> : (
         <div className="body mx-40">
             <div className="filter flex">
                 <div className="m-4 p-4">
@@ -98,7 +102,14 @@ const Body = () => {
                             to={"/restaurants/" + restaurant.info.id}
                         >
                             {/* If we want the restaurant is pure veg, add a veg label to it*/}
-                            <RestaurantCard resData={restaurant} />
+                            {
+                                restaurant.info.veg ? (
+                                    <RestaurantCardWithVegLabel resData={restaurant} />
+                                )
+                                : (
+                                    <RestaurantCard resData={restaurant} />
+                                )
+                            }
                         </Link>
                     )
                 }

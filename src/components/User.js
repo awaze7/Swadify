@@ -13,7 +13,8 @@ const User = () => {
       try {
         const data = await fetch(GITHUB_URL);   
         const json = await data.json();
-        console.log(json);
+        
+        // console.log(json);
         setUserInfo(json);
       } catch (error) {
         console.log(error);
