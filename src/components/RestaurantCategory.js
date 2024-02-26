@@ -12,7 +12,7 @@ const RestaurantCategory = ({data, showItems, setShowIndex, unsetShowIndex}) => 
     return (
         <div> {/* returns the accordian item*/}
             {/* header */}
-            <div className="w-7/12 mx-auto my-4 bg-gray-50 shadow-lg p-4">
+            <div className="mx-3 my-4 shadow-md p-4">
                 <div 
                     className="flex justify-between cursor-pointer" 
                     onClick={handleClick}
@@ -20,7 +20,10 @@ const RestaurantCategory = ({data, showItems, setShowIndex, unsetShowIndex}) => 
                     <span className="font-bold text-lg">
                         {data.title} ({data.itemCards.length})
                     </span>
-                    <span className="text-4xl">🢓</span>
+                    <div>
+                        <span className={`text-4xl inline-block ${showItems ? 'transform rotate-180' : ''}`}>&#9662;</span>
+
+                    </div>
                 </div>
 
                 { showItems && <ItemList items={data.itemCards} /> }

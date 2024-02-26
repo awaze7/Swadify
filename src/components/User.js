@@ -24,7 +24,7 @@ const User = () => {
     fetchData();
 
     return () => {
-      console.log('component will unmount');
+      // console.log('component will unmount');
     };
   }, []);
 

@@ -1,23 +1,35 @@
-import { useRouteError } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Error = () => {
-    const err = useRouteError();
 
     return (
-        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-            <h1 className="text-4xl font-bold text-red-600 mb-4">
-                Oops! The page you are looking for doesn't exist.
-            </h1>
-            <h2 className="text-lg text-gray-700 mb-6">
-                Please check the URL or navigate back to the home page.
-            </h2>
-            <div className="border-t border-gray-300 pt-4">
-                <p className="text-gray-500">Error Details:</p>
-                <h3 className="text-lg font-semibold text-red-600">
-                    {err.status}: {err.statusText}
-                </h3>
-            </div>
+        <div>
+            <section className="flex justify-center my-16">
+                <div
+                className="bg-cover bg-center h-96"
+                style={{
+                    backgroundImage: `url('https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif')`,
+                }}
+                >
+                <div className="text-center">
+                    <h1 className="text-4xl text-gray-800">404</h1>
+                    <div className="pt-60">
+                    <h3 className="text-4xl text-gray-800">Looks like you're lost</h3>
+                    <p className="text-2xl text-gray-600 mt-4">
+                        The page you are looking for is not available!
+                    </p>
+                    <Link
+                        to="/"
+                        className="bg-green-500 text-white py-2 px-4 mt-4 rounded-md shadow hover:bg-green-600 inline-block"
+                    >
+                        Go to Home
+                    </Link>
+                    </div>
+                </div>
+                </div>
+            </section>
         </div>
+         
     );
 }
 

@@ -17,16 +17,17 @@ const RestaurantCard = (props) => {
         <div className="m-6 w-[280px] rounded-lg bg-white hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-95">
             <div className="relative">
                 {/* Render aggregated discount information if it's not null */}
+                <img 
+                    className="w-full h-40 object-cover rounded-lg mb-0" 
+                    src={CDN_URL + cloudinaryImageId}
+                    alt="rest-logo"
+                />
+                <div className="absolute bottom-0 left-0 right-0 top-auto bg-gradient-to-t from-black to-transparent h-16"></div>
                 {aggregatedDiscountInfoV3 && (
                     <div className="absolute bottom-0 left-0 p-2 text-white text-2xl font-extrabold overflow-hidden whitespace-nowrap">
                         {aggregatedDiscountInfoV3.header} {aggregatedDiscountInfoV3.subHeader}
                     </div>
                 )}
-                <img 
-                    className="w-full h-40 object-cover rounded-lg mb-0 shadow-inner" 
-                    src={CDN_URL + cloudinaryImageId}
-                    alt="rest-logo"
-                />
             </div>
             <div className="p-2 mx-2">
                 <h3 className="font-bold text-xl mb-1 line-clamp-1">{name}</h3>

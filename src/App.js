@@ -1,4 +1,3 @@
-import React, { lazy,Suspense } from "react";
 import ReactDOM  from "react-dom/client";
 import Header from "./components/Header";
 import Body from "./components/Body.js";
@@ -7,13 +6,46 @@ import Contact from "./components/Contact.js";
 import Error from "./components/Error.js";
 import RestaurantMenu from "./components/RestaurantMenu.js";
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { Provider } from "react-redux";
+import appStore from "./utils/Redux/appStore.js";
+import Cart from "./components/Cart.js";
+import Footer from "./components/Footer.js";
+import Login from "./components/Login.js";
+import Signup from "./components/Signup.js";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+// import { useNavigate } from "react-router-dom";
+// import useOnlineStatus from "./utils/useOnlineStatus.js";
+// import Offline from "./components/Offline.js";
+// import { useEffect } from "react";
 
 const AppLayout = () => {
+    // const onlineStatus = useOnlineStatus();
+    // const navigate = useNavigate();
+
+    // useEffect(() => {
+    //     console.log("Online status: ", onlineStatus);
+    //     if(!onlineStatus){
+    //         navigate("/offline");
+    //     }
+    // }, [onlineStatus]);
+    
+    // {
+    //     path: "/offline",
+    //     element: <Offline />,
+    // },
+
     return (
-        <div className="app">
-            <Header />
-            <Outlet />
-        </div>
+        <Provider store={appStore}>
+            
+                <div className="flex flex-col min-h-screen">
+                    <ToastContainer autoClose={2500}/>
+                    <Header />
+                    <Outlet />
+                    <Footer />
+                </div>
+                
+        </Provider>
     )
 }
 
@@ -38,8 +70,23 @@ const appRouter = createBrowserRouter([
                 path: "/restaurants/:resId",
                 element: <RestaurantMenu />,
             },
+            {
+                path: "/cart",
+                element: <Cart />,
+            },
+            {
+                path: "/login",
+                element: <Login />,
+            },
+            {
+                path: "/signup",
+                element: <Signup />,
+            },
+            {
+                path: "*",
+                element: <Error />,
+            }
         ],
-        errorElement: <Error />,
     },
 ])
 

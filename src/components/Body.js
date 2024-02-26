@@ -1,11 +1,14 @@
 import RestaurantCard, { withVegLabel } from "./RestaurantCard";
-import { useState,useEffect } from "react";
+import { useState,useEffect,useContext } from "react";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
+import Offline from "./Offline.js";
 import { SWIGGY_RESTAURANT_URL } from "../utils/constants";
 
+
 const Body = () => {
+
     const [listOfRestaurants, setListOfRestaurants] = useState([]);
     const [filteredRestaurant, setFilteredRestaurants] = useState([]);
 
@@ -14,6 +17,10 @@ const Body = () => {
     const [loading, setLoading] = useState("true");
 
     const RestaurantCardWithVegLabel = withVegLabel(RestaurantCard);
+
+    const onlineStatus = useOnlineStatus();
+
+
 
     useEffect(() => {
         fetchData();
@@ -48,29 +55,28 @@ const Body = () => {
         }
     }
 
-    const onlineStatus = useOnlineStatus();
-
-    if(!onlineStatus) return <h1>Looks like you are offline!! please check your internet connection</h1>;
+    if (!onlineStatus) {
+        return <Offline />;
+    }
 
     return listOfRestaurants.length === 0 ? <Shimmer /> : (
-    // return loading ? <Shimmer /> : (
-        <div className="body mx-40">
+        <div className="body mx-44 mb-10">
             <div className="filter flex">
                 <div className="m-4 p-4">
                     <input 
                         type="text" 
-                        className="border border-solid border-black rounded-lg py-1 px-4" 
+                        className="border border-solid border-gray-400 rounded-lg py-1.5 px-4 outline-none" 
                         placeholder="Search for restaurants"
                         value={searchText}
                         onChange = {(e)=>{
                             setSearchText(e.target.value);
                         }} 
                     />
-                    <button 
-                    className="px-3 py-2 m-2 font-semibold bg-green-500 rounded-lg"
+                    
+                    <button  
+                    className="px-3 py-2 m-2 font-semibold bg-green-600 hover:bg-green-700 text-white rounded-lg"
                     onClick={()=>{
                         //filter the restaurant-cards and update the UI
-                        //Search-text
                         // console.log(searchText);
                         const filteredRestaurant = listOfRestaurants.filter(
                             (res)=> res.info.name.toLowerCase().includes(searchText.toLowerCase())
@@ -82,7 +88,7 @@ const Body = () => {
                 </div>
                 <div className="m-1 flex items-center">
                     <button 
-                        className="px-3 py-2 font-semibold bg-green-500 rounded-lg" 
+                        className="px-3 py-2 font-semibold bg-green-600 hover:bg-green-700 text-white rounded-lg" 
                         onClick={() => {
                             filteredList = listOfRestaurants.filter(
                                 (res) => res.info.avgRating >= 4.5
