@@ -8,9 +8,10 @@ import {
 } from "react-icons/fa";
 
 const Footer = () => {
+  const year = new Date().getFullYear();
   return (
     <footer className="bg-yellow-500 text-xl shadow-lg p-4 text-center mt-auto w-full flex flex-row">
-      <p className="flex-grow font-medium">&copy; 2024 Swadify All rights reserved.</p>
+      <p className="flex-grow font-medium">&copy; {year} Swadify All rights reserved.</p>
 
       <div className="flex items-center">
         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="mx-2">
