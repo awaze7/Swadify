@@ -66,7 +66,7 @@ const ItemList = ({ items, inCart }) => {
   if (inCart) {
     totalItems = items.reduce((total, item) => total + item.count, 0);
     totalAmount = items.reduce((total, item) => {
-      const price = isNaN(item.card.info.defaultPrice) ? extractPriceFromName(item.card.info.name) : item.card.info.defaultPrice / 100;
+      const price = isNaN(item.card.info.price) ? extractPriceFromName(item.card.info.name) : item.card.info.defaultPrice / 100;
       return total + (item.count * price);
     }, 0);
     dispatch(updateTotal(totalAmount.toFixed(2)));
@@ -98,8 +98,8 @@ const ItemList = ({ items, inCart }) => {
                     <div className="py-2 text-lg font-medium">
                         <span>{item.card.info.name}</span>
                         {/* <span> - ₹ {item.card.info.price/100}</span> */}
-                        {isNaN(item.card.info.defaultPrice) || extractPriceFromName(item.card.info.name)!="" ? null : (
-                            <span> - ₹ {item.card.info.defaultPrice/100}</span>
+                        {isNaN(item.card.info.price) || extractPriceFromName(item.card.info.name)!="" ? null : (
+                            <span> - ₹ {item.card.info.price/100}</span>
                         )}
                     </div>
                     {inCart ?

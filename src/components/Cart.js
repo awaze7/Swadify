@@ -21,7 +21,8 @@ const Cart = () => {
                     <p className="text-gray-800 my-8 font-medium">Your cart is empty. Add items to the cart!</p>
                     <Link
                         to="/"
-                        className="bg-green-500 mb-10 text-white py-2 px-4 mt-4 rounded-md shadow hover:bg-green-600 inline-block"
+                        className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1.5 text-white rounded-lg inline-block"
+                        // "bg-green-500 mb-10 text-white py-2 px-4 mt-4 rounded-md shadow hover:bg-green-600 inline-block"
                     >
                         Go to Home
                     </Link>

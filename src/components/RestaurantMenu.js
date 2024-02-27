@@ -35,7 +35,7 @@ const RestaurantMenu = () => {
     }
     
     return (
-        <div className="w-7/12 mx-auto my-4 bg-white">{/*text-center"> */}
+        <div className="w-7/12 mx-auto mt-3 mb-8 bg-white">{/*text-center"> */}
             <div className="mx-3 my-4">
                 <div className="flex">
                     <div className="w-10/12">

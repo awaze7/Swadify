@@ -60,12 +60,12 @@ const Login = () => {
     return <Offline />;
   }  
   return (
-    <div className="flex items-center justify-center my-auto">
+    <div className="flex items-center justify-center my-auto sm:mt-12">
     <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center mx-5 md:mx-0">
-        <div className="md:w-1/3 max-w-base">
+        <div className="md:w-2/5 max-w-base sm:max-w-lg">
             <img src={SwadifyImg} alt="Food image" />
         </div>
-        <div className="md:w-1/3 max-w-sm">
+        <div className="md:w-2/5 max-w-sm">
         <form onSubmit={handleSubmit}>
           <h1 className="text-center md:text-left text-2xl my-4 font-semibold">
             Login
@@ -88,7 +88,7 @@ const Login = () => {
           />
           <div className="text-center md:text-left">
             <button
-              className="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 text-white uppercase rounded text-xs tracking-wider"
+              className="mt-4 bg-blue-600 hover:bg-blue-700 px-3 py-1.5 text-white uppercase rounded text-base tracking-wider"
               type="submit"
             >
               Login
