@@ -9,7 +9,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from '../firebase';
 import useOnlineStatus from "../utils/useOnlineStatus";
 import Offline from "./Offline.js";
-
+import { toast } from "react-toastify";
 
 
 const Login = () => {
@@ -20,7 +20,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted");
+    // console.log("Form submitted");
 
     try {
       // Sign in
@@ -47,12 +47,20 @@ const Login = () => {
         // Set loading state to false
         dispatch(setLoading(false));
 
-        console.log("User logged in successfully");
+        toast.success("Logged in successfully",{
+          style: {
+            marginTop:'110px',
+          },
+        });
       } else {
         console.error("User data not found in Firestore");
       }
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message,{
+        style: {
+          marginTop:'110px',
+        },
+      });
     }
   };
 
@@ -60,8 +68,8 @@ const Login = () => {
     return <Offline />;
   }  
   return (
-    <div className="flex items-center justify-center my-auto sm:mt-12">
-    <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center mx-5 md:mx-0">
+    <div className="flex items-center justify-center my-auto ">
+    <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center mx-5 md:mx-0 sm:mt-12">
         <div className="md:w-2/5 max-w-base sm:max-w-lg">
             <img src={SwadifyImg} alt="Food image" />
         </div>

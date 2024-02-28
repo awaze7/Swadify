@@ -1,10 +1,12 @@
-import Logo from '../utils/logo.png';
+
+import Logo from "../utils/Logo.png";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { FiShoppingCart } from 'react-icons/fi';
 import { auth } from '../firebase';
 import { logOut, setLoading } from '../utils/Redux/userSlice';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 const Header = () => {
     const dispatch = useDispatch();
@@ -15,6 +17,11 @@ const Header = () => {
         dispatch(logOut());
         dispatch(setLoading(true));
         auth.signOut();
+        toast.success("Logged out successfully",{
+            style: {
+              marginTop:'110px',
+            },
+        });
     }
 
     const [menuOpen, setMenuOpen] = useState(false);
@@ -91,7 +98,7 @@ const Header = () => {
 
             {menuOpen && (
                 <div className="md:hidden">
-                    <ul className="flex flex-col items-center space-y-4 text-xl mb-5">
+                    <ul className="flex flex-col items-center space-y-4 text-xl mb-4">
                         <li className="hover:text-purple-500">
                             <Link to="/">Home</Link>
                         </li>

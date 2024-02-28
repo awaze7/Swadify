@@ -10,7 +10,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from '../firebase';
 import useOnlineStatus from "../utils/useOnlineStatus";
 import Offline from "./Offline.js";
-
+import { toast } from "react-toastify";
 
 
 const Signup = () => {
@@ -65,21 +65,43 @@ const Signup = () => {
         e.preventDefault();
         
         if (!validatePhoneNumber(phone)) {
-            alert('Invalid phone number format');
+            toast.error('Invalid phone number format',{
+                position: "top-center",
+                style: {
+                  marginTop:'110px',
+                },
+            });
             return;
         }
         if (!validateEmail(email)) {
-            alert('Invalid email format');
+            toast.error('Invalid email format',{
+                position: "top-center",
+                style: {
+                  marginTop:'110px',
+                },
+            });
             return;
         }
         const passwordErrors = validatePassword(password);
         if (passwordErrors) {
             // Handle password errors
-            alert(passwordErrors.join('\n'));
+            // alert(passwordErrors.join('\n'));
+            toast.error(passwordErrors.join('\n'),{
+                position: "top-center",
+                style: {
+                  marginTop:'110px',
+                },
+                autoClose: 2500,
+            });
             return;
         }
         if(password !== confirmPassword) {
-            alert('Passwords do not match');
+            toast.error('Passwords do not match',{
+                position: "top-center",
+                style: {
+                  marginTop:'110px',
+                },
+            });
             return;
         }
 
@@ -112,10 +134,20 @@ const Signup = () => {
             // Set loading state to false
             dispatch(setLoading(false));
         
-            console.log("User profile updated successfully");
+            toast.success("Signed up successfully",{
+                style: {
+                  backgroundColor: "black",
+                  color: "white",
+                  marginTop:'110px',
+                },
+              });
             console.log(user);
         } catch (error) {
-            alert(error.message);
+            toast.error(error.message,{
+                style: {
+                  marginTop:'110px',
+                },
+            });
         }
 
     };

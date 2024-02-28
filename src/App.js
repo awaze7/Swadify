@@ -14,32 +14,14 @@ import Login from "./components/Login.js";
 import Signup from "./components/Signup.js";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-// import { useNavigate } from "react-router-dom";
-// import useOnlineStatus from "./utils/useOnlineStatus.js";
-// import Offline from "./components/Offline.js";
-// import { useEffect } from "react";
 
 const AppLayout = () => {
-    // const onlineStatus = useOnlineStatus();
-    // const navigate = useNavigate();
-
-    // useEffect(() => {
-    //     console.log("Online status: ", onlineStatus);
-    //     if(!onlineStatus){
-    //         navigate("/offline");
-    //     }
-    // }, [onlineStatus]);
-    
-    // {
-    //     path: "/offline",
-    //     element: <Offline />,
-    // },
 
     return (
         <Provider store={appStore}>
             
                 <div className="flex flex-col min-h-screen">
-                    <ToastContainer autoClose={2500}/>
+                    <ToastContainer autoClose={1500}/>
                     <Header />
                     <Outlet />
                     <Footer />

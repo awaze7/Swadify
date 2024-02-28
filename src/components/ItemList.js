@@ -38,9 +38,9 @@ const ItemList = ({ items, inCart }) => {
   const addItemFunc = (item) => {
     let t = `${item.card.info.name} is added in the cart`;
     // console.log(t);
-    toast.success(t, {
+    toast.info(t, {
       style: {
-        backgroundColor: "green",
+        backgroundColor: "black",
         color: "white",
         marginTop: hasActiveNotification ? '0' : '110px',
       },
@@ -66,22 +66,36 @@ const ItemList = ({ items, inCart }) => {
   if (inCart) {
     totalItems = items.reduce((total, item) => total + item.count, 0);
     totalAmount = items.reduce((total, item) => {
-      const price = isNaN(item.card.info.price) ? extractPriceFromName(item.card.info.name) : item.card.info.defaultPrice / 100;
+      const price = isNaN(item.card.info.price) ? 
+                    extractPriceFromName(item.card.info.name) : 
+                    item.card.info.price / 100;
       return total + (item.count * price);
     }, 0);
     dispatch(updateTotal(totalAmount.toFixed(2)));
   }
 
   const handlePlaceOrder = () => {
-    console.log(totalAmount.toFixed(2));
-    console.log(totalItems);
+    // console.log(totalAmount.toFixed(2));
+    // console.log(totalItems);
 
     // Check if the user is logged in
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log(user);
         // User is logged in, proceed with placing the order
-        alert("Order placed successfully!");
-        dispatch(clearCart());
+        toast.success('Order placed successfully, you will receive it shortly!',{
+          style: {
+            backgroundColor: "green",
+            color: "white",
+            marginTop: hasActiveNotification ? '0' : '110px',
+          },
+          onClose: () => setHasActiveNotification(false),
+        });
+        setTimeout(()=>{
+          dispatch(clearCart());
+        },1200);
+
+        
       } else {
         // User is not logged in, show alert and navigate to login page
         alert("Please log in before placing an order.");

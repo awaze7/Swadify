@@ -17,7 +17,7 @@ const About = () => {
       return <Offline />;
   }
   return (
-    <div className="max-w-5xl mx-auto p-6 my-14 rounded-lg shadow-lg bg-white">
+    <div className="max-w-5xl mx-auto p-6 my-8 rounded-lg shadow-lg bg-white">
       <h2 className="text-4xl font-bold mb-4 text-center">About Swadify</h2>
       <h3>Hello <span className="font-semibold">{userName}!</span></h3>
       <p className="text-gray-800 mb-6 ">
