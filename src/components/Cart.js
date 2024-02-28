@@ -12,7 +12,7 @@ const Cart = () => {
         return <Offline />;
     }
     return (
-        <div className="text-center w-7/12 my-20 mx-auto px-6 py-4 rounded-lg shadow-lg min-h-full">
+        <div className="text-center w-7/12 my-16 mx-auto px-6 py-4 rounded-lg shadow-lg min-h-full">
             <h1 className="text-3xl font-bold my-3">Your Cart</h1>
 
             <div className="m-auto">

@@ -98,7 +98,14 @@ const ItemList = ({ items, inCart }) => {
         
       } else {
         // User is not logged in, show alert and navigate to login page
-        alert("Please log in before placing an order.");
+        // alert("Please log in before placing an order.");
+        toast.warning('Please log in before placing an order.',{
+          position: "top-center",
+          style: {
+            marginTop: hasActiveNotification ? '0' : '110px',
+          },
+          onClose: () => setHasActiveNotification(false),
+        });
         navigate("/login");
       }
     });
@@ -166,11 +173,12 @@ const ItemList = ({ items, inCart }) => {
                     </div>
                     <div className="flex justify-end mt-4">
                          <button 
-                            className="bg-red-500 text-white px-4 py-2 rounded-full mx-2" 
+                            className="m-2 font-semibold text-base bg-red-600 hover:bg-red-800 px-3 py-2 text-white rounded-3xl"
+                            // bg-gray-900 hover:bg-black
                             onClick={handlePlaceOrder}
                         >Place Order</button>
                         <button 
-                            className="bg-red-500 text-white px-4 py-2 rounded-full"
+                            className="m-2 font-semibold text-base bg-red-600 hover:bg-red-800 px-3 py-2 text-white rounded-3xl"
                             onClick={handleClearCart}
                         >
                             Clear Cart

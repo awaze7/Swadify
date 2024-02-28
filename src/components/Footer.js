@@ -20,13 +20,13 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-yellow-300 text-xl shadow-lg p-4 text-center mt-auto w-full">
+    <footer className="bg-yellow-300 text-xl shadow-lg p-3 text-center mt-auto w-full">
       <div className="flex flex-col md:flex-row items-center justify-between">
         <p className="flex-grow font-medium mb-4 md:mb-0">
           &copy; {year} Swadify All rights reserved.
         </p>
 
-        <div className="flex items-center">
+        <div className="flex items-center mr-5">
           <a
             href="https://facebook.com"
             target="_blank"

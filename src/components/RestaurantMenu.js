@@ -19,15 +19,25 @@ const RestaurantMenu = () => {
 
     if(resInfo === null) return <Shimmer /> ; //create one for menu later-------------------
 
-    // console.log(resInfo);
+    console.log(resInfo);
 
     const {name, cuisines,locality, costForTwoMessage, totalRatingsString, avgRating, feeDetails} =  
-        resInfo?.data?.cards[2]?.card?.card?.info || {};
+        resInfo?.data?.cards[0]?.card?.card?.info || {
+            name: "",
+            cuisines: [],
+            locality: "",
+            costForTwoMessage: "",
+            totalRatingsString: "",
+            avgRating: 0,
+            feeDetails: { message: "" },
+        };
 
-    const categories = resInfo?.data?.cards[4]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
+    const cuisinesList = Array.isArray(cuisines) ? cuisines.join(", ") : "";
+    
+    const categories = resInfo?.data?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
         (c) => 
             c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
-    );
+    ) || [];
 
     // console.log("Menu ", categories);
     if (!onlineStatus) {
@@ -41,7 +51,7 @@ const RestaurantMenu = () => {
                     <div className="w-10/12">
                         <h1 className="font-bold mt-6 text-2xl">{name}</h1>
                         <p className="text-gray-500 text-base flex flex-col">
-                            <span>{cuisines.join(", ")}</span>
+                            <span>{cuisinesList}</span>
                             <span>{locality}</span>
                         </p>
                         <p></p>
