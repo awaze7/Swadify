@@ -27,36 +27,38 @@ const Header = () => {
     const [isCartHovered, setCartHovered] = useState(false);
 
     return (
-        <div className="bg-yellow-300 shadow-lg font-mono">
+        <div className="bg-yellow-300 shadow-md font-mono">
             <div className="flex justify-between items-center mx-4">
                 <div className="logo-container">
-                    <img className="w-20 md:w-28" src={Logo} alt="logo" />
+                    <img className="w-20 md:w-24" src={Logo} alt="logo" />
                 </div>
                 <div className="hidden md:flex items-center space-x-8">
-                    <ul className="flex p-4 m-4 justify-evenly space-x-12 text-2xl font-medium">
-                        <li className="hover:text-purple-500">
+                    <ul className="flex p-3 m-2 mr-4 justify-evenly space-x-8 text-xl font-medium">
+                        <li className="hover:bg-yellow-400 py-2 px-3 rounded-lg">
                             <Link to="/">Home</Link>
                         </li>
-                        <li className="hover:text-purple-500">
+                        <li className="hover:bg-yellow-400 py-2 px-3 rounded-lg">
                             <Link to="/about">About</Link>
                         </li>
-                        <li className="hover:text-purple-500">
+                        <li className="hover:bg-yellow-400 py-2 px-3 rounded-lg">
+                            {/* hover:text-purple-500 */}
                             <Link to="/contact">Contact</Link>
                         </li>
-                        <li className="hover:text-purple-500"
+                        <li className="hover:bg-yellow-400 pb-1 pt-2 px-3 rounded-lg"
                             onMouseEnter={() => setCartHovered(true)}
                             onMouseLeave={() => setCartHovered(false)}
                         >
                             <Link to="/cart" className="flex flex-row">
                                 <div className="relative">
-                                    <FiShoppingCart size={26} color={isCartHovered ? "#8B5CF6" : "#000"} />
-                                    <span className="absolute top-0 right-0 translate-y-[-0.50em] translate-x-[0.8em] text-base bg-yellow-300 rounded-full font-bold leading-tight">
+                                    <FiShoppingCart size={24} color="#000"  />
+                                    {/* color={isCartHovered ? "#8B5CF6" : "#000"}  */}
+                                    <span className={`${isCartHovered? 'bg-yellow-400' : 'bg-yellow-300'} absolute top-0 right-0 translate-y-[-0.50em] translate-x-[0.8em] text-base rounded-full font-bold leading-tight`}>
                                         ({cartItems.length})
                                     </span>
                                 </div>
                             </Link>
                         </li>
-                        <li className="hover:text-purple-500">
+                        <li className="hover:bg-yellow-400 py-2 px-3 rounded-lg">
                             {user ?
                                 (
                                     <span
@@ -97,17 +99,17 @@ const Header = () => {
 
             {menuOpen && (
                 <div className="md:hidden">
-                    <ul className="flex flex-col items-center space-y-4 text-xl mb-4">
-                        <li className="hover:text-purple-500">
+                    <ul className="flex flex-col items-center space-y-2 text-xl mb-4">
+                        <li className="hover:bg-yellow-400 py-2 px-10 rounded-lg">
                             <Link to="/">Home</Link>
                         </li>
-                        <li className="hover:text-purple-500">
+                        <li className="hover:bg-yellow-400 py-2 px-10 rounded-lg">
                             <Link to="/about">About</Link>
                         </li>
-                        <li className="hover:text-purple-500">
+                        <li className="hover:bg-yellow-400 py-2 px-7 rounded-lg">
                             <Link to="/contact">Contact</Link>
                         </li>
-                        <li className="hover:text-purple-500">
+                        <li className="hover:bg-yellow-400 py-2 px-6 rounded-lg">
                             <Link to="/cart">
                                 {/* <FiShoppingCart size={26} color="#000" /> */}
                                 <span className="ml-2">
@@ -115,7 +117,7 @@ const Header = () => {
                                 </span>
                             </Link>
                         </li>
-                        <li className="hover:text-purple-500">
+                        <li className="hover:bg-yellow-400 py-2 px-10 rounded-lg">
                             {user ?
                                 (
                                     <span

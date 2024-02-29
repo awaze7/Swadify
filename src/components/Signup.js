@@ -68,7 +68,7 @@ const Signup = () => {
             toast.error('Invalid phone number format',{
                 position: "top-center",
                 style: {
-                  marginTop:'110px',
+                  marginTop:'80px',
                 },
             });
             return;
@@ -77,7 +77,7 @@ const Signup = () => {
             toast.error('Invalid email format',{
                 position: "top-center",
                 style: {
-                  marginTop:'110px',
+                  marginTop:'80px',
                 },
             });
             return;
@@ -89,7 +89,7 @@ const Signup = () => {
             toast.error(passwordErrors.join('\n'),{
                 position: "top-center",
                 style: {
-                  marginTop:'110px',
+                  marginTop:'80px',
                 },
                 autoClose: 2500,
             });
@@ -138,14 +138,14 @@ const Signup = () => {
                 style: {
                   backgroundColor: "black",
                   color: "white",
-                  marginTop:'110px',
+                  marginTop:'80px',
                 },
               });
             console.log(user);
         } catch (error) {
             toast.error(error.message,{
                 style: {
-                  marginTop:'110px',
+                  marginTop:'80px',
                 },
             });
         }
@@ -157,19 +157,19 @@ const Signup = () => {
     }
       
     return (
-    <div className="flex items-center justify-center my-auto sm:mt-12 sm:mb-8">
-        <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center mx-5 md:mx-0">
+    <div className="flex items-center justify-center lg:my-5 md:my-40 sm:my-10">
+        <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center">
             <div className="md:w-2/5 max-w-base sm:max-w-lg">
                 <img src={SwadifyImg} alt="Food image" />
             </div>
             <div className="md:w-2/5 max-w-sm">
                 {/* md:w-1/3 everywhere old way */}
             <form onSubmit={handleSubmit}>
-                <h1 className="text-center md:text-left text-2xl my-4 font-semibold">
+                <h1 className="text-center md:text-left text-2xl mb-4 font-semibold">
                     Sign Up
                 </h1>
                 <input
-                    className="text-sm w-full px-4 py-2 border border-solid border-gray-400 rounded outline-none"
+                    className="text-sm w-full px-4 py-1.5 border border-solid border-gray-400 rounded outline-none"
                     type="text"
                     placeholder="Name"
                     value={name}
@@ -177,7 +177,7 @@ const Signup = () => {
                     required
                 />
                 <input
-                    className="text-sm w-full px-4 py-2 border border-solid border-gray-400 rounded outline-none mt-4"
+                    className="text-sm w-full px-4 py-1.5 border border-solid border-gray-400 rounded outline-none mt-4"
                     type="tel"
                     placeholder="Phone Number"
                     value={phone}
@@ -185,7 +185,7 @@ const Signup = () => {
                     required
                 />
                 <input
-                    className="text-sm w-full px-4 py-2 border border-solid border-gray-400 rounded outline-none mt-4"
+                    className="text-sm w-full px-4 py-1.5 border border-solid border-gray-400 rounded outline-none mt-4"
                     type="text"
                     placeholder="Email Address"
                     value={email}
@@ -193,7 +193,7 @@ const Signup = () => {
                     required
                 />
                 <input
-                    className="text-sm w-full px-4 py-2 border border-solid border-gray-400 rounded outline-none mt-4"
+                    className="text-sm w-full px-4 py-1.5 border border-solid border-gray-400 rounded outline-none mt-4"
                     type="text"
                     placeholder="Address"
                     value={address}
@@ -201,7 +201,7 @@ const Signup = () => {
                     required
                 />
                 <input
-                    className="text-sm w-full px-4 py-2 border border-solid border-gray-400 rounded outline-none mt-4"
+                    className="text-sm w-full px-4 py-1.5 border border-solid border-gray-400 rounded outline-none mt-4"
                     type="password"
                     placeholder="Password"
                     value={password}
@@ -218,14 +218,14 @@ const Signup = () => {
                 />
                 <div className="text-center md:text-left">
                     <button
-                    className="mt-4 bg-blue-600 hover:bg-blue-700 px-3 py-1.5 text-white uppercase rounded text-base tracking-wider"
+                    className="mt-4 bg-blue-600 hover:bg-blue-700 px-2 py-0.5 text-white uppercase rounded text-base tracking-wider"
                     type="submit"
                     >
                     Sign Up
                     </button>
                 </div>            
             </form>
-            <div className="mt-4 font-semibold text-base text-slate-500 text-center md:text-left">
+            <div className="mt-2 font-semibold text-sm text-slate-500 text-center md:text-left">
                   Don't have an account?{" "}
                     <Link
                         className="text-red-600 hover:underline hover:underline-offset-4"

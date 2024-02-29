@@ -1,6 +1,6 @@
 const ShimmerCard = () => {
     return (
-        <div className="m-6 w-[280px] rounded-lg bg-gray-200">
+        <div className="m-5 w-[236px] rounded-xl bg-gray-200">
             <div className="relative h-40">
               <div className="absolute bottom-0 left-0 p-2 text-white text-2xl font-extrabold bg-gray-400 w-full h-12"></div>
               <div className="w-full h-40 bg-gray-400 rounded-lg mb-0"></div>
@@ -19,18 +19,18 @@ const ShimmerCard = () => {
     )
 }
 const ShimmerSearchBar = () => (
-    <div className="filter flex">
+    <div className="filter flex md:ml-24 md:mr-20 lg:mx-28 sm:mx-4">
   <div className="m-4 p-4 relative">
     <input 
       type="text" 
-      className="border border-solid rounded-lg py-1 px-4 placeholder-gray-900 animate-pulse"
+      className="border border-solid rounded-lg py-1 px-2.5 placeholder-blue-900 animate-pulse"
     />
     <button 
-      className="px-3 py-2 m-2 h-9 w-16  bg-green-500 rounded-lg mr-6 animate-pulse"
+      className="px-3 py-2 m-2 h-8 w-20  bg-blue-600 rounded-lg mr-6 animate-pulse"
     >
     </button>
     <button 
-      className="px-3 py-2 m-2 h-9 w-52 bg-green-500 rounded-lg animate-pulse"
+      className="px-3 py-2 m-2 h-8 w-52 bg-blue-600 rounded-lg animate-pulse"
     >
     </button>
   </div>
@@ -41,9 +41,9 @@ const ShimmerSearchBar = () => (
 
 const Shimmer = () => {
     return (
-        <div className="mx-40">
+        <div className="lg:mx-auto md:mx-16 sm:mx-10">
             <ShimmerSearchBar />
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap md:ml-24 md:mr-24 lg:mx-28 sm:mx-4 mb-10">
                 {[...Array(20)].map((_, index) => (
                     <ShimmerCard key={index} />
                 ))}

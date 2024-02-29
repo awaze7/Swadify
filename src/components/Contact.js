@@ -11,7 +11,7 @@ const Contact = () => {
   
   return (
     <div className="max-w-5xl mx-auto p-5 my-auto rounded-lg shadow-lg bg-white">
-      <h2 className="text-4xl font-bold mb-4 text-center">Contact Us</h2>
+      <h2 className="text-2xl font-bold mb-4 text-center">Contact Us</h2>
       <p className="text-gray-800 mb-6 text-center">
         We at Swadify, would love to hear from you! If you have any questions, suggestions,
         or feedback, please feel free to reach out to us.

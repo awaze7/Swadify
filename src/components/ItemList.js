@@ -25,7 +25,7 @@ const ItemList = ({ items, inCart }) => {
     dispatch(decrementItem(item));
   };
 
-  const onDecrement = async (itemId) => {
+  const onDecrement = (itemId) => {
     if (items.find((item) => item.card.info.id === itemId).count > 1) {
       handleDecrementItem(itemId);
     } else {
@@ -42,7 +42,7 @@ const ItemList = ({ items, inCart }) => {
       style: {
         backgroundColor: "black",
         color: "white",
-        marginTop: hasActiveNotification ? '0' : '110px',
+        marginTop: hasActiveNotification ? '0' : '80px',
       },
       onClose: () => setHasActiveNotification(false),
     });
@@ -66,18 +66,24 @@ const ItemList = ({ items, inCart }) => {
   if (inCart) {
     totalItems = items.reduce((total, item) => total + item.count, 0);
     totalAmount = items.reduce((total, item) => {
-      const price = isNaN(item.card.info.price) ? 
-                    extractPriceFromName(item.card.info.name) : 
-                    item.card.info.price / 100;
+      let price=0;
+      if (isNaN(item.card.info.price)) {
+        if(isNaN(item.card.info.defaultPrice)) {
+          price = extractPriceFromName(item.card.info.name);
+        } else {
+          price = item.card.info.defaultPrice / 100;
+        }
+      } else {
+        price = item.card.info.price / 100;
+      }
+      
       return total + (item.count * price);
     }, 0);
+
     dispatch(updateTotal(totalAmount.toFixed(2)));
   }
 
   const handlePlaceOrder = () => {
-    // console.log(totalAmount.toFixed(2));
-    // console.log(totalItems);
-
     // Check if the user is logged in
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -87,7 +93,7 @@ const ItemList = ({ items, inCart }) => {
           style: {
             backgroundColor: "green",
             color: "white",
-            marginTop: hasActiveNotification ? '0' : '110px',
+            marginTop: hasActiveNotification ? '0' : '80px',
           },
           onClose: () => setHasActiveNotification(false),
         });
@@ -98,11 +104,10 @@ const ItemList = ({ items, inCart }) => {
         
       } else {
         // User is not logged in, show alert and navigate to login page
-        // alert("Please log in before placing an order.");
         toast.warning('Please log in before placing an order.',{
           position: "top-center",
           style: {
-            marginTop: hasActiveNotification ? '0' : '110px',
+            marginTop: hasActiveNotification ? '0' : '80px',
           },
           onClose: () => setHasActiveNotification(false),
         });
@@ -116,35 +121,43 @@ const ItemList = ({ items, inCart }) => {
            {items.map(item => (
                 <div key={item.card.info.id} className="py-2 my-3 pb-3 border-gray-200 border-b-2 text-left flex items-center justify-between">
                 <div className="w-9/12">
-                    <div className="py-2 text-lg font-medium">
+                    <div className="py-2 text-sm font-medium">
                         <span>{item.card.info.name}</span>
-                        {/* <span> - ₹ {item.card.info.price/100}</span> */}
-                        {isNaN(item.card.info.price) || extractPriceFromName(item.card.info.name)!="" ? null : (
-                            <span> - ₹ {item.card.info.price/100}</span>
-                        )}
+                        {(isNaN(item.card.info.price) && isNaN(item.card.info.defaultPrice)) || 
+                          extractPriceFromName(item.card.info.name)!="" ? null : 
+                          (
+                            <span> - ₹ {item.card.info.price ? item.card.info.price/100 : item.card.info.defaultPrice/100}</span>
+                          )
+                        }
                     </div>
-                    {inCart ?
-                        <span className="font-bold text-xl font-mono mr-2">{item.count}x</span> : 
-                        <p className="text-sm text">
+                    <p className="text-xs font-light">
+                          {console.log(item.card.info)}
                             {item.card.info.description}
-                        </p>
-                    }
+                    </p>
+                    {inCart ?
+                        <div className="mt-3">
+                          <span className="font-bold text-xl font-mono mr-2">{item.count}<span className="text-sm">x</span></span> 
+                        </div>
+                        
+                        : null }
+                        
+                    
                 </div>
-                <div className="flex-shrink-0 w-40 p-4">
+                <div className="flex-shrink-0 w-40 py-3 px-4">
                     <div className="absolute">
                         {inCart ? 
-                            <div className="py-1 px-4 mx-3 mt-14 text-xl flex items-center bg-black rounded-lg text-white">
-                                <button className="pr-1 rounded-l" onClick={() => onIncrement(item.card.info.id)}>
-                                +
-                                </button>
-                                <span className="px-4">{item.count}</span>
-                                <button className="pl-1 rounded-r" onClick={() => onDecrement(item.card.info.id)}>
+                            <div className="py-1 mx-5 mt-14 text-xl flex items-center bg-black rounded-lg text-white">
+                                <button className="pr-2 pl-3 rounded-l" onClick={() => onDecrement(item.card.info.id)}>
                                 -
+                                </button>
+                                <span className="px-2">{item.count}</span>
+                                <button className="pl-2 pr-3 rounded-r" onClick={() => onIncrement(item.card.info.id)}>
+                                +
                                 </button>
                             </div>
                             :
                             <button 
-                            className = "py-2 px-8 mx-4 mt-14 bg-black text-white rounded-lg shadow-black shadow-md"
+                            className = "py-1 px-7 mx-5 mt-14 bg-black text-white rounded-lg shadow-black shadow-sm"
                             onClick = {() => {addItemFunc(item)}}
                             >ADD</button>
                         }
@@ -171,10 +184,9 @@ const ItemList = ({ items, inCart }) => {
                     <p>Total Items: {totalItems}</p>
                     <p>Total Amount: ₹{totalAmount.toFixed(2)}</p>
                     </div>
-                    <div className="flex justify-end mt-4">
+                    <div className="flex justify-end mt-2">
                          <button 
                             className="m-2 font-semibold text-base bg-red-600 hover:bg-red-800 px-3 py-2 text-white rounded-3xl"
-                            // bg-gray-900 hover:bg-black
                             onClick={handlePlaceOrder}
                         >Place Order</button>
                         <button 

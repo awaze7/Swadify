@@ -50,19 +50,20 @@ const Body = () => {
   return loading ? (
     <Shimmer />
   ) : (
-    <div className="body mx-4 md:mx-10 lg:mx-20 xl:mx-44 mb-10">
-      <div className="filter flex flex-col md:flex-row items-center">
-        <div className="m-4 p-4">
+    <div className="lg:mx-auto md:mx-16 sm:mx-10"> 
+    {/* body mx-4 md:mx-1 lg:mx-20 xl:mx-26 mb-10 */}
+      <div className="filter flex flex-col md:flex-row items-center md:ml-24 md:mr-20 lg:mx-28 sm:mx-4">
+        <div className="mx-1 my-3 p-4">
           <input
             type="text"
-            className="border border-solid text-base border-gray-400 rounded-lg py-1 px-3 outline-none"
+            className="border border-solid text-base border-gray-400 rounded-lg py-0.5 px-3 outline-none"
             placeholder="Search for restaurants"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
 
           <button
-            className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1.5 text-white rounded-lg"
+            className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-lg"
             onClick={() => {
               const filteredRestaurant = listOfRestaurants.filter(
                 (res) =>
@@ -74,9 +75,9 @@ const Body = () => {
             SEARCH
           </button>
         </div>
-        <div className="m-1 flex items-center">
+        <div className="my-1 flex items-center">
           <button
-            className="bg-blue-600 hover:bg-blue-700 px-3 py-1.5 font-semibold text-white rounded-lg"
+            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 font-semibold text-white rounded-lg"
             onClick={() => {
               const filteredList = listOfRestaurants.filter(
                 (res) => res.info.avgRating >= 4.5
@@ -88,7 +89,7 @@ const Body = () => {
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap md:ml-24 md:mr-24 lg:mx-28 sm:mx-4 mb-10">
         {filteredRestaurants.map((restaurant) => (
           <Link
             key={restaurant.info.id}

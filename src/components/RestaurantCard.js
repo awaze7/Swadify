@@ -14,31 +14,31 @@ const RestaurantCard = (props) => {
     } = resData?.info ?? {};
     
     return (
-        <div className="m-6 w-[280px] rounded-lg bg-white hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-95">
+        <div className="m-5 w-[236px] rounded-xl bg-white hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-95">
             <div className="relative">
                 {/* Render aggregated discount information if it's not null */}
                 <img 
-                    className="w-full h-40 object-cover rounded-lg mb-0" 
+                    className="w-full h-40 object-cover rounded-xl mb-0" 
                     src={CDN_URL + cloudinaryImageId}
                     alt="rest-logo"
                 />
                 <div className="absolute bottom-0 left-0 right-0 top-auto bg-gradient-to-t from-black to-transparent h-16"></div>
                 {aggregatedDiscountInfoV3 && (
-                    <div className="absolute bottom-0 left-0 p-2 text-white text-2xl font-extrabold overflow-hidden whitespace-nowrap">
+                    <div className="absolute bottom-0 left-2 p-1 text-white text-xl font-extrabold overflow-hidden whitespace-nowrap">
                         {aggregatedDiscountInfoV3.header} {aggregatedDiscountInfoV3.subHeader}
                     </div>
                 )}
             </div>
             <div className="p-2 mx-2">
-                <h3 className="font-bold text-xl mb-1 line-clamp-1">{name}</h3>
+                <h3 className="font-bold text-lg mb-1 line-clamp-1">{name}</h3>
                 <div className="flex items-center mb-1 font-bold">
-                    <span className="text-red-900 mr-1 text-2xl" role="img" aria-label="Rating">&#10026;</span>
-                    <span className="text-lg">{avgRating}</span>
-                    <p className="text-lg line-clamp-1">
+                    <span className="text-red-900 mr-1 text-xl" role="img" aria-label="Rating">&#10026;</span>
+                    <span className="text-base">{avgRating}</span>
+                    <p className="text-base line-clamp-1">
                         ▪ {sla?.slaString}
                     </p>
                 </div>
-                <p className="text-sm text-gray-600 mb-2 line-clamp-1">
+                <p className="text-xs text-gray-600 mb-2 line-clamp-1">
                     {cuisines ? cuisines.join(", ") : ''}
                 </p>
                 <p className="text-sm font-bold mb-2">{costForTwo}</p>
@@ -52,7 +52,7 @@ export const withVegLabel = (RestaurantCard) => {
         // {console.log("Veg")};
         return (
             <div className="relative">
-                <label className="absolute z-10 bg-black text-white m-2 px-2 py-1 rounded-lg transform font-serif">Veg</label>
+                <label className="absolute z-10 bg-black text-white m-2 px-2 py-1 rounded-lg text-sm transform font-serif">Veg</label>
                 <RestaurantCard {...props} />
             </div>
         )

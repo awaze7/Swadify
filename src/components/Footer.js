@@ -6,6 +6,7 @@ import {
   FaTwitter,
   FaLinkedin,
 } from 'react-icons/fa';
+import { GITHUB_ACC_URL, LINKED_IN_URL } from '../utils/constants';
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -20,7 +21,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-yellow-300 text-xl shadow-lg p-3 text-center mt-auto w-full">
+    <footer className="bg-yellow-300 text-xl p-2.5 text-center mt-auto w-full">
       <div className="flex flex-col md:flex-row items-center justify-between">
         <p className="flex-grow font-medium mb-4 md:mb-0">
           &copy; {year} Swadify All rights reserved.
@@ -36,12 +37,13 @@ const Footer = () => {
             onMouseLeave={handleIconLeave}
           >
             <FaFacebook
-              size={24}
+              size={22}
               color={hoveredIcon === 'facebook' ? '#8B5CF6' : '#000'}
             />
           </a>
           <a
-            href="https://github.com/awaze7"
+            href={GITHUB_ACC_URL}
+            //
             target="_blank"
             rel="noopener noreferrer"
             className="mx-2"
@@ -49,7 +51,7 @@ const Footer = () => {
             onMouseLeave={handleIconLeave}
           >
             <FaGithub
-              size={24}
+              size={22}
               color={hoveredIcon === 'github' ? '#8B5CF6' : '#000'}
             />
           </a>
@@ -62,7 +64,7 @@ const Footer = () => {
             onMouseLeave={handleIconLeave}
           >
             <FaInstagram
-              size={24}
+              size={22}
               color={hoveredIcon === 'instagram' ? '#8B5CF6' : '#000'}
             />
           </a>
@@ -75,12 +77,13 @@ const Footer = () => {
             onMouseLeave={handleIconLeave}
           >
             <FaTwitter
-              size={24}
+              size={22}
               color={hoveredIcon === 'twitter' ? '#8B5CF6' : '#000'}
             />
           </a>
           <a
-            href="https://www.linkedin.com/in/awazeshaikh7/"
+            href={LINKED_IN_URL}
+            // LINKED_IN_URL = "https://www.linkedin.com/in/awazeshaikh7/";
             target="_blank"
             rel="noopener noreferrer"
             className="mx-2"
@@ -88,7 +91,7 @@ const Footer = () => {
             onMouseLeave={handleIconLeave}
           >
             <FaLinkedin
-              size={24}
+              size={22}
               color={hoveredIcon === 'linkedin' ? '#8B5CF6' : '#000'}
             />
           </a>

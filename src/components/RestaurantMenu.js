@@ -17,29 +17,42 @@ const RestaurantMenu = () => {
 
     const onlineStatus = useOnlineStatus();
 
-    if(resInfo === null) return <Shimmer /> ; //create one for menu later-------------------
+    if(resInfo === null) return <Shimmer /> ; //shimmer for menu left----
 
     console.log(resInfo);
 
-    const {name, cuisines,locality, costForTwoMessage, totalRatingsString, avgRating, feeDetails} =  
-        resInfo?.data?.cards[0]?.card?.card?.info || {
+    const resCard = resInfo?.data?.cards.find(
+        card =>
+            card.card &&
+            card.card.card && 
+            card.card.card["@type"] === "type.googleapis.com/swiggy.presentation.food.v2.Restaurant"
+    );
+   
+    const resDetails = resCard.card.card.info;
+
+    const {name, cuisines,locality, totalRatingsString, avgRating, feeDetails} =  
+        resDetails || {
             name: "",
             cuisines: [],
             locality: "",
-            costForTwoMessage: "",
             totalRatingsString: "",
             avgRating: 0,
             feeDetails: { message: "" },
         };
 
     const cuisinesList = Array.isArray(cuisines) ? cuisines.join(", ") : "";
-    
-    const categories = resInfo?.data?.cards[2]?.groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
-        (c) => 
+
+    const Impcard = resInfo?.data?.cards.find(
+        card => card.groupedCard
+    );
+    const groupedCard = Impcard.groupedCard;
+
+    const categories = groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
+        (c) =>
             c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
     ) || [];
-
-    // console.log("Menu ", categories);
+    
+    console.log("Menu ", categories);
     if (!onlineStatus) {
         return <Offline />;
     }
@@ -56,22 +69,24 @@ const RestaurantMenu = () => {
                         </p>
                         <p></p>
                     </div>
-                    <div className="rounded-lg border border-solid flex flex-col items-center mt-4 px-2 ml-auto cursor-pointer">
+                   <div className="ml-auto">
+                   <div className="rounded-lg border border-solid flex flex-col items-center mt-6 mb-4 px-2 cursor-pointer">
                         <div className="text-red-900">
-                            <span className="text-2xl font-semibold pt-1">&#9733;</span>
+                            <span className="text-xl font-semibold pt-1">&#9733;</span>
                             <span className="text-lg font-semibold pt-1"> {avgRating}</span>
                         </div>
                     
-                        <div className="border-b w-full my-2"></div>
-                        <span className="text-red-900 text-sm font-medium">{totalRatingsString}</span>
+                        <div className="border-b w-full my-1.5"></div>
+                        <span className="text-red-900 text-sm font-medium pb-2">{totalRatingsString}</span>
                     </div>
+                   </div>
                 </div>
-                <div className="flex mt-4">
-                    <img className="w-auto h-5 object-cover mt-1 mr-1"
+                <div className="flex">
+                    <img className="w-auto h-4 object-cover mt-1 mr-1"
                         alt="bike-icon"
                         src= {BIKE_ICON}
                     />
-                    <span className="text-gray-500 text-xl">{feeDetails.message}</span>
+                    <span className="text-gray-500 text-base">{feeDetails.message}</span>
                 </div>
             </div>
 

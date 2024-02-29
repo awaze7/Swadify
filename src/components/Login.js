@@ -49,7 +49,7 @@ const Login = () => {
 
         toast.success("Logged in successfully",{
           style: {
-            marginTop:'110px',
+            marginTop:'80px',
           },
         });
       } else {
@@ -58,7 +58,7 @@ const Login = () => {
     } catch (error) {
       toast.error(error.message,{
         style: {
-          marginTop:'110px',
+          marginTop:'80px',
         },
       });
     }
@@ -68,8 +68,8 @@ const Login = () => {
     return <Offline />;
   }  
   return (
-    <div className="flex items-center justify-center my-auto ">
-    <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center mx-5 md:mx-0 sm:mt-12">
+    <div className="flex items-center justify-center my-auto">
+    <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center mx-5 md:mx-0 sm:my-12">
         <div className="md:w-2/5 max-w-base sm:max-w-lg">
             <img src={SwadifyImg} alt="Food image" />
         </div>
@@ -79,7 +79,7 @@ const Login = () => {
             Login
           </h1>
           <input
-            className="text-sm w-full px-4 py-2 border border-solid border-gray-400 rounded outline-none mt-4"
+            className="text-sm w-full px-4 py-1.5 border border-solid border-gray-400 rounded outline-none mt-4"
             type="text"
             placeholder="Email Address"
             value={email}
@@ -87,7 +87,7 @@ const Login = () => {
             required
           />
           <input
-            className="text-sm w-full px-4 py-2 border border-solid border-gray-400 rounded outline-none mt-4"
+            className="text-sm w-full px-4 py-1.5 border border-solid border-gray-400 rounded outline-none mt-4"
             type="password"
             placeholder="Password"
             value={password}
@@ -96,14 +96,14 @@ const Login = () => {
           />
           <div className="text-center md:text-left">
             <button
-              className="mt-4 bg-blue-600 hover:bg-blue-700 px-3 py-1.5 text-white uppercase rounded text-base tracking-wider"
+              className="mt-4 bg-blue-600 hover:bg-blue-700 px-2 py-0.5 text-white uppercase rounded text-base tracking-wider"
               type="submit"
             >
               Login
             </button>
           </div>
         </form>
-        <div className="mt-4 font-semibold text-base text-slate-500 text-center md:text-left">
+        <div className="mt-3 font-semibold text-sm text-slate-500 text-center md:text-left">
                   Already have an account?{" "}
                     <Link
                         className="text-red-600 hover:underline hover:underline-offset-4"
