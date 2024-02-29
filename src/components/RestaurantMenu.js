@@ -19,7 +19,7 @@ const RestaurantMenu = () => {
 
     if(resInfo === null) return <Shimmer /> ; //shimmer for menu left----
 
-    console.log(resInfo);
+    // console.log(resInfo);
 
     const resCard = resInfo?.data?.cards.find(
         card =>
@@ -52,7 +52,7 @@ const RestaurantMenu = () => {
             c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
     ) || [];
     
-    console.log("Menu ", categories);
+    // console.log("Menu ", categories);
     if (!onlineStatus) {
         return <Offline />;
     }
