@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
 import Offline from "./Offline.js";
 import { SWIGGY_RESTAURANT_URL } from "../utils/constants";
-import { FaStar } from 'react-icons/fa';
+// import { FaStar } from 'react-icons/fa';
 
 const Body = () => {
   const [listOfRestaurants, setListOfRestaurants] = useState([]);
@@ -38,7 +38,8 @@ const Body = () => {
       const resData = await checkJsonData(json);
       setListOfRestaurants(resData);
       setFilteredRestaurants(resData);
-      console.log(resData);
+
+      // console.log(resData);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -92,7 +93,8 @@ const Body = () => {
               setFilteredRestaurants(filteredList);
             }}
           >
-            Top Rated Restaurants <FaStar className="mx-1 mt-1" />
+            Top Rated Restaurants 
+            {/* <FaStar className="mx-1 mt-1" /> */}
           </button>
         </div>
       </div>

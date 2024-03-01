@@ -53,7 +53,7 @@ const RestaurantMenu = () => {
             c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
     ) || [];
     
-    console.log("Menu ", categories);
+    // console.log("Menu ", categories);
     if (!onlineStatus) {
         return <Offline />;
     }

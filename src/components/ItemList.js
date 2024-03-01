@@ -87,7 +87,7 @@ const ItemList = ({ items, inCart }) => {
     // Check if the user is logged in
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log(user);
+        // console.log(user);
         // User is logged in, proceed with placing the order
         toast.success('Order placed successfully, you will receive it shortly!',{
           style: {
@@ -131,7 +131,7 @@ const ItemList = ({ items, inCart }) => {
                         }
                     </div>
                     <p className="text-sm font-normal">
-                          {console.log(item.card.info)}
+                          {/* {console.log(item.card.info)} */}
                             {item.card.info.description}
                     </p>
                     {inCart ?

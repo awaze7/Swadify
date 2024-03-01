@@ -7,7 +7,7 @@ import Offline from "./Offline.js";
 const About = () => {
 
   const user = useSelector((store) => store.user.user)
-  console.log(user);
+  // console.log(user);
   const userName = useSelector((store) => store.user?.user?.displayName || "User")
   // console.log(userName);
 
