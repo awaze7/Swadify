@@ -38,6 +38,7 @@ const Body = () => {
       const resData = await checkJsonData(json);
       setListOfRestaurants(resData);
       setFilteredRestaurants(resData);
+      console.log(resData);
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -67,8 +68,13 @@ const Body = () => {
             className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-lg"
             onClick={() => {
               const filteredRestaurant = listOfRestaurants.filter(
-                (res) =>
-                  res.info.name.toLowerCase().includes(searchText.toLowerCase())
+                (res) => {
+                  const nameMatch = res.info.name.toLowerCase().includes(searchText.toLowerCase());
+                  const cuisinesMatch = res.info.cuisines.some(cuisine =>
+                    cuisine.toLowerCase().includes(searchText.toLowerCase())
+                  );
+                  return nameMatch || cuisinesMatch;
+                }
               );
               setFilteredRestaurants(filteredRestaurant);
             }}
