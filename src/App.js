@@ -14,6 +14,12 @@ import Login from "./components/Login.js";
 import Signup from "./components/Signup.js";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import React, { lazy, Suspense } from "react";
+import Shimmer from "./components/Shimmer.js";
+
+
+const RestaurantMenu = lazy(() => import("./components/RestaurantMenu.js"));
+const About = lazy(() => import("./components/About.js"));
 
 const AppLayout = () => {
 
@@ -46,11 +52,15 @@ const appRouter = createBrowserRouter([
             },
             {
                 path: "/about",
-                element: <About />,
+                element: <Suspense fallback={<Shimmer />}>
+                            <About />
+                         </Suspense>,
             },
             {
                 path: "/restaurants/:resId",
-                element: <RestaurantMenu />,
+                element: <Suspense fallback={<Shimmer />}>
+                            <RestaurantMenu />
+                         </Suspense>,
             },
             {
                 path: "/cart",

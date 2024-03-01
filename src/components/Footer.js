@@ -23,7 +23,7 @@ const Footer = () => {
   return (
     <footer className="bg-yellow-300 text-xl p-2.5 text-center mt-auto w-full">
       <div className="flex flex-col md:flex-row items-center justify-between">
-        <p className="flex-grow font-medium mb-4 md:mb-0">
+        <p className="flex-grow font-medium mb-4 md:mb-0 font-mono">
           &copy; {year} Swadify All rights reserved.
         </p>
 

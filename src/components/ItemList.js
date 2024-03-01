@@ -119,9 +119,9 @@ const ItemList = ({ items, inCart }) => {
   return (
     <div>
            {items.map(item => (
-                <div key={item.card.info.id} className="py-2 my-3 pb-3 border-gray-200 border-b-2 text-left flex items-center justify-between">
+                <div key={item.card.info.id} className="my-2 pb-3 border-gray-200 border-b-2 text-left flex items-center justify-between">
                 <div className="w-9/12">
-                    <div className="py-2 text-sm font-medium">
+                    <div className="py-2 text-base font-medium">
                         <span>{item.card.info.name}</span>
                         {(isNaN(item.card.info.price) && isNaN(item.card.info.defaultPrice)) || 
                           extractPriceFromName(item.card.info.name)!="" ? null : 
@@ -130,7 +130,7 @@ const ItemList = ({ items, inCart }) => {
                           )
                         }
                     </div>
-                    <p className="text-xs font-light">
+                    <p className="text-sm font-normal">
                           {console.log(item.card.info)}
                             {item.card.info.description}
                     </p>
@@ -146,7 +146,7 @@ const ItemList = ({ items, inCart }) => {
                 <div className="flex-shrink-0 w-40 py-3 px-4">
                     <div className="absolute">
                         {inCart ? 
-                            <div className="py-1 mx-5 mt-14 text-xl flex items-center bg-black rounded-lg text-white">
+                            <div className="py-1 mx-5 mt-14 text-xl flex items-center bg-gray-900 hover:bg-black rounded-lg text-white">
                                 <button className="pr-2 pl-3 rounded-l" onClick={() => onDecrement(item.card.info.id)}>
                                 -
                                 </button>
@@ -157,7 +157,7 @@ const ItemList = ({ items, inCart }) => {
                             </div>
                             :
                             <button 
-                            className = "py-1 px-7 mx-5 mt-14 bg-black text-white rounded-lg shadow-black shadow-sm"
+                            className = "py-1 px-7 mx-5 mt-14 bg-gray-900 hover:bg-black text-white rounded-lg shadow-black shadow-sm"
                             onClick = {() => {addItemFunc(item)}}
                             >ADD</button>
                         }
@@ -186,11 +186,11 @@ const ItemList = ({ items, inCart }) => {
                     </div>
                     <div className="flex justify-end mt-2">
                          <button 
-                            className="m-2 font-semibold text-base bg-red-600 hover:bg-red-800 px-3 py-2 text-white rounded-3xl"
+                            className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-xl"
                             onClick={handlePlaceOrder}
                         >Place Order</button>
                         <button 
-                            className="m-2 font-semibold text-base bg-red-600 hover:bg-red-800 px-3 py-2 text-white rounded-3xl"
+                            className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-xl"
                             onClick={handleClearCart}
                         >
                             Clear Cart

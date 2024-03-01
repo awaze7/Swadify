@@ -46,13 +46,14 @@ const RestaurantMenu = () => {
         card => card.groupedCard
     );
     const groupedCard = Impcard.groupedCard;
-
+    // console.log(groupedCard)
+    
     const categories = groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
         (c) =>
             c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
     ) || [];
     
-    // console.log("Menu ", categories);
+    console.log("Menu ", categories);
     if (!onlineStatus) {
         return <Offline />;
     }

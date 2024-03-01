@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
 import Offline from "./Offline.js";
 import { SWIGGY_RESTAURANT_URL } from "../utils/constants";
+import { FaStar } from 'react-icons/fa';
 
 const Body = () => {
   const [listOfRestaurants, setListOfRestaurants] = useState([]);
@@ -72,12 +73,12 @@ const Body = () => {
               setFilteredRestaurants(filteredRestaurant);
             }}
           >
-            SEARCH
+            Search
           </button>
         </div>
         <div className="my-1 flex items-center">
           <button
-            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 font-semibold text-white rounded-lg"
+            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 font-semibold text-white rounded-lg flex"
             onClick={() => {
               const filteredList = listOfRestaurants.filter(
                 (res) => res.info.avgRating >= 4.5
@@ -85,7 +86,7 @@ const Body = () => {
               setFilteredRestaurants(filteredList);
             }}
           >
-            TOP RATED RESTAURANTS
+            Top Rated Restaurants <FaStar className="mx-1 mt-1" />
           </button>
         </div>
       </div>

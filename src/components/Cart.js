@@ -18,13 +18,13 @@ const Cart = () => {
             <div className="m-auto">
                 {cartItems.length === 0 && 
                 <div className="mb-6">
-                    <p className="text-gray-800 my-6 font-medium">Your cart is empty. Add items to the cart!</p>
+                    <p className="text-gray-800 my-3 font-medium">Your cart is empty. Add items to the cart!</p>
                     <Link
                         to="/"
-                        className="m-2 font-semibold text-base bg-red-600 hover:bg-red-800 px-3 py-2 text-white rounded-3xl inline-block"
-                        //m-2 font-semibold text-base bg-red-600 hover:bg-red-800 px-3 py-2 text-white rounded-3xl
+                        className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-xl inline-block"
+                        //m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-lg
                     >
-                        Go to Home
+                        Home
                     </Link>
                 </div>}
 
