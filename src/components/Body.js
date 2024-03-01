@@ -69,10 +69,10 @@ const Body = () => {
             onClick={() => {
               const filteredRestaurant = listOfRestaurants.filter(
                 (res) => {
-                  const nameMatch = res.info.name.toLowerCase().includes(searchText.toLowerCase());
+                  const nameMatch = res.info.name.toLowerCase().includes(searchText.toLowerCase())? true : false;
                   const cuisinesMatch = res.info.cuisines.some(cuisine =>
                     cuisine.toLowerCase().includes(searchText.toLowerCase())
-                  );
+                  )? true : false;
                   return nameMatch || cuisinesMatch;
                 }
               );
