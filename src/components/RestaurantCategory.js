@@ -9,8 +9,7 @@ const RestaurantCategory = ({data, showItems, setShowIndex, unsetShowIndex}) => 
     }
 
     return (
-        <div> {/* returns the accordian item*/}
-            {/* header */}
+        <div> {/* returns the accordion item*/}
             <div className="mx-3 my-3 shadow-md px-4 py-2">
                 <div 
                     className="flex justify-between cursor-pointer" 
@@ -27,7 +26,6 @@ const RestaurantCategory = ({data, showItems, setShowIndex, unsetShowIndex}) => 
 
                 { showItems && <ItemList items={data.itemCards} /> }
             </div>
-            {/* body */}
             
         </div>
     );

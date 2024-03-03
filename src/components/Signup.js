@@ -1,10 +1,10 @@
 import React from "react";
 import { useState } from "react";
 import SwadifyImg from "../utils/Swadify_img.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase.js";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { loginUser, setLoading } from "../utils/Redux/userSlice";
 import { doc, setDoc } from "firebase/firestore";
 import { db } from '../firebase';
@@ -22,6 +22,7 @@ const Signup = () => {
     const [address, setAddress] = useState("");
     const dispatch = useDispatch();
     const onlineStatus = useOnlineStatus();
+    const navigate = useNavigate();
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -111,7 +112,7 @@ const Signup = () => {
             const user = userCredential.user;
             
             await signInWithEmailAndPassword(auth, email, password);
-            console.log("G")
+            
             // Create a document in the 'users' collection with user data
             await setDoc(doc(db, 'users', user.uid), {
                 displayName: name,
@@ -141,7 +142,8 @@ const Signup = () => {
                   marginTop:'80px',
                 },
               });
-            console.log(user);
+            // console.log(user);
+            Navigate("/");
         } catch (error) {
             toast.error(error.message,{
                 style: {

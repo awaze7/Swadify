@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SwadifyImg from "../utils/Swadify_img.png";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
@@ -17,6 +17,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const onlineStatus = useOnlineStatus();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,12 +47,12 @@ const Login = () => {
 
         // Set loading state to false
         dispatch(setLoading(false));
-
         toast.success("Logged in successfully",{
           style: {
             marginTop:'80px',
           },
         });
+        navigate("/");  
       } else {
         console.error("User data not found in Firestore");
       }
@@ -64,6 +65,8 @@ const Login = () => {
     }
   };
 
+  
+
   if (!onlineStatus) {
     return <Offline />;
   }  
@@ -73,6 +76,7 @@ const Login = () => {
         <div className="md:w-2/5 max-w-base sm:max-w-lg">
             <img src={SwadifyImg} alt="Food image" />
         </div>
+        
         <div className="md:w-2/5 max-w-sm">
         <form onSubmit={handleSubmit}>
           <h1 className="text-center md:text-left text-2xl my-4 font-semibold">
