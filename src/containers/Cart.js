@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
-import ItemList from "./ItemList";
+import ItemList from "../components/ItemList.js";
 import { Link } from "react-router-dom";
-import useOnlineStatus from "../utils/useOnlineStatus";
+import useOnlineStatus from "../utils/useOnlineStatus.js";
 import Offline from "./Offline.js";
 
 const Cart = () => {

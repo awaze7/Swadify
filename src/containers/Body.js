@@ -1,10 +1,10 @@
-import RestaurantCard, { withVegLabel } from "./RestaurantCard";
+import RestaurantCard, { withVegLabel } from "../components/RestaurantCard.js";
 import { useState, useEffect } from "react";
-import Shimmer from "./Shimmer";
+import Shimmer from "../components/Shimmer.js";
 import { Link } from "react-router-dom";
-import useOnlineStatus from "../utils/useOnlineStatus";
+import useOnlineStatus from "../utils/useOnlineStatus.js";
 import Offline from "./Offline.js";
-import { SWIGGY_RESTAURANT_URL } from "../utils/constants";
+import { SWIGGY_RESTAURANT_URL } from "../utils/constants.js";
 // import { FaStar } from 'react-icons/fa';
 
 const Body = () => {
