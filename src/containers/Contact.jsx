@@ -1,6 +1,6 @@
 import React from 'react';
-import useOnlineStatus from "../utils/useOnlineStatus.js";
-import Offline from "./Offline.js";
+import useOnlineStatus from "../utils/useOnlineStatus";
+import Offline from "./Offline";
 
 const Contact = () => {
   const onlineStatus = useOnlineStatus();

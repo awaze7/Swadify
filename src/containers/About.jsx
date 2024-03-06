@@ -1,8 +1,8 @@
 import React, { useContext,useEffect } from 'react';
-import User from '../components/User.js';
+import User from '../components/User';
 import { useSelector } from 'react-redux';
-import useOnlineStatus from "../utils/useOnlineStatus.js";
-import Offline from "./Offline.js";
+import useOnlineStatus from "../utils/useOnlineStatus";
+import Offline from "./Offline";
 
 const About = () => {
 

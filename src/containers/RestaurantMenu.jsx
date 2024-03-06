@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import Shimmer from "../components/Shimmer.js";
+import Shimmer from "../components/Shimmer";
 import { useParams } from "react-router-dom";
-import useRestaurantMenu from "../utils/useRestaurantMenu.js";
-import RestaurantCategory from "../components/RestaurantCategory.js";
-import { BIKE_ICON } from "../utils/constants.js";
-import useOnlineStatus from "../utils/useOnlineStatus.js";
-import Offline from "./Offline.js";
+import useRestaurantMenu from "../utils/useRestaurantMenu";
+import RestaurantCategory from "../components/RestaurantCategory";
+import { BIKE_ICON } from "../utils/constants";
+import useOnlineStatus from "../utils/useOnlineStatus";
+import Offline from "./Offline";
 
 
 const RestaurantMenu = () => {

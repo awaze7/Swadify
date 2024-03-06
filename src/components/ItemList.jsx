@@ -140,8 +140,7 @@ const ItemList = ({ items, inCart }) => {
                         </div>
                         
                         : null }
-                        
-                    
+
                 </div>
                 <div className="flex-shrink-0 w-40 py-3 px-4">
                     <div className="absolute">
