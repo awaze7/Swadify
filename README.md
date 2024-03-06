@@ -40,7 +40,9 @@
 
 - **Swiggy API:** Enabling real-time access to comprehensive restaurant data and information.
 
+- **React Hook Form:** Streamlining form management, providing a seamless and user-friendly experience with efficient state handling and user-friendly experience.
+
+- **Yup:** Utilizing Yup for form validation, ensuring data integrity and user input validation.
+
 - **React Router:** Facilitating seamless navigation with declarative routing for React applications.
-
-
 
