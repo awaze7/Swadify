@@ -140,7 +140,7 @@ const ItemList = ({ items, inCart }) => {
                         : null }
 
                 </div>
-                <div className="flex-shrink-0 w-40 py-3 px-4">
+                <div className="flex-shrink-0 w-40 py-2 px-4">
                     <div className="absolute">
                         {inCart ? 
                             <div className="py-1 mx-5 mt-14 text-xl flex items-center bg-gray-900 hover:bg-black rounded-lg text-white">
@@ -154,7 +154,7 @@ const ItemList = ({ items, inCart }) => {
                             </div>
                             :
                             <button 
-                            className = "py-1 px-7 mx-5 mt-14 bg-gray-900 hover:bg-black text-white rounded-lg shadow-black shadow-sm"
+                            className = "py-1 px-7 mx-5 mt-16 bg-gray-900 hover:bg-black text-white rounded-lg shadow-black shadow-sm"
                             onClick = {() => {addItemFunc(item)}}
                             >ADD</button>
                         }
@@ -162,7 +162,8 @@ const ItemList = ({ items, inCart }) => {
                     <img 
                         src={ITEM_IMG_CDN_URL + item.card.info.imageId} 
                         alt={item.card.info.name}
-                        className="w-full h-full object-cover rounded"
+                        className="object-cover rounded w-36 h-24" 
+                        // style={{ width: "140px", height: "90px" }}
                     />
                 </div>
             </div>
