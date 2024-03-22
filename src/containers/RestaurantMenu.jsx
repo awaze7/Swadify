@@ -87,7 +87,7 @@ const RestaurantMenu = () => {
                         alt="bike-icon"
                         src= {BIKE_ICON}
                     />
-                    <span className="text-gray-500 text-base">{feeDetails.message}</span>
+                    <span className="text-gray-500 text-base" dangerouslySetInnerHTML={{ __html: feeDetails.message }} />
                 </div>
             </div>
 
