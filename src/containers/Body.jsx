@@ -39,7 +39,7 @@ const Body = () => {
       setListOfRestaurants(resData);
       setFilteredRestaurants(resData);
 
-      // console.log(resData);
+      console.log(resData);
       setLoading(false);
     } catch (error) {
       console.log(error);

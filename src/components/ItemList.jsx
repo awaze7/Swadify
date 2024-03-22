@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { addItem, incrementItem, decrementItem, removeItem, clearCart,updateTotal } from "../utils/Redux/cartSlice";
-import { CDN_URL } from "../utils/constants";
+import { ITEM_IMG_CDN_URL } from "../utils/constants";
 import { useState } from "react";
 import { toast } from 'react-toastify';
 import { onAuthStateChanged } from "firebase/auth";
@@ -88,7 +88,6 @@ const ItemList = ({ items, inCart }) => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // console.log(user);
-        // User is logged in, proceed with placing the order
         toast.success('Order placed successfully, you will receive it shortly!',{
           style: {
             backgroundColor: "green",
@@ -131,7 +130,6 @@ const ItemList = ({ items, inCart }) => {
                         }
                     </div>
                     <p className="text-sm font-normal">
-                          {/* {console.log(item.card.info)} */}
                             {item.card.info.description}
                     </p>
                     {inCart ?
@@ -162,7 +160,7 @@ const ItemList = ({ items, inCart }) => {
                         }
                     </div>
                     <img 
-                        src={CDN_URL + item.card.info.imageId} 
+                        src={ITEM_IMG_CDN_URL + item.card.info.imageId} 
                         alt={item.card.info.name}
                         className="w-full h-full object-cover rounded"
                     />

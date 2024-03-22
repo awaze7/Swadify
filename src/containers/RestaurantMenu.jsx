@@ -28,9 +28,9 @@ const RestaurantMenu = () => {
             card.card.card["@type"] === "type.googleapis.com/swiggy.presentation.food.v2.Restaurant"
     );
    
-    const resDetails = resCard.card.card.info;
+    const resDetails = resCard?.card?.card?.info;
 
-    const {name, cuisines,locality, totalRatingsString, avgRating, feeDetails} =  
+    const {name, cuisines, locality, totalRatingsString, avgRating, feeDetails} =  
         resDetails || {
             name: "",
             cuisines: [],
@@ -45,7 +45,7 @@ const RestaurantMenu = () => {
     const Impcard = resInfo?.data?.cards.find(
         card => card.groupedCard
     );
-    const groupedCard = Impcard.groupedCard;
+    const groupedCard = Impcard?.groupedCard;
     // console.log(groupedCard)
     
     const categories = groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
