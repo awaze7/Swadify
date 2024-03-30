@@ -178,10 +178,26 @@ const ItemList = ({ items, inCart }) => {
 
             {inCart && items.length > 0 && (
               <div>
-                    <div className="text-center mt-4">
-                    <p>Total Items: {totalItems}</p>
-                    <p>Total Amount: ₹{totalAmount.toFixed(2)}</p>
+                    <div className="text-center mt-4 text-base mx-1">
+                        <div className="flex justify-between mb-2">
+                            <p className="mr-4">Items:</p>
+                            <p>{totalItems}</p>
+                        </div>
+                        <div className="flex justify-between mb-2">
+                            <p className="mr-4">Subtotal:</p>
+                            <p>₹{totalAmount.toFixed(2)}</p>
+                        </div>
+                        <div className="flex justify-between mb-2 pb-2 border-b-2">
+                            <p className="mr-4">Delivery cost:</p>
+                            <p>₹{25}</p>
+                        </div>
+                        <div className="flex justify-between mb-2">
+                            <p className="font-semibold mr-4">Total:</p>
+                            <p>₹{(totalAmount + 25).toFixed(2)}</p>
+                        </div>
                     </div>
+
+
                     <div className="flex justify-end mt-2">
                          <button 
                             className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-xl"

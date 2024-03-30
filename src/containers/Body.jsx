@@ -54,7 +54,6 @@ const Body = () => {
     <Shimmer />
   ) : (
     <div className="lg:mx-auto md:mx-16 sm:mx-10"> 
-    {/* body mx-4 md:mx-1 lg:mx-20 xl:mx-26 mb-10 */}
       <div className="filter flex flex-col md:flex-row items-center md:ml-24 md:mr-20 lg:mx-28 sm:mx-4">
         <div className="mx-1 my-3 p-4">
           <input
@@ -98,7 +97,7 @@ const Body = () => {
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap md:ml-24 md:mr-24 lg:mx-28 sm:mx-4 mb-10">
+      <div className="flex flex-wrap lg:mx-24 mb-10 sm:mx-4">
         {filteredRestaurants.map((restaurant) => (
           <Link
             key={restaurant.info.id}
