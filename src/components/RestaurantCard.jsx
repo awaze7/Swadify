@@ -13,13 +13,16 @@ const RestaurantCard = (props) => {
       aggregatedDiscountInfoV3,
     } = resData?.info ?? {};
     
+    // const imageSrc = cloudinaryImageId ? `${CDN_URL}${cloudinaryImageId}` : null;
+    // const placeholderImage = "https://media-assets.swiggy.com/swiggy/image/upload/dls-web/assets/images/placeholder-light.png";
+
     return (
         <div className="m-5 w-[236px] rounded-xl bg-white hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-95">
             <div className="relative">
-                {/* Render aggregated discount information if it's not null */}
                 <img 
                     className="w-full h-40 object-cover rounded-xl mb-0" 
                     src={CDN_URL + cloudinaryImageId}
+                    // src={imageSrc || placeholderImage}
                     alt="rest-logo"
                 />
                 <div className="absolute bottom-0 left-0 right-0 top-auto bg-gradient-to-t from-black to-transparent h-16"></div>

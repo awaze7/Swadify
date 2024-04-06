@@ -2,7 +2,8 @@ export const SWIGGY_RESTAURANT_URL = "https://swadify-server.onrender.com/api/re
 
 export const MENU_URL = "https://swadify-server.onrender.com/api/menu?page-type=REGULAR_MENU&complete-menu=true&lat=18.5204303&lng=73.8567437&&submitAction=ENTER&restaurantId=";
 
-export const CDN_URL = "https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_508,h_320,c_fill/";
+export const CDN_URL = "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/";
+// "https://res.cloudinary.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_508,h_320,c_fill/";
 
 export const ITEM_IMG_CDN_URL = "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_208,h_208,c_fit/";  
 

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
 import Offline from "./Offline";
 import { SWIGGY_RESTAURANT_URL } from "../utils/constants";
-// import { FaStar } from 'react-icons/fa';
+import { FaStar } from 'react-icons/fa';
 
 const Body = () => {
   const [listOfRestaurants, setListOfRestaurants] = useState([]);
@@ -93,11 +93,11 @@ const Body = () => {
             }}
           >
             Top Rated Restaurants 
-            {/* <FaStar className="mx-1 mt-1" /> */}
+            <FaStar className="ml-2 mt-1" />
           </button>
         </div>
       </div>
-      <div className="flex flex-wrap lg:mx-24 mb-10 sm:mx-4">
+      <div className="flex flex-wrap lg:mx-28 mb-10 sm:mx-4">
         {filteredRestaurants.map((restaurant) => (
           <Link
             key={restaurant.info.id}
