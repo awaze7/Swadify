@@ -81,10 +81,10 @@ const ItemList = ({ items, inCart }) => {
         if(isNaN(item.card.info.defaultPrice)) {
           price = extractPriceFromName(item.card.info.name);
         } else {
-          price = item.card.info.defaultPrice / 100;
+          price = item.card.info.defaultPrice;
         }
       } else {
-        price = item.card.info.price / 100;
+        price = item.card.info.price;
       }
       
       return total + (item.count * price);
