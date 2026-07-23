@@ -125,7 +125,7 @@ const ItemList = ({ items, inCart }) => {
                         {(isNaN(item.card.info.price) && isNaN(item.card.info.defaultPrice)) || 
                           extractPriceFromName(item.card.info.name)!="" ? null : 
                           (
-                            <span> - ₹ {item.card.info.price ? item.card.info.price/100 : item.card.info.defaultPrice/100}</span>
+                            <span> - ₹ {item.card.info.finalPrice ? item.card.info.finalPrice : item.card.info.price}</span>
                           )
                         }
                     </div>
@@ -211,8 +211,8 @@ const ItemList = ({ items, inCart }) => {
                         </button>
                     </div>
               </div>
-          )}
-        </div>
+            )}
+    </div>
     )
 }
 

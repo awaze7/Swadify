@@ -7,6 +7,9 @@ import Offline from "./Offline";
 import { SWIGGY_RESTAURANT_URL } from "../utils/constants";
 import { FaStar } from 'react-icons/fa';
 
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
+
 const Body = () => {
   const [listOfRestaurants, setListOfRestaurants] = useState([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
@@ -21,28 +24,72 @@ const Body = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(SWIGGY_RESTAURANT_URL);
-      const json = await response.json();
+      const querySnapshot = await getDocs(collection(db, "restaurants_data"));
+      let rawList = [];
 
-      async function checkJsonData(jsonData) {
-        for (let i = 0; i < jsonData?.data?.cards.length; i++) {
-          let checkData = json?.data?.cards[i]?.card?.card?.gridElements
-            ?.infoWithStyle?.restaurants;
+      querySnapshot.docs.forEach((doc) => {
+        const data = doc.data();
 
-          if (checkData !== undefined) {
-            return checkData;
-          }
+        // 1. If Firestore document contains the raw Swiggy initialState.json structure
+        if (data?.data?.cards) {
+          data.data.cards.forEach((cardObj) => {
+            const restaurants = cardObj?.card?.card?.gridElements?.infoWithStyle?.restaurants;
+            if (Array.isArray(restaurants)) {
+              rawList.push(...restaurants);
+            }
+          });
+        } 
+        // 2. If document contains a top-level array of restaurants
+        else if (Array.isArray(data.restaurants)) {
+          rawList.push(...data.restaurants);
+        } 
+        else if (Array.isArray(data.cards)) {
+          rawList.push(...data.cards);
+        } 
+        // 3. Individual restaurant document
+        else {
+          rawList.push({ ...data, _docId: doc.id });
         }
-      }
+      });
 
-      const resData = await checkJsonData(json);
-      setListOfRestaurants(resData);
-      setFilteredRestaurants(resData);
+      console.log("Raw Extracted Documents from Firestore:", rawList);
 
-      console.log(resData);
+      // Normalize each item to ensure 'info' exists with valid properties
+      const normalizedData = rawList
+        .map((item) => {
+          // Find the info object regardless of nesting
+          const infoObj = 
+            item?.info || 
+            item?.card?.card?.info || 
+            item?.restaurantInfo || 
+            item;
+
+          return {
+            info: {
+              id: infoObj?.id || item?._docId || String(Math.random()),
+              name: infoObj?.name || "Unnamed Restaurant",
+              cloudinaryImageId: infoObj?.cloudinaryImageId || "",
+              cuisines: Array.isArray(infoObj?.cuisines) ? infoObj.cuisines : [],
+              avgRating: infoObj?.avgRating || infoObj?.rating || "N/A",
+              costForTwo: infoObj?.costForTwo || infoObj?.costForTwoMessage || "N/A",
+              veg: infoObj?.veg ?? infoObj?.isVeg ?? false,
+              sla: infoObj?.sla || { 
+                slaString: infoObj?.slaString || (infoObj?.deliveryTime ? `${infoObj.deliveryTime} mins` : "30-35 mins") 
+              },
+              aggregatedDiscountInfoV3: infoObj?.aggregatedDiscountInfoV3 || null,
+            },
+          };
+        })
+        // Filter out empty placeholder cards if any document was invalid
+        .filter((res) => res.info.name !== "Unnamed Restaurant" || res.info.cloudinaryImageId !== "");
+
+      console.log("Normalized Restaurant Data:", normalizedData);
+      setListOfRestaurants(normalizedData);
+      setFilteredRestaurants(normalizedData);
       setLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching restaurants from Firestore:", error);
+      setLoading(false);
     }
   };
 
