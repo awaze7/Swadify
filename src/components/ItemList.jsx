@@ -11,7 +11,18 @@ const ItemList = ({ items, inCart }) => {
   const dispatch = useDispatch();
   const [updatingCart, setUpdatingCart] = useState(false);
   const [hasActiveNotification, setHasActiveNotification] = useState(false);
+  
+  // State to track which item descriptions are expanded permanently after clicking "more"
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
+
   const navigate = useNavigate();
+
+  const expandDescription = (itemId) => {
+    setExpandedDescriptions(prev => ({
+      ...prev,
+      [itemId]: true
+    }));
+  };
 
   const handleAddItem = (item) => {
     dispatch(addItem(item));
@@ -37,7 +48,6 @@ const ItemList = ({ items, inCart }) => {
 
   const addItemFunc = (item) => {
     let t = `${item.card.info.name} is added in the cart`;
-    // console.log(t);
     toast.info(t, {
       style: {
         backgroundColor: "black",
@@ -84,10 +94,8 @@ const ItemList = ({ items, inCart }) => {
   }
 
   const handlePlaceOrder = () => {
-    // Check if the user is logged in
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // console.log(user);
         toast.success('Order placed successfully, you will receive it shortly!',{
           style: {
             backgroundColor: "green",
@@ -99,10 +107,7 @@ const ItemList = ({ items, inCart }) => {
         setTimeout(()=>{
           dispatch(clearCart());
         },1200);
-
-        
       } else {
-        // User is not logged in, show alert and navigate to login page
         toast.warning('Please log in before placing an order.',{
           position: "top-center",
           style: {
@@ -117,7 +122,13 @@ const ItemList = ({ items, inCart }) => {
 
   return (
     <div>
-           {items.map(item => (
+           {items.map(item => {
+                const description = item.card.info.description || "";
+                const isExpanded = expandedDescriptions[item.card.info.id];
+                // Arbitrary threshold to check if description is long enough to warrant a "more" button
+                const isLongDescription = description.length > 80;
+
+                return (
                 <div key={item.card.info.id} className="my-2 pb-3 border-gray-200 border-b-2 text-left flex items-center justify-between">
                 <div className="w-9/12">
                     <div className="py-2 text-base font-medium">
@@ -129,9 +140,26 @@ const ItemList = ({ items, inCart }) => {
                           )
                         }
                     </div>
-                    <p className="text-sm font-normal">
-                            {item.card.info.description}
-                    </p>
+                    
+                    {/* Description Block */}
+                    <div className="text-sm font-normal text-gray-600">
+                      {isExpanded ? (
+                        <p>{description}</p>
+                      ) : (
+                        <div className="flex flex-wrap items-baseline">
+                          <p className="line-clamp-2">{description}</p>
+                          {isLongDescription && (
+                            <button 
+                              onClick={() => expandDescription(item.card.info.id)} 
+                              className="font-semibold text-black ml-1 inline-block focus:outline-none"
+                            >
+                              more
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
                     {inCart ?
                         <div className="mt-3">
                           <span className="font-bold text-xl font-mono mr-2">{item.count}<span className="text-sm">x</span></span> 
@@ -163,13 +191,11 @@ const ItemList = ({ items, inCart }) => {
                         src={ITEM_IMG_CDN_URL + item.card.info.imageId} 
                         alt={item.card.info.name}
                         className="object-cover rounded w-36 h-24" 
-                        // style={{ width: "140px", height: "90px" }}
                     />
                 </div>
             </div>
-            
-            ))
-            }
+            );
+            })}
             {updatingCart && (
                 <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-75 bg-gray-500 text-white">
                 Updating Cart...

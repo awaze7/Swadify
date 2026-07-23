@@ -108,18 +108,20 @@ const RestaurantMenu = () => {
             </div>
 
             {/* categories- accordians */}
-            {categories.map(
-                (category,index) => (
-                    //RestaurantCategory is a controlled component now
-                    <RestaurantCategory 
-                        data={category?.card?.card} 
-                        key={category?.card?.card?.title}
-                        showItems={index === showIndex ? true : false}
-                        setShowIndex ={()=> setShowIndex(index)}
-                        unsetShowIndex ={()=> setShowIndex(null)}
-                    />
-                )   
-            )}
+            {categories
+                .filter((category) => (category?.card?.card?.itemCards?.length || 0) > 0)
+                .map(
+                    (category, index) => (
+                        //RestaurantCategory is a controlled component now
+                        <RestaurantCategory 
+                            data={category?.card?.card} 
+                            key={category?.card?.card?.title}
+                            showItems={index === showIndex ? true : false}
+                            setShowIndex ={()=> setShowIndex(index)}
+                            unsetShowIndex ={()=> setShowIndex(null)}
+                        />
+                    )   
+                )}
 
         </div>
     )
