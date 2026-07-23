@@ -28,7 +28,7 @@ const RestaurantMenu = () => {
             card.card.card["@type"] === "type.googleapis.com/swiggy.presentation.food.v2.Restaurant"
     );
    
-    const resDetails = resCard?.card?.card?.info;
+    const resDetails = resCard?.card?.card?.info || resInfo?.restaurantInfo;
 
     const {name, cuisines, locality, totalRatingsString, avgRating, feeDetails} =  
         resDetails || {
@@ -48,10 +48,26 @@ const RestaurantMenu = () => {
     const groupedCard = Impcard?.groupedCard;
     // console.log(groupedCard)
     
-    const categories = groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
+    let categories = groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
         (c) =>
             c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
     ) || [];
+
+    // Fallback/adaptation for simplified Firestore data structure where categories are stored directly
+    if (categories.length === 0 && resInfo?.categories) {
+        categories = resInfo.categories.map(cat => ({
+            card: {
+                card: {
+                    title: cat.title,
+                    itemCards: (cat.items || []).map(item => ({
+                        card: {
+                            info: item
+                        }
+                    }))
+                }
+            }
+        }));
+    }
     
     // console.log("Menu ", categories);
     if (!onlineStatus) {
@@ -87,7 +103,7 @@ const RestaurantMenu = () => {
                         alt="bike-icon"
                         src= {BIKE_ICON}
                     />
-                    <span className="text-gray-500 text-base" dangerouslySetInnerHTML={{ __html: feeDetails.message }} />
+                    <span className="text-gray-500 text-base" dangerouslySetInnerHTML={{ __html: feeDetails?.message || "" }} />
                 </div>
             </div>
 
