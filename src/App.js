@@ -1,3 +1,4 @@
+import React from "react";
 import ReactDOM  from "react-dom/client";
 import Header from "./components/Header";
 import Body from "./containers/Body";
@@ -14,22 +15,25 @@ import Login from "./containers/Login";
 import Signup from "./containers/Signup";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import RestaurantMenu from "./containers/RestaurantMenu";
 
+// 1. Import QueryClient and QueryClientProvider from TanStack
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+// 2. Initialize the QueryClient
+const queryClient = new QueryClient();
 
 const AppLayout = () => {
-
     return (
         <Provider store={appStore}>
-            
-                <div className="flex flex-col min-h-screen">
+            {/* 3. Wrap everything inside QueryClientProvider so Body.jsx can use useQuery */}
+            <QueryClientProvider client={queryClient}>
+                <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
                     <ToastContainer autoClose={1500}/>
                     <Header />
                     <Outlet />
                     <Footer />
                 </div>
-                
+            </QueryClientProvider>
         </Provider>
     )
 }
@@ -76,5 +80,4 @@ const appRouter = createBrowserRouter([
 ])
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-
 root.render(<RouterProvider router={appRouter} />);
