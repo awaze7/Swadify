@@ -30,7 +30,7 @@ const Header = () => {
         <div className="bg-yellow-300 shadow-md font-mono">
             <div className="flex justify-between items-center mx-4">
                 <div className="logo-container">
-                    <img className="w-20 md:w-24" src={Logo} alt="logo" />
+                    <img className="w-16 md:w-20" src={Logo} alt="logo" />
                 </div>
                 <div className="hidden md:flex items-center space-x-8">
                     <ul className="flex p-3 m-2 mr-4 justify-evenly space-x-8 text-xl font-medium">
