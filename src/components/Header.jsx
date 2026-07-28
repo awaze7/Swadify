@@ -1,4 +1,4 @@
-import Logo from "../utils/Logo.png";
+import Logo from "url:../utils/Logo.png";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 import { FiShoppingCart } from 'react-icons/fi';
@@ -41,7 +41,6 @@ const Header = () => {
                             <Link to="/about">About</Link>
                         </li>
                         <li className="hover:bg-yellow-400 py-2 px-3 rounded-lg">
-                            {/* hover:text-purple-500 */}
                             <Link to="/contact">Contact</Link>
                         </li>
                         <li className="hover:bg-yellow-400 pb-1 pt-2 px-3 rounded-lg"
@@ -51,7 +50,6 @@ const Header = () => {
                             <Link to="/cart" className="flex flex-row">
                                 <div className="relative">
                                     <FiShoppingCart size={24} color="#000"  />
-                                    {/* color={isCartHovered ? "#8B5CF6" : "#000"}  */}
                                     <span className={`${isCartHovered? 'bg-yellow-400' : 'bg-yellow-300'} absolute top-0 right-0 translate-y-[-0.50em] translate-x-[0.8em] text-base rounded-full font-bold leading-tight`}>
                                         ({cartItems.length})
                                     </span>
@@ -111,7 +109,6 @@ const Header = () => {
                         </li>
                         <li className="hover:bg-yellow-400 py-2 px-6 rounded-lg">
                             <Link to="/cart">
-                                {/* <FiShoppingCart size={26} color="#000" /> */}
                                 <span className="ml-2">
                                     Cart({cartItems.length})
                                 </span>
