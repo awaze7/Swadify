@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-// 1. Import the new specific Carousel Card and its Veg Label HOC
 import CarouselRestaurantCard, { withCarouselVegLabel } from "./CarouselRestaurantCard";
 
 const CarouselCardWithVegLabel = withCarouselVegLabel(CarouselRestaurantCard);
@@ -10,7 +9,7 @@ const RestaurantCarousel = ({ restaurants }) => {
   const carouselRestaurants = restaurants.slice(0, 20);
 
   return (
-    <div className="mt-3 mb-2 w-full max-w-full overflow-hidden block">
+    <div className="w-full max-w-full overflow-hidden block">
       <style>
         {`
           @keyframes infinite-scroll {
@@ -27,13 +26,10 @@ const RestaurantCarousel = ({ restaurants }) => {
           }
         `}
       </style>
-
-      <h2 className="text-2xl font-bold mb-4 md:ml-24 lg:mx-28 sm:mx-4 text-gray-800">
-        Handpicked For Your Cravings
-      </h2>
       
       <div className="w-full overflow-hidden relative">
-        <div className="animate-infinite-scroll gap-6 px-4">
+        {/* Removed the extra px-4 here so it aligns perfectly with the main grid */}
+        <div className="animate-infinite-scroll gap-6 pt-2 pb-4">
           
           {/* First Set */}
           {carouselRestaurants.map((restaurant) => (

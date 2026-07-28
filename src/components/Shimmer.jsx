@@ -1,55 +1,72 @@
+import React from 'react';
+
+// 1. Grid Card Skeleton - Wrapped in a white card box matching the real RestaurantCard structure
 const ShimmerCard = () => {
-    return (
-        <div className="m-5 w-[236px] rounded-xl bg-gray-200">
-            <div className="relative h-40">
-              <div className="absolute bottom-0 left-0 p-2 text-white text-2xl font-extrabold bg-gray-400 w-full h-12"></div>
-              <div className="w-full h-40 bg-gray-400 rounded-lg mb-0"></div>
-            </div>
-            <div className="p-2 mx-2">
-              <div className="font-bold text-xl mb-1 bg-gray-400 h-6 w-3/4"></div>
-              <div className="flex items-center mb-1 font-bold">
-                  <div className="text-red-800 mr-1 text-2xl bg-gray-400 h-6 w-6"></div>
-                  <div className="text-lg bg-gray-400 h-6 w-10"></div>
-                  <div className="text-lg line-clamp-1 bg-gray-400 h-6"></div>
-              </div>
-              <div className="text-sm text-gray-500 mb-2 line-clamp-1 bg-gray-400 h-6"></div>
-              <div className="text-sm font-bold mb-2 bg-gray-400 h-6 w-1/2"></div>
-            </div>
-        </div>
-    )
-}
-const ShimmerSearchBar = () => (
-    <div className="filter flex md:ml-24 md:mr-20 lg:mx-28 sm:mx-4">
-  <div className="m-4 p-4 relative">
-    <input 
-      type="text" 
-      className="border border-solid rounded-lg py-1 px-2.5 placeholder-blue-900 animate-pulse"
-    />
-    <button 
-      className="px-3 py-2 m-2 h-8 w-20  bg-blue-600 rounded-lg mr-6 animate-pulse"
-    >
-    </button>
-    <button 
-      className="px-3 py-2 m-2 h-8 w-52 bg-blue-600 rounded-lg animate-pulse"
-    >
-    </button>
-  </div>
-</div>
-
+  return (
+    <div className="bg-white rounded-2xl p-3 shadow-sm flex flex-col w-full">
+      {/* Image Skeleton */}
+      <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-gray-200"></div>
+      
+      {/* Text Content Skeleton */}
+      <div className="pt-3 flex flex-col gap-2">
+        {/* Title */}
+        <div className="h-5 bg-gray-200 rounded-md w-3/4"></div>
+        {/* Meta Info (Rating & Time) */}
+        <div className="h-4 bg-gray-200 rounded-md w-1/2"></div>
+        {/* Cuisines */}
+        <div className="h-3.5 bg-gray-200 rounded-md w-full"></div>
+        {/* Cost */}
+        <div className="h-3.5 bg-gray-200 rounded-md w-2/5"></div>
+      </div>
+    </div>
   );
-  
+};
 
+// 2. Main Shimmer Layout
 const Shimmer = () => {
-    return (
-        <div className="lg:mx-auto md:mx-16 sm:mx-10">
-            <ShimmerSearchBar />
-            <div className="flex flex-wrap md:ml-24 md:mr-24 lg:mx-28 sm:mx-4 mb-10">
-                {[...Array(20)].map((_, index) => (
-                    <ShimmerCard key={index} />
-                ))}
-            </div>
+  return (
+    <div className="w-full min-h-screen bg-gray-50 pb-12 overflow-x-hidden animate-pulse"> 
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        
+        {/* --- CAROUSEL SKELETON --- */}
+        <div className="mb-2">
+          <div className="h-8 bg-gray-200 rounded-md w-64 md:w-80 mb-4"></div>
+          
+          <div className="flex gap-6 overflow-hidden pt-2 pb-4">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div 
+                key={`carousel-shimmer-${n}`} 
+                className="w-[200px] sm:w-[220px] md:w-[240px] h-[135px] sm:h-[150px] rounded-2xl bg-gray-200 shrink-0"
+              ></div>
+            ))}
+          </div>
         </div>
-    )
-}
+
+        <hr className="border-gray-200 my-6 shadow-sm" />
+
+        {/* --- MAIN RESTAURANT SECTION SKELETON --- */}
+        {/* Added mb-8 to create the correct spacing between the search section and cards */}
+        <div className="mb-8">
+          <div className="h-8 bg-gray-200 rounded-md w-72 md:w-96 mb-6"></div>
+
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="w-full md:w-[420px] h-[44px] bg-gray-200 rounded-full"></div>
+            <div className="w-[110px] h-[44px] bg-gray-200 rounded-full hidden sm:block"></div>
+            <div className="w-[138px] h-[44px] bg-gray-200 rounded-full hidden sm:block"></div>
+          </div>
+        </div>
+
+        {/* --- RESTAURANT GRID SKELETON --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-8">
+          {[...Array(12)].map((_, index) => (
+            <ShimmerCard key={`grid-shimmer-${index}`} />
+          ))}
+        </div>
+
+      </div>
+    </div>
+  );
+};
 
 export default Shimmer;
