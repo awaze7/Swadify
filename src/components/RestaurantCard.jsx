@@ -17,10 +17,12 @@ const RestaurantCard = (props) => {
     return (
         <div className="m-5 w-[236px] rounded-xl bg-white hover:shadow-lg transition duration-300 ease-in-out transform hover:scale-95">
             <div className="relative">
-                {/* Veg Icon (Top Right - Green Square & Circle only, no white background) */}
+                {/* Translucent Glassmorphic Veg Badge */}
                 {veg && (
-                    <div className="absolute top-2 right-2 z-10 w-4 h-4 border-[1.5px] border-green-700 flex items-center justify-center">
-                        <div className="w-2 h-2 bg-green-700 rounded-full"></div>
+                    <div className="absolute top-2 right-2 z-10 bg-black/40 backdrop-blur-md p-1 rounded-md border border-white/15 shadow-sm flex items-center justify-center">
+                        <div className="w-4 h-4 border-[1.5px] border-green-500 flex items-center justify-center">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        </div>
                     </div>
                 )}
 
