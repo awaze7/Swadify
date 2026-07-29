@@ -1,4 +1,4 @@
-import RestaurantCard, { withVegLabel } from "../components/RestaurantCard";
+import RestaurantCard from "../components/RestaurantCard";
 import { useState, useMemo } from "react";
 import Shimmer from "../components/Shimmer";
 import { Link } from "react-router-dom";
@@ -11,8 +11,6 @@ import { useQuery } from '@tanstack/react-query';
 import RestaurantCarousel from "../components/RestaurantCarousel";
 import SortDropdown from "../components/SortDropdown";
 import { sortRestaurants } from "../utils/sortUtils";
-
-const RestaurantCardWithVegLabel = withVegLabel(RestaurantCard);
 
 const fetchRestaurants = async () => {
   const querySnapshot = await getDocs(collection(db, "restaurants_data"));
@@ -70,7 +68,6 @@ const Body = () => {
   const filteredRestaurants = useMemo(() => {
     let filtered = listOfRestaurants;
     
-    // 1. Search Filter
     if (activeSearch) {
       filtered = filtered.filter((res) => {
         const nameMatch = res.info.name.toLowerCase().includes(activeSearch.toLowerCase());
@@ -81,12 +78,10 @@ const Body = () => {
       });
     }
     
-    // 2. Top Rated Quick Filter
     if (isTopRated) {
       filtered = filtered.filter((res) => parseFloat(res.info.avgRating) >= 4.5);
     }
     
-    // 3. Swiggy Multi-Criteria Sort
     return sortRestaurants(filtered, selectedSort);
   }, [listOfRestaurants, activeSearch, isTopRated, selectedSort]);
 
@@ -95,11 +90,9 @@ const Body = () => {
 
   return (
     <div className="w-full min-h-screen bg-gray-50 pb-12 overflow-x-hidden"> 
-      
-      {/* GLOBAL WRAPPER */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
-        {/* --- CAROUSEL SECTION --- */}
+        {/* CAROUSEL SECTION */}
         <div className="mb-2">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Handpicked For Your Cravings
@@ -107,19 +100,15 @@ const Body = () => {
           <RestaurantCarousel restaurants={listOfRestaurants} />
         </div>
 
-        {/* Subtle visual break between sections (Reduced spacing here) */}
         <hr className="border-gray-200 my-6 shadow-sm" />
 
-        {/* --- MAIN RESTAURANT SECTION --- */}
+        {/* MAIN RESTAURANT SECTION */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
             Restaurants with online food delivery
           </h1>
 
-          {/* Filters & Search Row */}
           <div className="flex flex-wrap items-center gap-4 mb-8">
-            
-            {/* Search Bar */}
             <div className="flex items-center bg-white rounded-full shadow-sm border border-gray-200 overflow-hidden w-full md:w-[420px] transition-all focus-within:shadow-md focus-within:border-gray-300">
               <input
                 type="text"
@@ -136,13 +125,11 @@ const Body = () => {
               </button>
             </div>
 
-            {/* Swiggy Sort Dropdown */}
             <SortDropdown 
               selectedSort={selectedSort} 
               onSortChange={setSelectedSort} 
             />
 
-            {/* Top Rated Chip */}
             <button 
               onClick={() => setIsTopRated(!isTopRated)}
               className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border shadow-sm shrink-0 min-w-[138px] ${
@@ -175,11 +162,7 @@ const Body = () => {
                 to={"/restaurants/" + restaurant.info.id}
                 className="hover:scale-[0.98] transition-transform duration-200"
               >
-                {restaurant.info.veg ? (
-                  <RestaurantCardWithVegLabel resData={restaurant} />
-                ) : (
-                  <RestaurantCard resData={restaurant} />
-                )}
+                <RestaurantCard resData={restaurant} />
               </Link>
             ))}
           </div>
