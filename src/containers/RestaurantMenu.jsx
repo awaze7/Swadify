@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Shimmer from "../components/Shimmer";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom"; // Added useLocation
 import useRestaurantMenu from "../utils/useRestaurantMenu";
 import RestaurantCategory from "../components/RestaurantCategory";
 import { BIKE_ICON } from "../utils/constants";
@@ -10,6 +10,19 @@ import Offline from "./Offline";
 
 const RestaurantMenu = () => {
     const { resId } = useParams();
+    // Keying on resId forces React to fully unmount and remount RestaurantMenuView
+    // whenever the restaurant changes, instead of reusing the same instance with
+    // updated props. /restaurants/:resId is a single route, so React Router does
+    // NOT remount this component on its own when only the param changes — clicking
+    // from one restaurant straight to another (e.g. via the AI assistant's dish
+    // links) previously left every bit of local state (menu data, expanded
+    // category, scroll target) pointed at the old restaurant. This key guarantees
+    // a clean slate every time, independent of any effect's dependency array.
+    return <RestaurantMenuView key={resId} resId={resId} />;
+};
+
+const RestaurantMenuView = ({ resId }) => {
+    const location = useLocation(); // Added location hook
 
     const resInfo = useRestaurantMenu(resId);
 
@@ -17,11 +30,7 @@ const RestaurantMenu = () => {
 
     const onlineStatus = useOnlineStatus();
 
-    if(resInfo === null) return <Shimmer /> ; //shimmer for menu left----
-
-    // console.log(resInfo);
-
-    const resCard = resInfo?.data?.cards.find(
+    const resCard = resInfo?.data?.cards?.find(
         card =>
             card.card &&
             card.card.card && 
@@ -29,6 +38,64 @@ const RestaurantMenu = () => {
     );
    
     const resDetails = resCard?.card?.card?.info || resInfo?.restaurantInfo;
+
+    const groupedCard = resInfo?.data?.cards?.find(
+        card => card.groupedCard
+    )?.groupedCard;
+    
+    const categories = useMemo(() => {
+        const regularCategories = groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
+            (c) =>
+                c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
+        ) || [];
+
+        if (regularCategories.length > 0) return regularCategories;
+
+        if (resInfo?.categories) {
+            return resInfo.categories.map(cat => ({
+                card: {
+                    card: {
+                        title: cat.title,
+                        itemCards: (cat.items || []).map(item => ({
+                            card: {
+                                info: item
+                            }
+                        }))
+                    }
+                }
+            }));
+        }
+
+        return [];
+    }, [groupedCard, resInfo?.categories]);
+
+    useEffect(() => {
+        const searchParams = new URLSearchParams(location.search);
+        const targetDishId = searchParams.get("dishId");
+
+        if (categories.length > 0 && targetDishId) {
+            const categoryIndex = categories.findIndex((cat) => 
+                cat?.card?.card?.itemCards?.some(item => String(item?.card?.info?.id) === String(targetDishId))
+            );
+
+            if (categoryIndex !== -1) {
+                setShowIndex(categoryIndex); 
+                
+                setTimeout(() => {
+                    const dishElement = document.getElementById(`dish-${targetDishId}`);
+                    if (dishElement) {
+                        dishElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        dishElement.classList.add('ring-2', 'ring-yellow-400', 'bg-yellow-50', 'rounded-lg', 'transition-all', 'duration-1000');
+                        setTimeout(() => {
+                            dishElement.classList.remove('ring-2', 'ring-yellow-400', 'bg-yellow-50', 'rounded-lg');
+                        }, 2500);
+                    }
+                }, 500);
+            }
+        }
+    }, [categories, location.search]);
+
+    if(resInfo === null) return <Shimmer /> ;
 
     const {name, cuisines, locality, totalRatingsString, avgRating, feeDetails} =  
         resDetails || {
@@ -42,40 +109,12 @@ const RestaurantMenu = () => {
 
     const cuisinesList = Array.isArray(cuisines) ? cuisines.join(", ") : "";
 
-    const Impcard = resInfo?.data?.cards.find(
-        card => card.groupedCard
-    );
-    const groupedCard = Impcard?.groupedCard;
-    // console.log(groupedCard)
-    
-    let categories = groupedCard?.cardGroupMap?.REGULAR?.cards.filter(
-        (c) =>
-            c?.card?.card?.["@type"]==="type.googleapis.com/swiggy.presentation.food.v2.ItemCategory"
-    ) || [];
-
-    // Fallback/adaptation for simplified Firestore data structure where categories are stored directly
-    if (categories.length === 0 && resInfo?.categories) {
-        categories = resInfo.categories.map(cat => ({
-            card: {
-                card: {
-                    title: cat.title,
-                    itemCards: (cat.items || []).map(item => ({
-                        card: {
-                            info: item
-                        }
-                    }))
-                }
-            }
-        }));
-    }
-    
-    // console.log("Menu ", categories);
     if (!onlineStatus) {
         return <Offline />;
     }
     
     return (
-        <div className="w-7/12 mx-auto mt-3 mb-8 bg-white">{/*text-center"> */}
+        <div className="w-7/12 mx-auto mt-3 mb-8 bg-white">
             <div className="mx-3 my-4">
                 <div className="flex">
                     <div className="w-10/12">
@@ -107,12 +146,10 @@ const RestaurantMenu = () => {
                 </div>
             </div>
 
-            {/* categories- accordians */}
             {categories
                 .filter((category) => (category?.card?.card?.itemCards?.length || 0) > 0)
                 .map(
                     (category, index) => (
-                        //RestaurantCategory is a controlled component now
                         <RestaurantCategory 
                             data={category?.card?.card} 
                             key={category?.card?.card?.title}

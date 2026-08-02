@@ -12,6 +12,7 @@ import RestaurantCarousel from "../components/RestaurantCarousel";
 import SortDropdown from "../components/SortDropdown";
 import { sortRestaurants } from "../utils/sortUtils";
 
+
 const fetchRestaurants = async () => {
   const querySnapshot = await getDocs(collection(db, "restaurants_data"));
   let rawList = [];
@@ -58,6 +59,7 @@ const Body = () => {
   const [isTopRated, setIsTopRated] = useState(false);
   const [selectedSort, setSelectedSort] = useState("relevance");
   const onlineStatus = useOnlineStatus();
+  
 
   const { data: listOfRestaurants = [], isLoading } = useQuery({
     queryKey: ['restaurants'],
@@ -92,7 +94,6 @@ const Body = () => {
     <div className="w-full min-h-screen bg-gray-50 pb-12 overflow-x-hidden"> 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
-        {/* CAROUSEL SECTION */}
         <div className="mb-2">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Handpicked For Your Cravings
@@ -102,7 +103,6 @@ const Body = () => {
 
         <hr className="border-gray-200 my-6 shadow-sm" />
 
-        {/* MAIN RESTAURANT SECTION */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
             Restaurants with online food delivery
@@ -130,6 +130,9 @@ const Body = () => {
               onSortChange={setSelectedSort} 
             />
 
+            {/* Crave AI now has a persistent launcher rendered globally by
+                CraveAIAssistant.jsx (visible on every page, not just here) */}
+
             <button 
               onClick={() => setIsTopRated(!isTopRated)}
               className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border shadow-sm shrink-0 min-w-[138px] ${
@@ -149,7 +152,6 @@ const Body = () => {
           </div>
         </div>
 
-        {/* RESTAURANT GRID */}
         {filteredRestaurants.length === 0 ? (
           <div className="flex flex-col items-center justify-center mt-12 mb-20">
             <p className="text-gray-500 font-semibold text-lg">No restaurants found matching your criteria.</p>
