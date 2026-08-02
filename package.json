@@ -19,7 +19,7 @@
   "homepage": "https://github.com/awaze7/Swadify#readme",
   "devDependencies": {
     "buffer": "^6.0.3",
-    "parcel": "^2.11.0",
+    "parcel": "^2.16.4",
     "postcss": "^8.4.35",
     "process": "^0.11.10",
     "tailwindcss": "^3.4.1"

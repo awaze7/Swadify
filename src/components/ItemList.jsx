@@ -129,7 +129,7 @@ const ItemList = ({ items, inCart }) => {
                 const isLongDescription = description.length > 80;
 
                 return (
-                <div key={item.card.info.id} className="my-2 pb-3 border-gray-200 border-b-2 text-left flex items-center justify-between">
+                <div key={item.card.info.id} id={`dish-${item.card.info.id}`} className="my-2 pb-3 border-gray-200 border-b-2 text-left flex items-center justify-between">
                 <div className="w-9/12">
                     <div className="py-2 text-base font-medium">
                         <span>{item.card.info.name}</span>

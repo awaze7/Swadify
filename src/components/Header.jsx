@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FiShoppingCart } from 'react-icons/fi';
 import { auth } from '../firebase';
 import { logOut, setLoading } from '../utils/Redux/userSlice';
+import { clearChat } from '../utils/Redux/aiChatSlice';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -14,8 +15,14 @@ const Header = () => {
 
     const handleLogout = () => {
         dispatch(logOut());
+        dispatch(clearChat());
         dispatch(setLoading(true));
         auth.signOut();
+        try {
+            localStorage.removeItem('ai_global_menu_summary');
+        } catch (error) {
+            // Ignore storage errors on logout.
+        }
         toast.success("Logged out successfully",{
             style: {
               marginTop:'110px',

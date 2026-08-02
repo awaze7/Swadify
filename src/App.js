@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM  from "react-dom/client";
 import Header from "./components/Header";
 import Body from "./containers/Body";
@@ -13,16 +13,32 @@ import Cart from "./containers/Cart";
 import Footer from "./components/Footer";
 import Login from "./containers/Login";
 import Signup from "./containers/Signup";
+import CraveAIAssistant from "./components/CraveAIAssistant";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-
-// 1. Import QueryClient and QueryClientProvider from TanStack
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from './firebase';
 
-// 2. Initialize the QueryClient
 const queryClient = new QueryClient();
 
 const AppLayout = () => {
+    useEffect(() => {
+        // Prefetch the compact AI menu summary and cache it in localStorage to minimize reads.
+        const fetchSummary = async () => {
+            try {
+                const ref = doc(db, 'ai_index', 'global_menu_summary');
+                const snap = await getDoc(ref);
+                if (snap.exists()) {
+                    const json = JSON.stringify(snap.data());
+                    try { localStorage.setItem('ai_global_menu_summary', json); } catch (e) {}
+                }
+            } catch (err) {
+                console.warn('Could not prefetch ai_global_menu_summary', err);
+            }
+        }
+        fetchSummary();
+    }, []);
     return (
         <Provider store={appStore}>
             {/* 3. Wrap everything inside QueryClientProvider so Body.jsx can use useQuery */}
@@ -31,6 +47,7 @@ const AppLayout = () => {
                     <ToastContainer autoClose={1500}/>
                     <Header />
                     <Outlet />
+                    <CraveAIAssistant />
                     <Footer />
                 </div>
             </QueryClientProvider>
