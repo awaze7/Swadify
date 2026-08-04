@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase.js";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
@@ -8,7 +8,7 @@ import { doc, setDoc } from "firebase/firestore";
 import useOnlineStatus from "../utils/useOnlineStatus";
 import Offline from "./Offline";
 import { toast } from "react-toastify";
-import FormImage from "../components/FormImage";
+import AuthLayout from "../components/AuthLayout";
 import FormTitle from "../components/FormTitle";
 import { useForm } from "react-hook-form";
 import FormButton from "../components/FormButton.jsx";
@@ -79,6 +79,7 @@ const Signup = () => {
   const dispatch = useDispatch();
   const onlineStatus = useOnlineStatus();
   const navigate = useNavigate();
+  const [shakeSignal, setShakeSignal] = useState(0);
 
   useEffect(() => {
     if (isSubmitSuccessful) {
@@ -123,6 +124,7 @@ const Signup = () => {
       });
       navigate("/");
     } catch (error) {
+      setShakeSignal((s) => s + 1);
       toast.error(error.message, {
         style: {
           marginTop: "80px",
@@ -131,29 +133,28 @@ const Signup = () => {
     }
   };
 
+  const onInvalid = () => {
+    setShakeSignal((s) => s + 1);
+  };
+
   if (!onlineStatus) {
     return <Offline />;
   }
 
   return (
-    <div className="flex items-center justify-center lg:my-5 md:my-40 sm:my-10">
-      <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center">
-        <FormImage />
-        <div className="md:w-2/5 max-w-sm">
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <FormTitle title="Sign Up" />
-            <FormInput name="name" label="Name" register={register("name")} errors={errors} />
-            <FormInput name="phone" label="Phone Number" type="tel" register={register("phone")} errors={errors} />
-            <FormInput name="email" label="Email" type="email" register={register("email")} errors={errors} />
-            <FormInput name="address" label="Address" register={register("address")} errors={errors} />
-            <FormInput name="password" label="Password" type="password" register={register("password")} errors={errors} />
-            <FormInput name="confirmPassword" label="Confirm Password" type="password" register={register("confirmPassword")} errors={errors} />
-            <FormButton buttonText="Signup" isDirty={isDirty} isValid={isValid} />
-          </form>
-          <FormMessage message="Already have an account?" linkText="Login" link="/login" />
-        </div>
-      </section>
-    </div>
+    <AuthLayout shakeSignal={shakeSignal}>
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
+        <FormTitle title="Sign Up" />
+        <FormInput name="name" label="Name" register={register("name")} errors={errors} />
+        <FormInput name="phone" label="Phone Number" type="tel" register={register("phone")} errors={errors} />
+        <FormInput name="email" label="Email" type="email" register={register("email")} errors={errors} />
+        <FormInput name="address" label="Address" register={register("address")} errors={errors} />
+        <FormInput name="password" label="Password" type="password" register={register("password")} errors={errors} />
+        <FormInput name="confirmPassword" label="Confirm Password" type="password" register={register("confirmPassword")} errors={errors} />
+        <FormButton buttonText="Signup" isDirty={isDirty} isValid={isValid} />
+      </form>
+      <FormMessage message="Already have an account?" linkText="Login" link="/login" />
+    </AuthLayout>
   );
 };
 

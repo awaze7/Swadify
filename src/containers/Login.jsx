@@ -8,7 +8,7 @@ import { doc, getDoc } from "firebase/firestore";
 import useOnlineStatus from "../utils/useOnlineStatus";
 import Offline from "./Offline";
 import { toast } from "react-toastify";
-import FormImage from "../components/FormImage";
+import AuthLayout from "../components/AuthLayout";
 import FormButton from "../components/FormButton";
 import FormTitle from "../components/FormTitle.jsx";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const onlineStatus = useOnlineStatus();
   const navigate = useNavigate();
+  const [shakeSignal, setShakeSignal] = useState(0);
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -70,6 +71,7 @@ const Login = () => {
         console.error("User data not found in Firestore");
       }
     } catch (error) {
+      setShakeSignal((s) => s + 1);
       toast.error(error.message,{
         style: {
           marginTop:'80px',
@@ -78,39 +80,35 @@ const Login = () => {
     }
   };
 
-  
+  const onInvalid = () => {
+    setShakeSignal((s) => s + 1);
+  };
 
   if (!onlineStatus) {
     return <Offline />;
   }  
   return (
-    <div className="flex items-center justify-center my-auto">
-    <section className="flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-14 items-center mx-5 md:mx-0 sm:my-12">
-        <FormImage />
-        
-        <div className="md:w-2/5 max-w-sm">
-          <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <FormTitle title="Login" />
-            <FormInput 
-              name="email" 
-              label="Email Address" 
-              type="email"
-              register={register("email")}
-              errors={errors} 
-            />
+    <AuthLayout shakeSignal={shakeSignal}>
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
+        <FormTitle title="Login" />
+        <FormInput 
+          name="email" 
+          label="Email Address" 
+          type="email"
+          register={register("email")}
+          errors={errors} 
+        />
 
-            <FormInput 
-            name="password" 
-            label="Password" 
-            type="password" 
-            register={register("password")}    
-            errors={errors} />
-            <FormButton buttonText="Login" />
-          </form>
-          <FormMessage message="Don't have an account?" linkText="Signup" link="/signup" />
-      </div>
-    </section>
-  </div>
+        <FormInput 
+        name="password" 
+        label="Password" 
+        type="password" 
+        register={register("password")}    
+        errors={errors} />
+        <FormButton buttonText="Login" />
+      </form>
+      <FormMessage message="Don't have an account?" linkText="Signup" link="/signup" />
+    </AuthLayout>
   );
 };
 

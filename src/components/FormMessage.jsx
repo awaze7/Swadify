@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom'
 
 const FormMessage = ({message,linkText,link}) => {
   return (
-    <div className="mt-3 font-semibold text-sm text-slate-500 text-center md:text-left">
+    <div className="auth-field mt-5 text-center text-sm font-medium text-stone-500">
         {message}{" "}
         <Link
-            className="text-red-600 hover:underline hover:underline-offset-4"
+            className="font-bold text-stone-900 underline decoration-[#FFC72C] decoration-2 underline-offset-4 transition-colors hover:text-[#FFC72C]"
             to={link}
         >
         {linkText}
