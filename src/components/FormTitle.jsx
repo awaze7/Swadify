@@ -2,7 +2,7 @@ import React from 'react'
 
 const FormTitle = ({title}) => {
   return (
-    <h1 className="text-center md:text-left text-2xl mb-4 font-semibold">
+    <h1 className="auth-field mb-6 text-left text-3xl font-extrabold text-stone-900">
         {title}
     </h1>
   )

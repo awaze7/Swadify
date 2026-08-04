@@ -14,6 +14,8 @@ const MIN_HEIGHT = 420;
 const MOBILE_BREAKPOINT = 640; // matches Tailwind's `sm`
 const EDGE_MARGIN = 32; // keep clear of viewport edges
 const TOP_CLEARANCE = 110; // keep clear of the navbar/header at the top
+const LAUNCHER_FALLBACK_OFFSET = 20; // used if no footer is found on the page
+const LAUNCHER_FOOTER_GAP = 16; // breathing room between the launcher and the footer
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const pick = (options) => options[Math.floor(Math.random() * options.length)];
@@ -73,6 +75,36 @@ const CraveAIAssistant = () => {
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
       : false
   );
+
+  // How far above the viewport bottom the closed-state launcher sits. Previously
+  // this was a small fixed offset (20-24px), which put the button right on top
+  // of the footer whenever it was in view (e.g. on short pages, or scrolled to
+  // the bottom) — 20px isn't enough clearance for a ~50-90px tall footer.
+  // Measuring the footer's actual height means this stays correct even if the
+  // footer's content changes later (extra row, different breakpoint, etc.)
+  // instead of needing another hand-tuned guess.
+  const [launcherBottomOffset, setLauncherBottomOffset] = useState(LAUNCHER_FALLBACK_OFFSET);
+
+  useEffect(() => {
+    const footerEl = document.getElementById('app-footer');
+    if (!footerEl) return;
+
+    const updateOffset = () => {
+      setLauncherBottomOffset(footerEl.getBoundingClientRect().height + LAUNCHER_FOOTER_GAP);
+    };
+    updateOffset();
+
+    window.addEventListener('resize', updateOffset);
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(updateOffset);
+      ro.observe(footerEl);
+    }
+    return () => {
+      window.removeEventListener('resize', updateOffset);
+      if (ro) ro.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
@@ -248,7 +280,8 @@ const CraveAIAssistant = () => {
         <button
           onClick={() => dispatch(toggleChat())}
           aria-label="Open CraveAI Assistant"
-          className="group fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 flex items-center gap-2.5 rounded-full bg-stone-900 pl-3.5 pr-5 py-3.5 text-white shadow-[0_10px_30px_-8px_rgba(28,25,23,0.55)] transition-all duration-200 hover:scale-105 hover:shadow-[0_14px_36px_-8px_rgba(28,25,23,0.6)] active:scale-95"
+          style={{ bottom: launcherBottomOffset }}
+          className="group fixed right-5 sm:right-6 z-40 flex items-center gap-2.5 rounded-full bg-stone-900 pl-3.5 pr-5 py-3.5 text-white shadow-[0_10px_30px_-8px_rgba(28,25,23,0.55)] transition-[transform,box-shadow] duration-200 hover:scale-105 hover:shadow-[0_14px_36px_-8px_rgba(28,25,23,0.6)] active:scale-95"
         >
           <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[#FFC72C] text-stone-900">
             <IoFastFood className="h-4 w-4" />
