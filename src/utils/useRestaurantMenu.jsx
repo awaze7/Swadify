@@ -1,48 +1,59 @@
-import { useState,useEffect } from "react";
-import { MENU_URL } from "./constants";
-
-// Add doc and getDoc to the Firebase Firestore imports here:
+import { useQuery } from "@tanstack/react-query";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import {
+  classifyFirestoreError,
+  describeFirestoreError,
+  isRetryableKind,
+} from "./firestoreErrors";
 
+export const restaurantMenuKey = (resId) => ["restaurantMenu", String(resId)];
+
+/**
+ * A restaurant with no menu document is a real, reportable state and stays on the
+ * success path — it is not the same as being unable to ask.
+ */
+const fetchRestaurantMenu = async (resId) => {
+  const snapshot = await getDoc(doc(db, "menus", String(resId)));
+  if (!snapshot.exists()) return { notFound: true };
+  return snapshot.data();
+};
+
+/**
+ * Menu for a single restaurant.
+ *
+ * Was hand-rolled useState/useEffect, which had no error branch at all: a failed
+ * read left `resInfo` as null forever, indistinguishable from "still loading", so
+ * RestaurantMenu rendered its shimmer indefinitely with no message and no way to
+ * retry. Routing it through TanStack Query also brings the race safety the manual
+ * `isCurrent` flag was approximating, plus caching between visits.
+ */
 const useRestaurantMenu = (resId) => {
-    const [resInfo,setResInfo] = useState(null);
+  const { data, error, isError, isPending, isFetching, refetch } = useQuery({
+    queryKey: restaurantMenuKey(resId),
+    queryFn: () => fetchRestaurantMenu(resId),
+    enabled: Boolean(resId),
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    retry: (failureCount, err) =>
+      isRetryableKind(classifyFirestoreError(err)) && failureCount < 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+  });
 
-    // Refetch whenever resId changes. Previously this ran once on mount only ([] deps),
-    // so navigating from one restaurant straight to another (same route, new :resId,
-    // e.g. via the AI assistant's dish links) never reloaded — the old restaurant's
-    // menu stayed on screen even though the URL updated.
-    useEffect(()=> {
-        let isCurrent = true; // guards against an older, slower request overwriting a newer one
+  const notFound = data?.notFound === true;
 
-        // Clear stale data immediately so we show the loading state instead of the
-        // previous restaurant's menu while the new one is being fetched.
-        setResInfo(null);
-
-        const fetchdata = async () => {
-            try {
-                // Fetch the specific menu document from the 'menus' collection using resId
-                const docRef = doc(db, "menus", String(resId));
-                const docSnap = await getDoc(docRef);
-                if (!isCurrent) return;
-
-                if (docSnap.exists()) {
-                    setResInfo(docSnap.data());
-                } else {
-                    console.log("No such menu document found in Firestore!");
-                    setResInfo(null);
-                }
-            } catch (error) {
-                if (isCurrent) console.error("Error fetching menu from Firestore:", error);
-            }
-        };
-
-        fetchdata();
-
-        return () => { isCurrent = false; };
-    },[resId])
-
-    return resInfo;
-}
+  return {
+    // Null while loading or on failure, so existing destructuring of menu fields
+    // keeps working unchanged.
+    resInfo: notFound ? null : data ?? null,
+    isLoading: Boolean(resId) && isPending && !isError,
+    isRefreshing: isFetching && !isPending,
+    isError,
+    errorInfo: isError ? describeFirestoreError(error, "this menu") : null,
+    // "This restaurant has no menu yet" — a success, not a failure.
+    notFound,
+    refetch,
+  };
+};
 
 export default useRestaurantMenu;

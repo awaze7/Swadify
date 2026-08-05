@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { toggleChat, addMessage } from '../utils/Redux/aiChatSlice';
+import { toggleChat, closeChat, addMessage, clearChat } from '../utils/Redux/aiChatSlice';
 import { fetchAiResponse } from '../utils/geminiService';
+import useReducedMotion from '../utils/useReducedMotion';
 import { useNavigate } from 'react-router-dom';
 import { ITEM_IMG_CDN_URL } from '../utils/constants';
-import { FaTimes, FaPaperPlane, FaExpandAlt, FaCompressAlt } from 'react-icons/fa';
+import { FaTimes, FaPaperPlane, FaExpandAlt, FaCompressAlt, FaRegEdit } from 'react-icons/fa';
 import { IoFastFood } from 'react-icons/io5';
 
 // --- layout constants -------------------------------------------------
@@ -19,12 +20,6 @@ const LAUNCHER_FOOTER_GAP = 16; // breathing room between the launcher and the f
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const pick = (options) => options[Math.floor(Math.random() * options.length)];
-
-const NOT_FOOD_CLIENT_REPLIES = [
-  "I'm strictly food-focused — try me with a dish, cuisine, or craving!",
-  "That one's outside my menu — what are you in the mood to eat?",
-  "Food's my whole world here — give me something to chew on, literally.",
-];
 
 const ERROR_CLIENT_REPLIES = [
   "Something went sideways on my end — mind trying that again?",
@@ -56,6 +51,17 @@ const CraveAIAssistant = () => {
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const launcherRef = useRef(null);
+
+  // `handleSend` reads the transcript, but must not be re-created every time a
+  // message lands (it's called from the form, from chips, and from retry). A
+  // ref keeps it reading the latest value without making the messages array a
+  // dependency, and avoids the stale-closure bug where a chip tapped after
+  // several turns would send the history as it stood when it was rendered.
+  const historyRef = useRef(messages);
+  useEffect(() => {
+    historyRef.current = messages;
+  }, [messages]);
 
   // Mount/visibility are tracked separately so closing can animate out instead
   // of vanishing instantly (the old `if (!isOpen) return null` gave no chance
@@ -70,11 +76,9 @@ const CraveAIAssistant = () => {
   const [isMobileViewport, setIsMobileViewport] = useState(
     typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT : false
   );
-  const [reducedMotion, setReducedMotion] = useState(
-    typeof window !== 'undefined' && window.matchMedia
-      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      : false
-  );
+  // Shared hook rather than a second inline matchMedia listener — this file had
+  // its own duplicate of the exact logic in utils/useReducedMotion.
+  const reducedMotion = useReducedMotion();
 
   // How far above the viewport bottom the closed-state launcher sits. Previously
   // this was a small fixed offset (20-24px), which put the button right on top
@@ -109,15 +113,9 @@ const CraveAIAssistant = () => {
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
     const viewportMql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const motionMql = window.matchMedia('(prefers-reduced-motion: reduce)');
     const onViewportChange = (e) => setIsMobileViewport(e.matches);
-    const onMotionChange = (e) => setReducedMotion(e.matches);
     viewportMql.addEventListener('change', onViewportChange);
-    motionMql.addEventListener('change', onMotionChange);
-    return () => {
-      viewportMql.removeEventListener('change', onViewportChange);
-      motionMql.removeEventListener('change', onMotionChange);
-    };
+    return () => viewportMql.removeEventListener('change', onViewportChange);
   }, []);
 
   // Open/close choreography.
@@ -146,6 +144,24 @@ const CraveAIAssistant = () => {
       return () => clearTimeout(t);
     }
   }, [isVisible]);
+
+  // Escape closes the panel and focus returns to the launcher. Without this the
+  // dialog could only be dismissed by clicking its X, and closing it dropped
+  // focus back to <body>, stranding keyboard users at the top of the page.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') dispatch(toggleChat());
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, dispatch]);
+
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (wasOpen.current && !isOpen) launcherRef.current?.focus();
+    wasOpen.current = isOpen;
+  }, [isOpen]);
 
   // Lock background scroll while the mobile bottom-sheet is open.
   useEffect(() => {
@@ -233,26 +249,51 @@ const CraveAIAssistant = () => {
     setIsMaximized(true);
   };
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    const userText = input;
+  const handleSend = async (overrideText) => {
+    const userText = (overrideText ?? input).trim();
+    if (!userText || isLoading) return;
     setInput('');
-    // Basic client-side validation to avoid non-food queries
-    const lower = userText.toLowerCase();
-    const banned = ['weather', 'politics', 'bitcoin', 'crypto', 'stock', 'program', 'code', 'movie', 'song', 'lyrics', 'translate'];
-    if (userText.length < 2 || banned.some((b) => lower.includes(b))) {
-      dispatch(addMessage({ role: 'assistant', content: pick(NOT_FOOD_CLIENT_REPLIES), type: 'text' }));
-      return;
-    }
+
+    // The client-side "banned words" gate that used to live here was a second,
+    // drifting copy of the same list in geminiService, and it short-circuited
+    // before the message was ever added to the transcript — so an off-topic
+    // message produced a reply with no visible question above it, which read as
+    // the assistant talking to itself. The service owns topic filtering now,
+    // and it can make that call with the conversation in view (a follow-up like
+    // "something lighter" is on-topic mid-conversation but has no food word in
+    // it, which the naive keyword gate rejected outright).
+    // Snapshot the transcript *before* dispatching, so it holds only the turns
+    // preceding this message — the new one is passed separately as the current
+    // query, and sending it twice would have the model answering an echo.
+    // Read synchronously here rather than after the await, because the dispatch
+    // below schedules a re-render that updates the ref.
+    const priorHistory = historyRef.current;
 
     dispatch(addMessage({ role: 'user', content: userText, type: 'text' }));
     setIsLoading(true);
 
     try {
-      const aiData = await fetchAiResponse(userText);
-      dispatch(addMessage({ role: 'assistant', content: aiData.reply, type: 'text' }));
+      const aiData = await fetchAiResponse(userText, priorHistory);
+      dispatch(
+        addMessage({
+          role: 'assistant',
+          content: aiData.reply,
+          type: 'text',
+          // Chips ride on the message so they disappear naturally once the
+          // next turn arrives, rather than living in separate state that has
+          // to be cleared in lockstep.
+          followUps: aiData.dishes?.length ? undefined : aiData.followUps,
+        })
+      );
       if (aiData.dishes && aiData.dishes.length > 0) {
-        dispatch(addMessage({ role: 'assistant', content: aiData.dishes, type: 'dishes' }));
+        dispatch(
+          addMessage({
+            role: 'assistant',
+            content: aiData.dishes,
+            type: 'dishes',
+            followUps: aiData.followUps,
+          })
+        );
       }
     } catch (error) {
       dispatch(addMessage({ role: 'assistant', content: pick(ERROR_CLIENT_REPLIES), type: 'text' }));
@@ -261,7 +302,16 @@ const CraveAIAssistant = () => {
     }
   };
 
+  /**
+   * Picking a dish is a completed request: the answer is now the menu page, not
+   * the conversation. The panel is anchored bottom-right — exactly where the
+   * menu's ADD buttons live — so leaving it open covered the one control the
+   * user had just been sent there to press. Closing hands the page back to
+   * them; the launcher stays put so the conversation is one click away, and the
+   * transcript survives in Redux + localStorage.
+   */
   const handleDishClick = (resId, dishId) => {
+    dispatch(closeChat());
     navigate(`/restaurants/${resId}?dishId=${dishId}`);
   };
 
@@ -278,10 +328,11 @@ const CraveAIAssistant = () => {
     <>
       {!isOpen && (
         <button
+          ref={launcherRef}
           onClick={() => dispatch(toggleChat())}
           aria-label="Open CraveAI Assistant"
           style={{ bottom: launcherBottomOffset }}
-          className="group fixed right-5 sm:right-6 z-40 flex items-center gap-2.5 rounded-full bg-stone-900 pl-3.5 pr-5 py-3.5 text-white shadow-[0_10px_30px_-8px_rgba(28,25,23,0.55)] transition-[transform,box-shadow] duration-200 hover:scale-105 hover:shadow-[0_14px_36px_-8px_rgba(28,25,23,0.6)] active:scale-95"
+          className="group fixed right-5 z-40 flex items-center gap-2.5 rounded-full bg-stone-900 py-3.5 pl-3.5 pr-5 text-white shadow-[0_10px_30px_-8px_rgba(28,25,23,0.55)] transition-[transform,box-shadow] duration-200 hover:scale-105 hover:shadow-[0_14px_36px_-8px_rgba(28,25,23,0.6)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2 active:scale-95 sm:right-6"
         >
           <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[#FFC72C] text-stone-900">
             <IoFastFood className="h-4 w-4" />
@@ -334,6 +385,23 @@ const CraveAIAssistant = () => {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              {/* Now that context carries across turns, the user needs a way to
+                  drop it. Without this, an assistant that correctly remembers
+                  "veg only" from ten minutes ago has no off switch, and the
+                  only escape is clearing site data. */}
+              {messages.length > 1 && (
+                <button
+                  onClick={() => {
+                    dispatch(clearChat());
+                    inputRef.current?.focus();
+                  }}
+                  aria-label="Start a new conversation"
+                  title="New chat"
+                  className="rounded-full p-2 text-stone-300 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C]"
+                >
+                  <FaRegEdit className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              )}
               {!isMobileViewport && (
                 <button
                   onClick={toggleMaximize}
@@ -353,72 +421,126 @@ const CraveAIAssistant = () => {
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col gap-3 overflow-y-auto bg-stone-50 px-4 py-4">
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {msg.type === 'text' ? (
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'rounded-tr-sm bg-stone-900 text-white'
-                        : 'rounded-tl-sm border border-stone-200 bg-white text-stone-800 shadow-sm'
-                    }`}
-                  >
-                    {msg.content}
-                  </div>
-                ) : (
-                  <div className="mt-1 flex w-full flex-col gap-2">
-                    {msg.content.map((dish) => (
-                      <div
-                        key={`${dish.resId}-${dish.id}`}
-                        onClick={() => handleDishClick(dish.resId, dish.id)}
-                        className="group flex cursor-pointer gap-3 rounded-2xl border border-stone-200 bg-white p-2.5 transition-all hover:-translate-y-0.5 hover:border-[#FFC72C] hover:shadow-md"
-                      >
-                        {dish.imageId ? (
-                          <img src={ITEM_IMG_CDN_URL + dish.imageId} alt={dish.name} className="h-16 w-16 shrink-0 rounded-xl object-cover" />
-                        ) : (
-                          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#FFF6DD] text-2xl">🍽️</div>
-                        )}
-                        <div className="flex min-w-0 flex-col justify-center">
-                          <p className="truncate text-sm font-bold text-stone-800">{dish.name}</p>
-                          <p className="truncate text-xs text-stone-500">{dish.restaurant}</p>
-                          {dish.category && <p className="truncate text-xs text-stone-400">{dish.category}</p>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+          <div
+            className="flex flex-1 flex-col gap-3 overflow-y-auto bg-stone-50 px-4 py-4"
+            // Assistant replies arrive asynchronously; without a live region a
+            // screen-reader user got no indication an answer had appeared.
+            aria-live="polite"
+            aria-atomic="false"
+          >
+            {messages.map((msg, idx) => {
+              // Consecutive messages from the same speaker are visually grouped:
+              // only the first of a run gets the "tail" corner and only the last
+              // carries follow-up chips. Without this, an assistant turn that
+              // returns both a sentence and a dish carousel rendered as two
+              // disconnected bubbles with matching tails, which read as two
+              // separate replies rather than one.
+              const prev = messages[idx - 1];
+              const startsRun = !prev || prev.role !== msg.role;
+              const isUser = msg.role === 'user';
+              const followUps = msg.followUps || [];
+
+              return (
+                <div key={idx} className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+                  {msg.type === 'text' ? (
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                        isUser
+                          ? `bg-stone-900 text-white ${startsRun ? 'rounded-tr-sm' : ''}`
+                          : `border border-stone-200 bg-white text-stone-800 shadow-sm ${startsRun ? 'rounded-tl-sm' : ''}`
+                      }`}
+                    >
+                      {msg.content}
+                    </div>
+                  ) : (
+                    <div className="mt-1 flex w-full flex-col gap-2">
+                      {msg.content.map((dish) => (
+                        // A real <button>: these were `div onClick` cards, so the
+                        // AI's dish suggestions — the entire payoff of the
+                        // feature — could not be activated by keyboard at all.
+                        <button
+                          type="button"
+                          key={`${dish.resId}-${dish.id}`}
+                          onClick={() => handleDishClick(dish.resId, dish.id)}
+                          className="group flex w-full gap-3 rounded-2xl border border-stone-200 bg-white p-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-[#FFC72C] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2"
+                        >
+                          {dish.imageId ? (
+                            <img src={ITEM_IMG_CDN_URL + dish.imageId} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+                          ) : (
+                            <div aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#FFF6DD] text-2xl">🍽️</div>
+                          )}
+                          <div className="flex min-w-0 flex-col justify-center">
+                            <p className="truncate text-sm font-bold text-stone-800">{dish.name}</p>
+                            <p className="truncate text-xs text-stone-500">{dish.restaurant}</p>
+                            {dish.category && <p className="truncate text-xs text-stone-400">{dish.category}</p>}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Suggested next turns, phrased in the user's voice. These are
+                      what turn a dead-end answer into a conversation: they show
+                      that refining is possible and give a one-tap way to do it,
+                      instead of leaving the user to guess what the assistant can
+                      still help with. Hidden while a reply is in flight so a
+                      second request can't be queued mid-turn. */}
+                  {followUps.length > 0 && !isLoading && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {followUps.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          onClick={() => handleSend(suggestion)}
+                          className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 transition-colors hover:border-stone-900 hover:bg-stone-900 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {isLoading && (
               <div className="flex w-fit items-center gap-1.5 rounded-2xl rounded-tl-sm border border-stone-200 bg-white px-3.5 py-3 shadow-sm">
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400 [animation-delay:-0.3s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400 [animation-delay:-0.15s]" />
-                <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400" />
+                <span className="sr-only">CraveAI is thinking</span>
+                <span aria-hidden="true" className="h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400 [animation-delay:-0.3s]" />
+                <span aria-hidden="true" className="h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400 [animation-delay:-0.15s]" />
+                <span aria-hidden="true" className="h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400" />
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 border-t border-stone-100 bg-white p-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="flex shrink-0 items-center gap-2 border-t border-stone-100 bg-white p-3"
+          >
+            <label htmlFor="cravai-input" className="sr-only">
+              Describe your perfect dish
+            </label>
             <input
+              id="cravai-input"
               ref={inputRef}
               type="text"
               className="flex-1 rounded-full border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition-colors focus:border-[#FFC72C] focus:bg-white focus:ring-2 focus:ring-[#FFC72C]/30"
               placeholder="Describe your perfect dish…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             />
             <button
-              onClick={handleSend}
-              disabled={!input.trim()}
+              type="submit"
+              disabled={!input.trim() || isLoading}
               aria-label="Send"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition-all hover:bg-black active:scale-95 disabled:opacity-40 disabled:hover:bg-stone-900"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition-all hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2 active:scale-95 disabled:opacity-40 disabled:hover:bg-stone-900"
             >
-              <FaPaperPlane className="h-3.5 w-3.5" />
+              <FaPaperPlane className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
-          </div>
+          </form>
         </div>
       )}
     </>

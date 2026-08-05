@@ -10,6 +10,8 @@ import { db } from "../firebase";
 import { useQuery } from '@tanstack/react-query';
 import RestaurantCarousel from "../components/RestaurantCarousel";
 import SortDropdown from "../components/SortDropdown";
+import ErrorState from "../components/ErrorState";
+import { describeFirestoreError } from "../utils/firestoreErrors";
 import { sortRestaurants } from "../utils/sortUtils";
 
 
@@ -34,11 +36,15 @@ const fetchRestaurants = async () => {
   });
 
   return rawList
-    .map((item) => {
+    .map((item, index) => {
       const infoObj = item?.info || item?.card?.card?.info || item?.restaurantInfo || item;
       return {
         info: {
-          id: infoObj?.id || item?._docId || String(Math.random()),
+          // Falls back to a stable positional key, never `Math.random()`. A
+          // random id changed on every refetch (breaking React's reconciliation)
+          // and was also used as the `/restaurants/:resId` route param, so those
+          // cards linked to a menu that could never resolve.
+          id: infoObj?.id || item?._docId || `unlisted-${index}`,
           name: infoObj?.name || "Unnamed Restaurant",
           cloudinaryImageId: infoObj?.cloudinaryImageId || "",
           cuisines: Array.isArray(infoObj?.cuisines) ? infoObj.cuisines : [],
@@ -61,10 +67,10 @@ const Body = () => {
   const onlineStatus = useOnlineStatus();
   
 
-  const { data: listOfRestaurants = [], isLoading } = useQuery({
+  const { data: listOfRestaurants = [], isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ['restaurants'],
     queryFn: fetchRestaurants,
-    staleTime: 1000 * 60 * 10, 
+    staleTime: 1000 * 60 * 10,
   });
 
   const filteredRestaurants = useMemo(() => {
@@ -109,21 +115,35 @@ const Body = () => {
           </h1>
 
           <div className="flex flex-wrap items-center gap-4 mb-8">
-            <div className="flex items-center bg-white rounded-full shadow-sm border border-gray-200 overflow-hidden w-full md:w-[420px] transition-all focus-within:shadow-md focus-within:border-gray-300">
+            <form
+              role="search"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setActiveSearch(searchText.trim());
+              }}
+              className="flex w-full items-center overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm transition-all focus-within:border-gray-300 focus-within:shadow-md md:w-[420px]"
+            >
+              {/* Wrapping in a <form> is what makes Enter submit. Previously the
+                  input was bare, so pressing Enter did nothing at all and the
+                  search was mouse-only. */}
+              <label htmlFor="restaurant-search" className="sr-only">
+                Search for restaurants or cuisines
+              </label>
               <input
-                type="text"
-                className="px-5 py-2.5 w-full outline-none text-gray-700 bg-transparent text-sm font-medium placeholder:text-gray-400"
+                id="restaurant-search"
+                type="search"
+                className="w-full bg-transparent px-5 py-2.5 text-sm font-medium text-gray-700 outline-none placeholder:text-gray-400"
                 placeholder="Search for restaurants, cuisines..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
-              <button 
-                className="bg-gray-900 hover:bg-black text-white px-6 py-2.5 text-sm font-bold transition-colors shrink-0"
-                onClick={() => setActiveSearch(searchText)}
+              <button
+                type="submit"
+                className="shrink-0 bg-gray-900 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500"
               >
                 Search
               </button>
-            </div>
+            </form>
 
             <SortDropdown 
               selectedSort={selectedSort} 
@@ -152,12 +172,29 @@ const Body = () => {
           </div>
         </div>
 
-        {filteredRestaurants.length === 0 ? (
-          <div className="flex flex-col items-center justify-center mt-12 mb-20">
-            <p className="text-gray-500 font-semibold text-lg">No restaurants found matching your criteria.</p>
+        {isError ? (
+          /* A failed fetch used to fall through to the empty branch and read
+             "No restaurants found matching your criteria." — telling the user
+             their search was too narrow when in fact the request had failed and
+             offering no way to retry. */
+          <ErrorState
+            errorInfo={describeFirestoreError(error, "restaurants")}
+            onRetry={refetch}
+            isRetrying={isFetching}
+            className="mt-12 mb-20"
+          />
+        ) : filteredRestaurants.length === 0 ? (
+          <div className="mb-20 mt-12 flex flex-col items-center justify-center">
+            <p className="text-lg font-semibold text-gray-500">
+              No restaurants found matching your criteria.
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          // Gaps match Shimmer's grid exactly, so the skeleton and the real
+          // cards occupy the same geometry and the page doesn't jump when data
+          // lands. (The spacing used to come from an `m-5` on the card itself,
+          // which was removed when the card was made fluid.)
+          <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredRestaurants.map((restaurant) => (
               <Link
                 key={`grid-${restaurant.info.id}`}

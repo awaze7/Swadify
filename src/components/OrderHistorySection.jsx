@@ -1,0 +1,285 @@
+import { useState, useCallback } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { addItem } from "../utils/Redux/cartSlice";
+import { getStatusLabel, getStatusColor } from "../utils/orderUtils";
+import { notify } from "../utils/notificationUtils";
+import { FiChevronRight, FiRepeat, FiRefreshCw } from "react-icons/fi";
+import OrderDetailModal from "./OrderDetailModal";
+import EmptyState from "./EmptyState";
+import ErrorState from "./ErrorState";
+
+/** Lightweight inline illustration for the "no orders yet" state. */
+const NoOrdersIllustration = () => (
+  <svg width="112" height="96" viewBox="0 0 112 96" fill="none" role="presentation">
+    {/* Plate */}
+    <ellipse cx="56" cy="78" rx="38" ry="7" fill="#F3F4F6" />
+    {/* Bag body */}
+    <path
+      d="M30 30h52l-4.5 44a6 6 0 0 1-6 5.4H40.5a6 6 0 0 1-6-5.4L30 30Z"
+      fill="#FEF3C7"
+      stroke="#F59E0B"
+      strokeWidth="2.5"
+      strokeLinejoin="round"
+    />
+    {/* Bag handles */}
+    <path
+      d="M43 30v-6a13 13 0 0 1 26 0v6"
+      stroke="#F59E0B"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+    />
+    {/* Fork + knife, faint */}
+    <path d="M49 47v18M49 47c-2 0-3 1.5-3 4s1 4 3 4" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+    <path d="M63 47v18M63 47c2 0 3 1.5 3 4s-1 4-3 4" stroke="#D97706" strokeWidth="2" strokeLinecap="round" />
+  </svg>
+);
+
+const OrderSkeleton = () => (
+  <div className="space-y-4" aria-hidden="true">
+    {[0, 1, 2].map((i) => (
+      <div key={i} className="rounded-2xl border border-gray-200 bg-white p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 space-y-2.5">
+            <div className="h-4 w-2/5 animate-pulse rounded bg-gray-200" />
+            <div className="h-3 w-1/3 animate-pulse rounded bg-gray-100" />
+          </div>
+          <div className="h-6 w-20 animate-pulse rounded-full bg-gray-100" />
+        </div>
+        <div className="mt-5 grid grid-cols-3 gap-4">
+          <div className="h-8 animate-pulse rounded bg-gray-100" />
+          <div className="h-8 animate-pulse rounded bg-gray-100" />
+          <div className="h-8 animate-pulse rounded bg-gray-100" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const formatOrderDate = (createdAt) => {
+  // `useOrderHistory` already normalises Firestore Timestamps to Date objects.
+  if (!(createdAt instanceof Date)) return "Date unavailable";
+  return createdAt.toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const OrderHistorySection = ({
+  orders,
+  isLoading,
+  isRefreshing,
+  isEmpty,
+  errorInfo,
+  onRetry,
+}) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  /*
+    The whole order object, not just its id. It used to be dispatched into Redux
+    for the modal to read back, but these orders carry `createdAt` /
+    `estimatedDelivery` as Date instances, and non-serialisable values in the
+    store break time-travel debugging and persistence (RTK's serializableCheck
+    threw on every card click). Nothing outside this subtree needs to know which
+    order is open, so it stays local.
+  */
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
+  const handleViewDetails = useCallback((order) => {
+    setSelectedOrder(order);
+  }, []);
+
+  const handleCloseDetails = useCallback(() => {
+    setSelectedOrder(null);
+  }, []);
+
+  const handleReorder = useCallback(
+    (order) => {
+      const validItems = (order?.items || []).filter((item) => item?.itemId && item?.name);
+
+      if (validItems.length === 0) {
+        notify.warning("These items are no longer available to reorder.");
+        return;
+      }
+
+      validItems.forEach((item) => {
+        dispatch(
+          addItem({
+            card: {
+              // Carried through so a reordered cart still knows which restaurant
+              // it came from; without it, checking out a reorder wrote the new
+              // order back as "Unknown Restaurant".
+              restaurantId: order.restaurantId || "",
+              restaurantName: order.restaurantName || "",
+              info: {
+                id: item.itemId,
+                name: item.name,
+                price: item.price || 0,
+                defaultPrice: item.price || 0,
+                category: item.category || "General",
+              },
+            },
+            // One dispatch per line rather than one per unit — reordering a
+            // quantity of 5 used to fire five separate dispatches and five
+            // re-renders.
+            quantity: item.quantity || 1,
+          })
+        );
+      });
+
+      const skipped = (order?.items?.length || 0) - validItems.length;
+      notify.success(
+        skipped > 0
+          ? `${validItems.length} item${validItems.length === 1 ? "" : "s"} added — ${skipped} unavailable`
+          : `${validItems.length} item${validItems.length === 1 ? "" : "s"} added to your cart`
+      );
+      navigate("/cart");
+    },
+    [dispatch, navigate]
+  );
+
+  const heading = (
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <h2 id="order-history-heading" className="text-xl font-bold text-gray-900 sm:text-2xl">
+        Order History
+      </h2>
+      {/* Background revalidation indicator — never replaces the list. */}
+      {isRefreshing && (
+        <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+          <FiRefreshCw size={13} className="animate-spin" aria-hidden="true" />
+          Updating
+        </span>
+      )}
+    </div>
+  );
+
+  const renderBody = () => {
+    // 1. Loading — first load only, never shown over cached data.
+    if (isLoading) {
+      return (
+        <>
+          <span className="sr-only" role="status">
+            Loading your order history
+          </span>
+          <OrderSkeleton />
+        </>
+      );
+    }
+
+    // 2. Genuine failure — classified and actionable.
+    if (errorInfo) {
+      return <ErrorState errorInfo={errorInfo} onRetry={onRetry} isRetrying={isRefreshing} />;
+    }
+
+    // 3. Empty — a valid, expected state. No error styling, no notification.
+    if (isEmpty) {
+      return (
+        <EmptyState
+          illustration={<NoOrdersIllustration />}
+          title="No orders yet"
+          description="When you place your first order, it'll appear here so you can track it and reorder in one tap."
+          actionLabel="Browse restaurants"
+          actionTo="/"
+        />
+      );
+    }
+
+    // 4. Data.
+    return (
+      <ul className="space-y-4">
+        {orders.map((order) => (
+          <li
+            key={order.id}
+            className="group rounded-2xl border border-gray-200 bg-white transition-all duration-150 hover:border-gray-300 hover:shadow-md"
+          >
+            {/*
+              A single button owns the "open details" affordance. The card used to
+              be a div with onClick, which meant keyboard and screen-reader users
+              could not open an order at all. Reorder is a sibling, not a nested
+              button, so the markup stays valid.
+            */}
+            <button
+              type="button"
+              onClick={() => handleViewDetails(order)}
+              aria-label={`View details for your ${order.restaurantName || "restaurant"} order on ${formatOrderDate(order.createdAt)}`}
+              className="w-full rounded-t-2xl px-5 pt-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h3 className="truncate font-semibold text-gray-900">
+                    {order.restaurantName || "Unknown Restaurant"}
+                  </h3>
+                  <p className="mt-0.5 text-sm text-gray-500">
+                    {formatOrderDate(order.createdAt)}
+                  </p>
+                </div>
+                <span
+                  className={`flex-shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${getStatusColor(order.status)}`}
+                >
+                  {getStatusLabel(order.status)}
+                </span>
+              </div>
+
+              <dl className="mt-4 flex items-center gap-6">
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-gray-500">Items</dt>
+                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900">
+                    {order.items?.length || 0}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs uppercase tracking-wide text-gray-500">Total</dt>
+                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900">
+                    ₹{(order.total || 0).toFixed(2)}
+                  </dd>
+                </div>
+                <span className="ml-auto flex items-center gap-1 text-sm font-medium text-gray-400 transition-colors group-hover:text-gray-700">
+                  Details
+                  <FiChevronRight size={16} aria-hidden="true" />
+                </span>
+              </dl>
+            </button>
+
+            <div className="mt-4 border-t border-gray-100 px-5 py-3">
+              <button
+                type="button"
+                onClick={() => handleReorder(order)}
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors duration-150 hover:bg-gray-900 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-1"
+                aria-label={`Reorder from ${order.restaurantName || "this restaurant"}`}
+              >
+                <FiRepeat size={15} aria-hidden="true" />
+                Reorder
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  return (
+    <section aria-labelledby="order-history-heading">
+      {/*
+        The id lives on the <h2> itself, not on this wrapper. When it was on the
+        wrapper, the "Updating" revalidation indicator was inside the labelled
+        element, so the section's accessible name intermittently became
+        "Order History Updating".
+      */}
+      {heading}
+      {renderBody()}
+
+      {selectedOrder && (
+        <OrderDetailModal
+          order={selectedOrder}
+          onClose={handleCloseDetails}
+          onReorder={handleReorder}
+        />
+      )}
+    </section>
+  );
+};
+
+export default OrderHistorySection;

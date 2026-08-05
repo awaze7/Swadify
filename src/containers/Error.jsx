@@ -1,36 +1,30 @@
 import { Link } from "react-router-dom";
+import { buttonClasses } from "../components/Button";
 
 const Error = () => {
+  return (
+    <section className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-4 py-16 text-center">
+      {/*
+        The illustration was a remote dribbble GIF inside a fixed `h-96` box
+        whose child used `pt-60` — the copy and the "Go to Home" link were
+        pushed clean out of the container and overlapped whatever followed.
+        A self-contained heading needs no third-party asset and cannot break.
+      */}
+      <p className="text-7xl font-black tracking-tight text-gray-200 sm:text-8xl">404</p>
 
-    return (
-        <div>
-            <section className="flex justify-center my-16">
-                <div
-                className="bg-cover bg-center h-96"
-                style={{
-                    backgroundImage: `url('https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif')`,
-                }}
-                >
-                <div className="text-center">
-                    <h1 className="text-4xl text-gray-800">404</h1>
-                    <div className="pt-60">
-                    <h3 className="text-4xl text-gray-800">Looks like you're lost</h3>
-                    <p className="text-2xl text-gray-600 mt-4">
-                        The page you are looking for is not available!
-                    </p>
-                    <Link
-                        to="/"
-                        className="bg-green-500 text-white py-2 px-4 mt-4 rounded-md shadow hover:bg-green-600 inline-block"
-                    >
-                        Go to Home
-                    </Link>
-                    </div>
-                </div>
-                </div>
-            </section>
-        </div>
-         
-    );
-}
+      <h1 className="mt-4 text-2xl font-bold text-gray-900 sm:text-3xl">
+        Looks like you&rsquo;re lost
+      </h1>
+      <p className="mt-3 text-base text-gray-600">
+        The page you&rsquo;re looking for isn&rsquo;t available. It may have moved, or the link
+        might be out of date.
+      </p>
+
+      <Link to="/" className={buttonClasses({ size: "lg", className: "mt-8" })}>
+        Back to restaurants
+      </Link>
+    </section>
+  );
+};
 
 export default Error;
