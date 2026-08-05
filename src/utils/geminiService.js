@@ -129,26 +129,51 @@ const getRestaurantContext = async () => {
     return cachedMenuData;
 };
 
-const isFoodRelatedQuery = (query) => {
+// Matched as whole tokens, not substrings. The previous `text.includes(term)`
+// check rejected legitimate food talk that merely contained one of these as a
+// substring, and "stock" in particular is an ordinary cooking word.
+const BLOCKED_TERMS = new Set([
+    "weather",
+    "politics",
+    "political",
+    "bitcoin",
+    "crypto",
+    "stocks",
+    "program",
+    "programming",
+    "code",
+    "movie",
+    "movies",
+    "song",
+    "songs",
+    "lyrics",
+    "translate",
+    "homework",
+    "math",
+]);
+
+/**
+ * @param {string} query - the message the user just sent
+ * @param {boolean} hasActiveConversation - whether the user has already
+ *   exchanged food turns with the assistant in this session
+ *
+ * The `hasActiveConversation` branch is the important one. The word-count
+ * heuristic below only ever made sense for a cold opener: it accepts a short
+ * query on faith and rejects anything longer that lacks an explicit food word.
+ * Applied to a follow-up, it rejects exactly the phrasing a real conversation
+ * produces — "yeah that looks good but do you have something a bit lighter" has
+ * no food noun and is 12 words, so it was answered with "Food's my whole
+ * thing!" in the middle of a food conversation. Once a food conversation is
+ * underway, the follow-up is on-topic unless it hits a hard blocked term.
+ */
+const isFoodRelatedQuery = (query, hasActiveConversation = false) => {
     const text = normalize(query);
     if (text.length < 2) return false;
 
-    const blocked = [
-        "weather",
-        "politics",
-        "bitcoin",
-        "crypto",
-        "stock",
-        "program",
-        "code",
-        "movie",
-        "song",
-        "lyrics",
-        "translate",
-        "homework",
-        "math",
-    ];
-    if (blocked.some((term) => text.includes(term))) return false;
+    const tokens = text.split(" ");
+    if (tokens.some((token) => BLOCKED_TERMS.has(token))) return false;
+
+    if (hasActiveConversation) return true;
 
     const foodHints = [
         "food",
@@ -331,7 +356,7 @@ const extractJsonFromText = (text) => {
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const callGroq = async (systemPrompt, userPrompt, retries = 2) => {
+const callGroq = async (systemPrompt, turns, retries = 2) => {
     if (!GROQ_API_KEY) {
         return { error: "missing_api_key" };
     }
@@ -346,10 +371,13 @@ const callGroq = async (systemPrompt, userPrompt, retries = 2) => {
                 },
                 body: JSON.stringify({
                     model: GROQ_MODEL,
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: userPrompt },
-                    ],
+                    // Prior turns are replayed as real `user`/`assistant`
+                    // messages rather than pasted into one blob of user text.
+                    // The model is trained to treat this structure as dialogue,
+                    // so pronouns and elisions ("that one", "something lighter",
+                    // "the second") resolve against earlier turns instead of
+                    // being read as a brand-new standalone search.
+                    messages: [{ role: "system", content: systemPrompt }, ...turns],
                     response_format: { type: "json_object" },
                     // Low temperature was part of why replies felt templated — it
                     // biases the model toward the single "safest"/most generic
@@ -387,7 +415,56 @@ const callGroq = async (systemPrompt, userPrompt, retries = 2) => {
     return { error: "failed" };
 };
 
-const buildAiPrompt = (userQuery, candidates) => {
+// How many prior turns to replay to the model. Enough for a real back-and-forth
+// to hold together, small enough that the candidate list (the far larger part of
+// the payload) stays the dominant cost.
+const HISTORY_TURN_LIMIT = 10;
+
+/**
+ * Converts the UI's stored transcript into Groq chat turns.
+ *
+ * Two shapes need flattening. The UI stores a dish carousel as its own message
+ * with `type: 'dishes'` and an array payload; sent raw, `content` would be an
+ * object and the API would reject it. More importantly, the model needs to know
+ * *which dishes it already offered* — otherwise a follow-up like "the second
+ * one" or "anything but that biryani" has no referent, and the model re-suggests
+ * dishes it just showed. So each carousel becomes a short text line naming what
+ * was recommended.
+ */
+const buildHistoryTurns = (history = []) => {
+    const turns = [];
+
+    history.forEach((msg) => {
+        if (!msg || !msg.role) return;
+
+        if (msg.type === "dishes") {
+            const names = (Array.isArray(msg.content) ? msg.content : [])
+                .map((dish) => `${dish.name} (${dish.restaurant})`)
+                .filter(Boolean);
+            if (names.length === 0) return;
+            turns.push({
+                role: "assistant",
+                content: `[Previously recommended: ${names.join("; ")}]`,
+            });
+            return;
+        }
+
+        if (typeof msg.content !== "string" || !msg.content.trim()) return;
+        turns.push({
+            role: msg.role === "user" ? "user" : "assistant",
+            content: msg.content,
+        });
+    });
+
+    // Trim from the end so the most recent context survives, and never lead
+    // with an assistant turn — some providers reject a history that opens on
+    // one, and it reads as a dangling half-exchange regardless.
+    const trimmed = turns.slice(-HISTORY_TURN_LIMIT);
+    while (trimmed.length > 0 && trimmed[0].role !== "user") trimmed.shift();
+    return trimmed;
+};
+
+const buildAiPrompt = (userQuery, candidates, history = []) => {
     const compactCandidates = candidates.map((item) => ({
         id: item.id,
         name: item.name,
@@ -397,6 +474,8 @@ const buildAiPrompt = (userQuery, candidates) => {
         isVeg: item.isVeg,
     }));
 
+    const historyTurns = buildHistoryTurns(history);
+
     return {
         systemPrompt: `You are CraveAI, a food-only assistant for the Swadify app.
 
@@ -405,6 +484,27 @@ Rules:
 - If the query is not about food or cravings, set isFoodQuery to false and return an empty dishes array.
 - Never invent dishes. Only pick from the candidates list using exact ids.
 - Return valid JSON only.
+
+You are in an ongoing conversation — this is the most important thing to get right:
+- The messages before this one are the real conversation so far. Read them.
+  You are continuing a chat, not answering a fresh search query each time.
+- Resolve references against earlier turns. "That one", "the second", "the
+  paneer one", "same but cheaper", "something lighter", "no, spicier" only mean
+  something in context. Work out what the user is pointing at before answering.
+- Carry constraints forward until the user changes them. If they said veg
+  earlier, they are still veg. If they said no onion, under 300, or "from that
+  first restaurant", that still holds on the next turn — don't make them repeat
+  it.
+- Don't re-recommend dishes you already offered (they appear as
+  "[Previously recommended: ...]") unless the user asks about one specifically.
+  Suggest something new, or explain that you're out of good options.
+- Don't re-introduce yourself, re-greet, or restate what the user just asked.
+  Pick up mid-conversation the way a person does.
+- If the user is only reacting ("nice", "not really", "hmm") with nothing to
+  act on, just respond naturally and return zero dishes. Not every turn needs
+  a dish carousel attached — a conversation has turns that are purely talk.
+- When you genuinely need one more detail to give a good answer, ask a single
+  short question instead of guessing. One question, not a list.
 
 How to pick dishes:
 - Use real-world common sense about food, the same way a knowledgeable friend
@@ -444,29 +544,50 @@ Instead, write like:
 - "Something cold sounds great right now — here's what's chilled and ready:"
 - "No vada pav on the menu today, but these street-food bites might scratch
   the itch:"
-- "Not sure what you're picturing yet — a cuisine, a mood, or a dish name
-  would help me narrow it down."
+- "Lighter it is — these won't sit as heavy:"
+- "Good call, that one's rich. Want me to stay veg, or open it up?"
 - "Spicy it is. A couple of these bring real heat:"
 
 Keep it to one, occasionally two, short sentences. At most one emoji, and
 only when it genuinely fits — don't decorate every reply with one. Sound
 like a person who's actually looked at the options, not a template with the
 count and query swapped in.`,
-        userPrompt: `User query: "${userQuery}"
+        turns: [
+            ...historyTurns,
+            {
+                role: "user",
+                content: `${userQuery}
 
-Candidates (pre-filtered by keyword search, may include irrelevant items — use your judgment):
+---
+(System note — not part of the user's message.)
+Menu candidates available to you right now, pre-filtered by keyword search
+against this conversation, so the list may include irrelevant items. Use your
+judgment, and only pick ids from this list:
 ${JSON.stringify(compactCandidates)}
+
+Reply to the user's message above, continuing the conversation.
 
 Return JSON with this exact shape:
 {
   "isFoodQuery": true,
-  "reply": "short friendly sentence, acknowledging if the exact request wasn't available",
+  "reply": "short, in-context sentence — no greeting, no restating the question",
   "dishes": [
     { "id": "...", "name": "...", "restaurant": "...", "resId": "..." }
-  ]
+  ],
+  "followUps": ["...", "..."]
 }
 
-Pick up to 4 best matches, prioritizing genuine relevance and variety over quantity.`,
+Include up to 4 dishes, prioritizing genuine relevance and variety over
+quantity. Return an empty dishes array when the turn doesn't call for
+suggestions (a clarifying question, or a reply to small talk).
+
+"followUps" is 0-3 very short replies written in the USER's voice — the
+natural next things *they* might say, which you could actually act on. Think
+"Something spicier", "Only veg", "What's cheapest?" — not questions aimed at
+the user, and not things you can't answer. Keep each under 5 words. Return an
+empty array when the conversation doesn't obviously continue.`,
+            },
+        ],
     };
 };
 
@@ -549,8 +670,57 @@ const REPLY_VARIANTS = {
     ],
 };
 
-export const fetchAiResponse = async (userQuery) => {
-    if (!isFoodRelatedQuery(userQuery)) {
+/**
+ * Builds the string used for *keyword retrieval* (not the string shown to the
+ * model — that stays the user's real words).
+ *
+ * Follow-up turns are the problem this solves. "something lighter" or "any of
+ * those but veg" contain no dish noun, so ranking them alone returns an empty
+ * pool and the model gets handed a random cross-section of the menu — which is
+ * why follow-ups produced unrelated suggestions and the chat felt like it had
+ * forgotten the topic. Folding in the recent user turns keeps retrieval anchored
+ * to what the conversation is actually about, while the current message stays
+ * first so its tokens still dominate the ranking.
+ */
+const buildRetrievalQuery = (userQuery, history = []) => {
+    const recentUserText = history
+        .filter((msg) => msg?.role === "user" && typeof msg.content === "string")
+        .slice(-3)
+        .map((msg) => msg.content)
+        .join(" ");
+
+    return recentUserText ? `${userQuery} ${recentUserText}` : userQuery;
+};
+
+// Sanitizes model-authored follow-up chips. These get rendered as tappable
+// buttons that send text as the user, so they need to be short and finite
+// regardless of what the model returns.
+const normalizeFollowUps = (raw) => {
+    if (!Array.isArray(raw)) return [];
+    const seen = new Set();
+    return raw
+        .filter((s) => typeof s === "string")
+        .map((s) => s.trim().replace(/\s+/g, " "))
+        .filter((s) => {
+            if (s.length < 2 || s.length > 40) return false;
+            const key = s.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        })
+        .slice(0, 3);
+};
+
+/**
+ * @param {string} userQuery - the message the user just sent
+ * @param {Array} history - prior transcript messages, oldest first, in the
+ *   UI's `{ role, content, type }` shape. Defaults to empty so the signature
+ *   stays backwards-compatible with a single-shot call.
+ */
+export const fetchAiResponse = async (userQuery, history = []) => {
+    const priorUserTurns = history.filter((msg) => msg?.role === "user").length;
+
+    if (!isFoodRelatedQuery(userQuery, priorUserTurns > 0)) {
         return {
             reply: pickVariant(REPLY_VARIANTS.notFood),
             dishes: [],
@@ -568,6 +738,8 @@ export const fetchAiResponse = async (userQuery) => {
             };
         }
 
+        const retrievalQuery = buildRetrievalQuery(userQuery, history);
+
         // Local keyword ranking now only builds a compact candidate pool for the
         // AI to reason over — it is never treated as the final answer by itself.
         // Previously, finding 2+ keyword matches returned them straight to the
@@ -576,11 +748,11 @@ export const fetchAiResponse = async (userQuery) => {
         // produced literal keyword noise (e.g. matching the word "and" inside
         // "Veg Burger Wrap AND Side Meal") instead of a reasoned suggestion —
         // the AI never actually got a chance to look at the query.
-        let candidatePool = rankItems(allItems, userQuery, 40);
+        let candidatePool = rankItems(allItems, retrievalQuery, 40);
         let poolHasKeywordSignal = candidatePool.length > 0;
 
         if (candidatePool.length === 0) {
-            const firstToken = tokenize(userQuery)[0];
+            const firstToken = tokenize(retrievalQuery)[0];
             if (firstToken) {
                 candidatePool = rankItems(allItems, firstToken, 25);
                 poolHasKeywordSignal = candidatePool.length > 0;
@@ -595,8 +767,8 @@ export const fetchAiResponse = async (userQuery) => {
             poolHasKeywordSignal = false;
         }
 
-        const { systemPrompt, userPrompt } = buildAiPrompt(userQuery, candidatePool);
-        const aiResult = await callGroq(systemPrompt, userPrompt);
+        const { systemPrompt, turns } = buildAiPrompt(userQuery, candidatePool, history);
+        const aiResult = await callGroq(systemPrompt, turns);
 
         if (aiResult.error === "missing_api_key") {
             return poolHasKeywordSignal
@@ -632,19 +804,23 @@ export const fetchAiResponse = async (userQuery) => {
             }
 
             const resolved = resolveAiDishes(parsed, allItems);
+            const followUps = normalizeFollowUps(parsed?.followUps);
+
             if (resolved.length > 0) {
                 return {
                     reply: parsed?.reply || pickVariant(REPLY_VARIANTS.aiFoundNoReplyText),
                     dishes: formatDishes(resolved),
+                    followUps,
                 };
             }
 
             // The AI deliberately returned no dishes (per the prompt, it's told
-            // this is fine when nothing genuinely fits) but did explain itself —
-            // trust that honest answer instead of papering over it with an
-            // unrelated local match.
+            // this is fine when nothing genuinely fits, and when the turn is a
+            // clarifying question or plain conversation) but did explain
+            // itself — trust that honest answer instead of papering over it
+            // with an unrelated local match.
             if (parsed?.reply) {
-                return { reply: parsed.reply, dishes: [] };
+                return { reply: parsed.reply, dishes: [], followUps };
             }
         }
 

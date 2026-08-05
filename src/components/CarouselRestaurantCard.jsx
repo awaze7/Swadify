@@ -1,18 +1,16 @@
-import React from 'react';
 import { FaStar } from 'react-icons/fa';
+import { CDN_URL } from '../utils/constants';
 
 const CarouselRestaurantCard = ({ resData }) => {
   const {
     name,
     cloudinaryImageId,
     avgRating,
-    costForTwo,
     sla,
     cuisines,
     aggregatedDiscountInfoV3
   } = resData?.info || {};
 
-  const CDN_URL = "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_660/";
   const imageUrl = cloudinaryImageId ? CDN_URL + cloudinaryImageId : "";
 
   const timeString = sla?.slaString || "30-35 mins";
@@ -69,11 +67,13 @@ const CarouselRestaurantCard = ({ resData }) => {
               {/* <span className="truncate">{costForTwo}</span> */}
             </div>
 
-            {/* Frosted Glass 'Explore' Button */}
-            <button className="hidden sm:block bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white text-[10px] font-semibold py-1 px-3 rounded-lg transition-all duration-300 shadow-sm">
+            {/* A <span>, not a <button>: this card is always rendered inside a
+                <Link>, and a button nested in an anchor is invalid HTML that
+                screen readers report inconsistently. It was decorative anyway —
+                it had no onClick, so the surrounding link did all the work. */}
+            <span className="hidden rounded-lg border border-white/20 bg-white/20 px-3 py-1 text-[10px] font-semibold text-white shadow-sm backdrop-blur-md transition-all duration-300 group-hover:bg-white/30 sm:block">
               Explore
-            </button>
-            
+            </span>
         </div>
       </div>
     </div>

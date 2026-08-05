@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   FaFacebook,
   FaGithub,
@@ -8,94 +7,47 @@ import {
 } from 'react-icons/fa';
 import { GITHUB_ACC_URL, LINKED_IN_URL } from '../utils/constants';
 
+const SOCIAL_LINKS = [
+  { label: 'Facebook', href: 'https://facebook.com', Icon: FaFacebook },
+  { label: 'GitHub', href: GITHUB_ACC_URL, Icon: FaGithub },
+  { label: 'Instagram', href: 'https://instagram.com', Icon: FaInstagram },
+  { label: 'Twitter', href: 'https://twitter.com', Icon: FaTwitter },
+  { label: 'LinkedIn', href: LINKED_IN_URL, Icon: FaLinkedin },
+];
+
 const Footer = () => {
   const year = new Date().getFullYear();
-  const [hoveredIcon, setHoveredIcon] = useState(null);
-
-  const handleIconHover = (iconName) => {
-    setHoveredIcon(iconName);
-  };
-
-  const handleIconLeave = () => {
-    setHoveredIcon(null);
-  };
 
   return (
-    <footer id="app-footer" className="bg-yellow-300 text-xl p-2.5 text-center mt-auto w-full">
-      <div className="flex flex-col md:flex-row items-center justify-between">
-        <p className="flex-grow font-medium mb-4 md:mb-0 font-mono">
+    <footer id="app-footer" className="mt-auto w-full bg-yellow-300 p-2.5 text-center text-xl">
+      <div className="flex flex-col items-center justify-between md:flex-row">
+        <p className="mb-4 flex-grow font-mono font-medium md:mb-0">
           &copy; {year} Swadify All rights reserved.
         </p>
 
-        <div className="flex items-center mr-5">
-          <a
-            href="https://facebook.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2"
-            onMouseEnter={() => handleIconHover('facebook')}
-            onMouseLeave={handleIconLeave}
-          >
-            <FaFacebook
-              size={22}
-              color={hoveredIcon === 'facebook' ? '#8B5CF6' : '#000'}
-            />
-          </a>
-          <a
-            href={GITHUB_ACC_URL}
-            //
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2"
-            onMouseEnter={() => handleIconHover('github')}
-            onMouseLeave={handleIconLeave}
-          >
-            <FaGithub
-              size={22}
-              color={hoveredIcon === 'github' ? '#8B5CF6' : '#000'}
-            />
-          </a>
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2"
-            onMouseEnter={() => handleIconHover('instagram')}
-            onMouseLeave={handleIconLeave}
-          >
-            <FaInstagram
-              size={22}
-              color={hoveredIcon === 'instagram' ? '#8B5CF6' : '#000'}
-            />
-          </a>
-          <a
-            href="https://twitter.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2"
-            onMouseEnter={() => handleIconHover('twitter')}
-            onMouseLeave={handleIconLeave}
-          >
-            <FaTwitter
-              size={22}
-              color={hoveredIcon === 'twitter' ? '#8B5CF6' : '#000'}
-            />
-          </a>
-          <a
-            href={LINKED_IN_URL}
-            // LINKED_IN_URL = "https://www.linkedin.com/in/awazeshaikh7/";
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-2"
-            onMouseEnter={() => handleIconHover('linkedin')}
-            onMouseLeave={handleIconLeave}
-          >
-            <FaLinkedin
-              size={22}
-              color={hoveredIcon === 'linkedin' ? '#8B5CF6' : '#000'}
-            />
-          </a>
-        </div>
+        <ul className="mr-5 flex items-center">
+          {SOCIAL_LINKS.map(({ label, href, Icon }) => (
+            <li key={label}>
+              {/*
+                Each icon link now carries an accessible name — they were five
+                anchors whose only content was an unlabelled <svg>, so a screen
+                reader announced "link" five times with nothing to distinguish
+                them. Hover colour moved to CSS: it was previously driven by a
+                `hoveredIcon` state value, which re-rendered the whole footer on
+                every pointer move between icons.
+              */}
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Swadify on ${label} (opens in a new tab)`}
+                className="mx-2 block rounded p-1 text-black transition-colors hover:text-violet-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300"
+              >
+                <Icon size={22} aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </footer>
   );

@@ -1,39 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { GITHUB_URL } from '../utils/constants';
 
 const User = () => {
   const [userInfo, setUserInfo] = useState({
     name: 'Swadify Developer',
     location: 'Food Paradise',
-    avatar_url: '', 
+    avatar_url: '',
   });
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchData = async () => {
       try {
-        const data = await fetch(GITHUB_URL);   
-        const json = await data.json();
-        
-        // console.log(json);
-        setUserInfo(json);
-      } catch (error) {
-        console.log(error);
+        const response = await fetch(GITHUB_URL);
+        if (!response.ok) return;
+        const json = await response.json();
+        if (cancelled) return;
+        // Merged, not replaced: GitHub omits `name`/`location` on profiles that
+        // haven't set them, and replacing wholesale blanked the fallback copy.
+        setUserInfo((prev) => ({
+          ...prev,
+          ...Object.fromEntries(Object.entries(json).filter(([, v]) => v != null)),
+        }));
+      } catch {
+        // Non-critical: the card keeps its default copy if GitHub is unreachable.
       }
     };
 
     fetchData();
-
     return () => {
-      // console.log('component will unmount');
+      cancelled = true;
     };
   }, []);
 
   const { name, location, avatar_url } = userInfo;
 
   return (
-    <div className="user-card bg-gray-800 text-white p-3 rounded-lg shadow-md flex-column items-center justify-between">
-      <div className="flex items-center mb-4">
-        <img className="w-20 h-20 rounded-full border-2 border-gray-700 mr-4" src={avatar_url} alt="avatar" />
+    // `flex-column` is a Bootstrap class name and does nothing in Tailwind, so
+    // the `items-center justify-between` beside it were also inert (no flex
+    // container). Dropped rather than translated: this card is a plain vertical
+    // stack and reads correctly in normal flow.
+    <div className="user-card rounded-lg bg-gray-800 p-3 text-white shadow-md">
+      <div className="mb-4 flex items-center">
+        {avatar_url && (
+          // Rendered only once the GitHub avatar has resolved — the initial
+          // state has an empty src, which browsers request as the current page
+          // and then show as a broken image.
+          <img
+            className="mr-4 h-20 w-20 rounded-full border-2 border-gray-700 object-cover"
+            src={avatar_url}
+            alt=""
+          />
+        )}
         <div className="text-sm mb-2">
           <h2 className="mb-1">I am <span className='font-medium'>{name}</span>, a BE student from Sinhgad College of Engineering, {location}.</h2>
           <p className="mb-1">You can reach me at <span className='font-medium'>awazeshaikh7@gmail.com</span>.</p>

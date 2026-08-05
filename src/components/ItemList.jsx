@@ -1,245 +1,170 @@
-import { useDispatch } from "react-redux";
-import { addItem, incrementItem, decrementItem, removeItem, clearCart,updateTotal } from "../utils/Redux/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { addItem, incrementItem, decrementItem } from "../utils/Redux/cartSlice";
 import { ITEM_IMG_CDN_URL } from "../utils/constants";
-import { useState } from "react";
-import { toast } from 'react-toastify';
-import { onAuthStateChanged } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { useState, useMemo, useCallback } from "react";
+import { getUnitPrice } from "../utils/priceUtils";
+import QuantityStepper from "./QuantityStepper";
 
-const ItemList = ({ items, inCart }) => {
+/**
+ * Renders a list of menu items.
+ *
+ * `inCart`     – rendered inside the cart/checkout rather than a restaurant menu.
+ * `readOnly`   – show quantities as static text with no controls (checkout review).
+ * `restaurant` – `{ id, name }` of the menu these items belong to. Stamped onto
+ *                each cart entry on add, because the cart is the only place that
+ *                still knows where an item came from by the time checkout runs.
+ *
+ * The order-summary block and "Clear Cart" button that used to live at the bottom
+ * of this component were removed: Cart.jsx and Checkout.jsx each render their own
+ * summary from `calculateOrderTotals`, so the cart page was showing two summaries
+ * with different delivery fees (₹25 here vs ₹40 there) and contradictory totals.
+ * Totals now come from exactly one place.
+ */
+const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) => {
   const dispatch = useDispatch();
-  const [updatingCart, setUpdatingCart] = useState(false);
-  const [hasActiveNotification, setHasActiveNotification] = useState(false);
-  
-  // State to track which item descriptions are expanded permanently after clicking "more"
+  const cartItems = useSelector((store) => store.cart.items);
+
+  // Tracks which descriptions the user has expanded via the "more" affordance.
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
 
-  const navigate = useNavigate();
+  // id -> count, so each row is an O(1) lookup instead of a scan of the cart.
+  const cartItemMap = useMemo(
+    () => new Map(cartItems.map((item) => [item.card.info.id, item.count])),
+    [cartItems]
+  );
 
-  const expandDescription = (itemId) => {
-    setExpandedDescriptions(prev => ({
-      ...prev,
-      [itemId]: true
-    }));
-  };
+  const expandDescription = useCallback((itemId) => {
+    setExpandedDescriptions((prev) => ({ ...prev, [itemId]: true }));
+  }, []);
 
-  const handleAddItem = (item) => {
-    dispatch(addItem(item));
-  };
-
-  const onIncrement = (item) => {
-    dispatch(incrementItem(item));
-  };
-
-  const handleDecrementItem = (item) => {
-    dispatch(decrementItem(item));
-  };
-
-  const onDecrement = (itemId) => {
-    if (items.find((item) => item.card.info.id === itemId).count > 1) {
-      handleDecrementItem(itemId);
-    } else {
-      setUpdatingCart(true);
-      dispatch(removeItem(itemId));
-      setTimeout(() => setUpdatingCart(false), 1000);
-    }
-  };
-
-  const addItemFunc = (item) => {
-    let t = `${item.card.info.name} is added in the cart`;
-    toast.info(t, {
-      style: {
-        backgroundColor: "black",
-        color: "white",
-        marginTop: hasActiveNotification ? '0' : '80px',
-      },
-      onClose: () => setHasActiveNotification(false),
-    });
-    setHasActiveNotification(true);
-    handleAddItem(item);
-  };
-
-  const handleClearCart = () => {
-      dispatch(clearCart());
-  }
-
-  const extractPriceFromName = (name) => {
-    const regex = /(?:Rs|₹)\s*(\d+(?:\.\d+)?)/;
-    const match = name.match(regex);
-    return match ? parseFloat(match[1]) : 0;
-  };
-
-  let totalItems = 0;
-  let totalAmount = 0;
-
-  if (inCart) {
-    totalItems = items.reduce((total, item) => total + item.count, 0);
-    totalAmount = items.reduce((total, item) => {
-      let price=0;
-      if (isNaN(item.card.info.price)) {
-        if(isNaN(item.card.info.defaultPrice)) {
-          price = extractPriceFromName(item.card.info.name);
-        } else {
-          price = item.card.info.defaultPrice;
-        }
-      } else {
-        price = item.card.info.price;
-      }
-      
-      return total + (item.count * price);
-    }, 0);
-
-    dispatch(updateTotal(totalAmount.toFixed(2)));
-  }
-
-  const handlePlaceOrder = () => {
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        toast.success('Order placed successfully, you will receive it shortly!',{
-          style: {
-            backgroundColor: "green",
-            color: "white",
-            marginTop: hasActiveNotification ? '0' : '80px',
+  // Cart entries carry the restaurant they came from. Without this the order
+  // written to Firestore had no way to name its restaurant — Checkout read
+  // `cartItems[0].card.restaurantId`, which nothing ever set, so every single
+  // order was persisted as "Unknown Restaurant".
+  const handleAdd = useCallback(
+    (item) =>
+      dispatch(
+        addItem({
+          ...item,
+          card: {
+            ...item.card,
+            restaurantId: restaurant?.id ?? item.card?.restaurantId ?? "",
+            restaurantName: restaurant?.name ?? item.card?.restaurantName ?? "",
           },
-          onClose: () => setHasActiveNotification(false),
-        });
-        setTimeout(()=>{
-          dispatch(clearCart());
-        },1200);
-      } else {
-        toast.warning('Please log in before placing an order.',{
-          position: "top-center",
-          style: {
-            marginTop: hasActiveNotification ? '0' : '80px',
-          },
-          onClose: () => setHasActiveNotification(false),
-        });
-        navigate("/login");
-      }
-    });
-  };
+        })
+      ),
+    [dispatch, restaurant?.id, restaurant?.name]
+  );
+  const handleIncrement = useCallback((itemId) => dispatch(incrementItem(itemId)), [dispatch]);
+  // `decrementItem` removes the line itself when it reaches zero, so the UI
+  // does not have to sequence a second `removeItem` dispatch.
+  const handleDecrement = useCallback((itemId) => dispatch(decrementItem(itemId)), [dispatch]);
 
   return (
-    <div>
-           {items.map(item => {
-                const description = item.card.info.description || "";
-                const isExpanded = expandedDescriptions[item.card.info.id];
-                // Arbitrary threshold to check if description is long enough to warrant a "more" button
-                const isLongDescription = description.length > 80;
+    <ul className="divide-y divide-gray-200">
+      {items.map((item) => {
+        const info = item.card.info;
+        const description = info.description || "";
+        const isExpanded = expandedDescriptions[info.id];
+        const isLongDescription = description.length > 80;
+        const unitPrice = getUnitPrice(info);
+        const count = inCart ? item.count : cartItemMap.get(info.id) || 0;
+        const isHighlighted = String(info.id) === String(highlightedDishId);
 
-                return (
-                <div key={item.card.info.id} id={`dish-${item.card.info.id}`} className="my-2 pb-3 border-gray-200 border-b-2 text-left flex items-center justify-between">
-                <div className="w-9/12">
-                    <div className="py-2 text-base font-medium">
-                        <span>{item.card.info.name}</span>
-                        {(isNaN(item.card.info.price) && isNaN(item.card.info.defaultPrice)) || 
-                          extractPriceFromName(item.card.info.name)!="" ? null : 
-                          (
-                            <span> - ₹ {item.card.info.finalPrice ? item.card.info.finalPrice : item.card.info.price}</span>
-                          )
-                        }
-                    </div>
-                    
-                    {/* Description Block */}
-                    <div className="text-sm font-normal text-gray-600">
-                      {isExpanded ? (
-                        <p>{description}</p>
-                      ) : (
-                        <div className="flex flex-wrap items-baseline">
-                          <p className="line-clamp-2">{description}</p>
-                          {isLongDescription && (
-                            <button 
-                              onClick={() => expandDescription(item.card.info.id)} 
-                              className="font-semibold text-black ml-1 inline-block focus:outline-none"
-                            >
-                              more
-                            </button>
-                          )}
-                        </div>
+        return (
+          <li
+            key={info.id}
+            id={`dish-${info.id}`}
+            // The highlight is a rendered prop, not a class mutated onto the
+            // node from a timer, so React can never wipe it mid-animation.
+            className={`flex items-start justify-between gap-4 rounded-lg py-4 text-left transition-colors duration-700 ${
+              isHighlighted ? "bg-yellow-50 px-3 ring-2 ring-yellow-400" : ""
+            }`}
+          >
+            {/* Names the reason this row is highlighted, instead of leaving the
+                visual treatment as the only signal. */}
+            {isHighlighted && (
+              <span className="sr-only" role="status">
+                {info.name} — the dish CraveAI suggested
+              </span>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-base font-medium text-gray-900">{info.name}</div>
+
+              {unitPrice > 0 && (
+                <div className="mt-0.5 text-sm font-semibold text-gray-800">
+                  ₹{unitPrice.toFixed(2)}
+                </div>
+              )}
+
+              {description && (
+                <div className="mt-1.5 text-sm font-normal text-gray-600">
+                  {isExpanded ? (
+                    <p>{description}</p>
+                  ) : (
+                    <div className="flex flex-wrap items-baseline">
+                      <p className="line-clamp-2">{description}</p>
+                      {isLongDescription && (
+                        <button
+                          type="button"
+                          onClick={() => expandDescription(info.id)}
+                          className="ml-1 inline-block rounded font-semibold text-gray-900 underline decoration-gray-400 underline-offset-2 hover:decoration-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+                          aria-label={`Read full description of ${info.name}`}
+                        >
+                          more
+                        </button>
                       )}
                     </div>
-
-                    {inCart ?
-                        <div className="mt-3">
-                          <span className="font-bold text-xl font-mono mr-2">{item.count}<span className="text-sm">x</span></span> 
-                        </div>
-                        
-                        : null }
-
+                  )}
                 </div>
-                <div className="flex-shrink-0 w-40 py-2 px-4">
-                    <div className="absolute">
-                        {inCart ? 
-                            <div className="py-1 mx-5 mt-14 text-xl flex items-center bg-gray-900 hover:bg-black rounded-lg text-white">
-                                <button className="pr-2 pl-3 rounded-l" onClick={() => onDecrement(item.card.info.id)}>
-                                -
-                                </button>
-                                <span className="px-2">{item.count}</span>
-                                <button className="pl-2 pr-3 rounded-r" onClick={() => onIncrement(item.card.info.id)}>
-                                +
-                                </button>
-                            </div>
-                            :
-                            <button 
-                            className = "py-1 px-7 mx-5 mt-16 bg-gray-900 hover:bg-black text-white rounded-lg shadow-black shadow-sm"
-                            onClick = {() => {addItemFunc(item)}}
-                            >ADD</button>
-                        }
-                    </div>
-                    <img 
-                        src={ITEM_IMG_CDN_URL + item.card.info.imageId} 
-                        alt={item.card.info.name}
-                        className="object-cover rounded w-36 h-24" 
-                    />
+              )}
+
+              {/* Checkout review: quantity and line total as plain text. */}
+              {inCart && readOnly && (
+                <div className="mt-2 text-sm text-gray-700">
+                  <span className="font-semibold tabular-nums">{item.count}</span>
+                  <span className="mx-1 text-gray-400">×</span>
+                  <span className="tabular-nums">₹{unitPrice.toFixed(2)}</span>
+                  <span className="mx-1.5 text-gray-400">=</span>
+                  <span className="font-semibold tabular-nums">
+                    ₹{(unitPrice * item.count).toFixed(2)}
+                  </span>
                 </div>
+              )}
             </div>
-            );
-            })}
-            {updatingCart && (
-                <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-opacity-75 bg-gray-500 text-white">
-                Updating Cart...
-                </div>
-            )}
 
-            {inCart && items.length > 0 && (
-              <div>
-                    <div className="text-center mt-4 text-base mx-1">
-                        <div className="flex justify-between mb-2">
-                            <p className="mr-4">Items:</p>
-                            <p>{totalItems}</p>
-                        </div>
-                        <div className="flex justify-between mb-2">
-                            <p className="mr-4">Subtotal:</p>
-                            <p>₹{totalAmount.toFixed(2)}</p>
-                        </div>
-                        <div className="flex justify-between mb-2 pb-2 border-b-2">
-                            <p className="mr-4">Delivery cost:</p>
-                            <p>₹{25}</p>
-                        </div>
-                        <div className="flex justify-between mb-2">
-                            <p className="font-semibold mr-4">Total:</p>
-                            <p>₹{(totalAmount + 25).toFixed(2)}</p>
-                        </div>
-                    </div>
+            {/*
+              Image and control share one right-hand column. The control sits
+              directly under the image in normal flow — it used to be
+              absolutely positioned with hand-tuned top margins, which is what
+              made it jump when switching between ADD and the stepper.
+            */}
+            <div className="flex w-28 flex-shrink-0 flex-col items-center gap-2 sm:w-36">
+              {info.imageId && (
+                <img
+                  src={ITEM_IMG_CDN_URL + info.imageId}
+                  alt={info.name}
+                  loading="lazy"
+                  className="h-20 w-full rounded-lg object-cover sm:h-24"
+                />
+              )}
 
-
-                    <div className="flex justify-end mt-2">
-                         <button 
-                            className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-xl"
-                            onClick={handlePlaceOrder}
-                        >Place Order</button>
-                        <button 
-                            className="m-2 font-semibold text-base bg-blue-600 hover:bg-blue-700 px-3 py-1 text-white rounded-xl"
-                            onClick={handleClearCart}
-                        >
-                            Clear Cart
-                        </button>
-                    </div>
-              </div>
-            )}
-    </div>
-    )
-}
+              {!readOnly && (
+                <QuantityStepper
+                  count={count}
+                  itemName={info.name}
+                  size="compact"
+                  onAdd={() => handleAdd(item)}
+                  onIncrement={() => handleIncrement(info.id)}
+                  onDecrement={() => handleDecrement(info.id)}
+                />
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
 
 export default ItemList;

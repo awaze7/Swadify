@@ -9,30 +9,56 @@ const SORT_OPTIONS = [
   { id: "costHighToLow", label: "Cost: High to Low" },
 ];
 
+/**
+ * Sort control for the restaurant list.
+ *
+ * The options were previously `<label onClick>` elements with no input, no
+ * `role`, and no `tabIndex`, so the entire sort feature was unreachable by
+ * keyboard and invisible to screen readers. They are now genuine radio inputs
+ * in a labelled group: arrow keys move between them for free, and the visual
+ * design is unchanged (the native control is hidden with `sr-only` and the
+ * styled circle is driven by `peer-checked`).
+ */
 const SortDropdown = ({ selectedSort, onSortChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempSelected, setTempSelected] = useState(selectedSort);
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
 
-  // Sync state if parent props change
   useEffect(() => {
     setTempSelected(selectedSort);
   }, [selectedSort]);
 
-  // Close dropdown on click outside
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
+
+    // Escape closes the popover — previously it could only be dismissed with
+    // the mouse, which left keyboard users stuck inside it.
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   const handleApply = () => {
     onSortChange(tempSelected);
     setIsOpen(false);
+    triggerRef.current?.focus();
   };
 
   const selectedOptionLabel =
@@ -40,68 +66,61 @@ const SortDropdown = ({ selectedSort, onSortChange }) => {
 
   return (
     <div className="relative inline-block text-left" ref={dropdownRef}>
-      {/* Trigger Button matching Swiggy styling */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all border shadow-sm ${
+        ref={triggerRef}
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+        aria-haspopup="dialog"
+        className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 ${
           selectedSort !== "relevance"
             ? "border-gray-900 bg-gray-900 text-white"
             : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
         }`}
       >
-        <span>
-          {selectedSort === "relevance" ? "Sort By" : selectedOptionLabel}
-        </span>
+        <span>{selectedSort === "relevance" ? "Sort By" : selectedOptionLabel}</span>
         <FiChevronDown
-          className={`text-base transition-transform duration-200 ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          aria-hidden="true"
+          className={`text-base transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
         />
       </button>
 
-      {/* Swiggy Filter Popover Box */}
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 p-5 z-50 animate-fadeIn">
-          <div className="space-y-4">
-            {SORT_OPTIONS.map((option) => {
-              const isChecked = tempSelected === option.id;
-              return (
+        <div className="absolute left-0 z-50 mt-2 w-64 rounded-2xl border border-gray-100 bg-white p-5 shadow-2xl">
+          <fieldset>
+            <legend className="sr-only">Sort restaurants by</legend>
+            <div className="space-y-1">
+              {SORT_OPTIONS.map((option) => (
                 <label
                   key={option.id}
-                  onClick={() => setTempSelected(option.id)}
-                  className="flex items-center justify-between cursor-pointer group py-1"
+                  className="group flex cursor-pointer items-center justify-between gap-3 rounded-lg py-2"
                 >
-                  <span
-                    className={`text-sm font-medium transition-colors ${
-                      isChecked
-                        ? "text-gray-900 font-bold"
-                        : "text-gray-600 group-hover:text-gray-900"
-                    }`}
-                  >
+                  <input
+                    type="radio"
+                    name="sort-option"
+                    value={option.id}
+                    checked={tempSelected === option.id}
+                    onChange={() => setTempSelected(option.id)}
+                    className="peer sr-only"
+                  />
+                  <span className="text-sm font-medium text-gray-600 transition-colors group-hover:text-gray-900 peer-checked:font-bold peer-checked:text-gray-900">
                     {option.label}
                   </span>
-
-                  {/* Swiggy Orange Custom Radio Button */}
-                  <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center border-2 transition-all ${
-                      isChecked
-                        ? "border-[#fc8019] bg-[#fc8019]"
-                        : "border-gray-300 group-hover:border-gray-400"
-                    }`}
+                  <span
+                    aria-hidden="true"
+                    className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 transition-all group-hover:border-gray-400 peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:[&>span]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-yellow-500 peer-focus-visible:ring-offset-2"
                   >
-                    {isChecked && (
-                      <div className="w-2 h-2 rounded-full bg-white" />
-                    )}
-                  </div>
+                    <span className="h-2 w-2 rounded-full bg-white opacity-0 transition-opacity" />
+                  </span>
                 </label>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          </fieldset>
 
-          {/* Apply Button */}
           <button
+            type="button"
             onClick={handleApply}
-            className="w-full mt-6 bg-[#fc8019] hover:bg-[#e26e0e] text-white font-bold py-2.5 rounded-xl text-sm transition-colors shadow-md active:scale-95"
+            className="mt-6 w-full rounded-xl bg-gray-900 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-black active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
           >
             Apply
           </button>
