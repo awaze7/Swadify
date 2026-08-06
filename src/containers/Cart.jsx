@@ -33,7 +33,7 @@ const Cart = () => {
 
     if (cartItems.length === 0) {
         return (
-            <div className="mx-auto w-full max-w-2xl px-4 py-12 sm:py-16">
+            <div className="mx-auto w-full max-w-lg px-4 pb-28 pt-12 sm:pt-16">
                 <div className="rounded-2xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm">
                     <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
                         <FiShoppingCart className="text-gray-400" size={34} aria-hidden="true" />
@@ -52,7 +52,7 @@ const Cart = () => {
     }
 
     return (
-        <div className="mx-auto w-full max-w-5xl px-4 py-8">
+        <div className="mx-auto w-full max-w-5xl px-4 pb-28 pt-8">
             <div className="mb-6 flex items-baseline justify-between gap-4">
                 <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Your Cart</h1>
                 <p className="text-sm text-gray-600">

@@ -2,9 +2,17 @@ import { useState, useEffect } from 'react';
 import { GITHUB_URL } from '../utils/constants';
 
 const User = () => {
+  /*
+   * Starts empty rather than pre-filled with "Swadify Developer" / "Food
+   * Paradise". Those were invented stand-ins rendered inside a first-person
+   * sentence, so a failed or slow GitHub request left the card stating a name
+   * and a place that don't exist as if they had loaded successfully — worse
+   * than saying nothing. The sentence below now adapts to whichever fields
+   * actually arrived.
+   */
   const [userInfo, setUserInfo] = useState({
-    name: 'Swadify Developer',
-    location: 'Food Paradise',
+    name: '',
+    location: '',
     avatar_url: '',
   });
 
@@ -18,13 +26,14 @@ const User = () => {
         const json = await response.json();
         if (cancelled) return;
         // Merged, not replaced: GitHub omits `name`/`location` on profiles that
-        // haven't set them, and replacing wholesale blanked the fallback copy.
+        // haven't set them, and replacing wholesale would reintroduce undefined
+        // holes in the sentence.
         setUserInfo((prev) => ({
           ...prev,
           ...Object.fromEntries(Object.entries(json).filter(([, v]) => v != null)),
         }));
       } catch {
-        // Non-critical: the card keeps its default copy if GitHub is unreachable.
+        // Non-critical: the card reads correctly without the GitHub fields.
       }
     };
 
@@ -54,7 +63,17 @@ const User = () => {
           />
         )}
         <div className="text-sm mb-2">
-          <h2 className="mb-1">I am <span className='font-medium'>{name}</span>, a BE student from Sinhgad College of Engineering, {location}.</h2>
+          <h2 className="mb-1">
+            {name ? (
+              <>
+                I am <span className="font-medium">{name}</span>, a BE student from
+                Sinhgad College of Engineering
+              </>
+            ) : (
+              <>I am a BE student from Sinhgad College of Engineering</>
+            )}
+            {location ? `, ${location}` : ''}.
+          </h2>
           <p className="mb-1">You can reach me at <span className='font-medium'>awazeshaikh7@gmail.com</span>.</p>
         </div>
       </div>

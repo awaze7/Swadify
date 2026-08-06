@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 /**
- * `currentOrder` — the order just placed, read by the confirmation screen. It is
+ * `currentOrder`: the order just placed, read by the confirmation screen. It is
  * written with dates pre-serialised to ISO strings, since Redux state must stay
  * serialisable.
  *

@@ -97,10 +97,17 @@ const Body = () => {
   if (isLoading) return <Shimmer />;
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 pb-12 overflow-x-hidden"> 
+    <div className="w-full min-h-screen bg-amber-50 pb-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         
         <div className="mb-2">
+          {/*
+            This carousel used to open the page with an <h2> while the page's only
+            <h1> sat further down, above the grid — so the document began at
+            level 2 and a screen reader's heading outline had no top level at all.
+            The <h1> is now the page title and both section headings are <h2>.
+          */}
+          <h1 className="sr-only">Order food online</h1>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
             Handpicked For Your Cravings
           </h2>
@@ -110,9 +117,9 @@ const Body = () => {
         <hr className="border-gray-200 my-6 shadow-sm" />
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             Restaurants with online food delivery
-          </h1>
+          </h2>
 
           <div className="flex flex-wrap items-center gap-4 mb-8">
             <form
@@ -153,11 +160,12 @@ const Body = () => {
             {/* Crave AI now has a persistent launcher rendered globally by
                 CraveAIAssistant.jsx (visible on every page, not just here) */}
 
-            <button 
+            <button
               onClick={() => setIsTopRated(!isTopRated)}
-              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border shadow-sm shrink-0 min-w-[138px] ${
-                isTopRated 
-                  ? 'bg-gray-900 text-yellow-400 border-gray-900 ring-2 ring-yellow-400/20' 
+              aria-pressed={isTopRated}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border shadow-sm shrink-0 min-w-[138px] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 ${
+                isTopRated
+                  ? 'bg-gray-900 text-yellow-400 border-gray-900 ring-2 ring-yellow-400/20'
                   : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
               }`}
             >
@@ -171,6 +179,21 @@ const Body = () => {
             </button>
           </div>
         </div>
+
+        {/*
+          Search, sort and the Top Rated toggle all silently rewrote the grid:
+          the results changed with no announcement and no visible count, so a
+          screen-reader user pressing Search heard nothing at all and had no way
+          to tell a narrowed list from a broken one. Kept out of the isError
+          branch — ErrorState already carries role="alert".
+        */}
+        <p role="status" aria-live="polite" className="sr-only">
+          {isError
+            ? ''
+            : `${filteredRestaurants.length} ${
+                filteredRestaurants.length === 1 ? 'restaurant' : 'restaurants'
+              } found`}
+        </p>
 
         {isError ? (
           /* A failed fetch used to fall through to the empty branch and read
@@ -199,7 +222,7 @@ const Body = () => {
               <Link
                 key={`grid-${restaurant.info.id}`}
                 to={"/restaurants/" + restaurant.info.id}
-                className="hover:scale-[0.98] transition-transform duration-200"
+                className="rounded-xl transition-transform duration-200 hover:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
               >
                 <RestaurantCard resData={restaurant} />
               </Link>

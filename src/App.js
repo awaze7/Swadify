@@ -6,7 +6,7 @@ import About from "./containers/About";
 import Contact from "./containers/Contact";
 import Error from "./containers/Error";
 import RestaurantMenu from "./containers/RestaurantMenu";
-import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet, useLocation, ScrollRestoration } from 'react-router-dom';
 import { Provider } from "react-redux";
 import appStore from "./utils/Redux/appStore";
 import Cart from "./containers/Cart";
@@ -22,6 +22,9 @@ import { db } from './firebase';
 import Profile from "./containers/Profile";
 import Checkout from "./containers/Checkout";
 import OrderConfirmation from "./containers/OrderConfirmation";
+import Terms from "./containers/Terms";
+import Privacy from "./containers/Privacy";
+import FAQ from "./containers/FAQ";
 import useAuthSync from "./utils/useAuthSync";
 
 const queryClient = new QueryClient({
@@ -37,6 +40,10 @@ const queryClient = new QueryClient({
 const AppLayout = () => {
     // Rehydrates the Redux user from the persisted Firebase session on every load.
     useAuthSync();
+    const location = useLocation();
+
+    // Hide CraveAI assistant on auth pages to avoid distraction
+    const showCraveAI = !['/login', '/signup'].includes(location.pathname);
 
     useEffect(() => {
         // Prefetch the compact AI menu summary and cache it in localStorage to minimize reads.
@@ -56,12 +63,12 @@ const AppLayout = () => {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen overflow-x-hidden w-full">
+        <div className="flex flex-col min-h-screen overflow-x-hidden w-full bg-amber-50">
             <ToastContainer autoClose={1500} />
             {/*
               The actual skip link. `<main id="main-content">` already existed with
               a comment claiming keyboard users could skip to content, but nothing
-              ever linked to that anchor — so every page still required tabbing
+              ever linked to that anchor - so every page still required tabbing
               through the whole header and nav. Visible only once focused.
             */}
             <a
@@ -71,11 +78,16 @@ const AppLayout = () => {
                 Skip to main content
             </a>
             <Header />
+            {/* ScrollRestoration resets scroll to the top on every navigation.
+                Without it, clicking a restaurant card from a scrolled-down home
+                page opened the menu at the same scroll offset — the user landed
+                mid-page rather than at the top. */}
+            <ScrollRestoration />
             {/* Named landmark so keyboard users can skip straight to page content. */}
             <main id="main-content" className="flex-grow">
                 <Outlet />
             </main>
-            <CraveAIAssistant />
+            {showCraveAI && <CraveAIAssistant />}
             <Footer />
         </div>
     )
@@ -125,6 +137,18 @@ const appRouter = createBrowserRouter([
             {
                 path: "/signup",
                 element: <Signup />,
+            },
+            {
+                path: "/terms",
+                element: <Terms />,
+            },
+            {
+                path: "/privacy",
+                element: <Privacy />,
+            },
+            {
+                path: "/faq",
+                element: <FAQ />,
             },
             {
                 path: "*",

@@ -163,7 +163,7 @@ const OrderConfirmation = () => {
   const money = (value) => `₹${(Number(value) || 0).toFixed(2)}`;
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-white px-4 py-10 sm:py-12">
+    <div className="bg-gradient-to-b from-blue-50 to-white px-4 pb-28 pt-10 sm:pt-12">
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-10 text-center">
           <div className="mb-5 flex justify-center">

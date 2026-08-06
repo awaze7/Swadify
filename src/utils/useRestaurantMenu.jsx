@@ -11,7 +11,7 @@ export const restaurantMenuKey = (resId) => ["restaurantMenu", String(resId)];
 
 /**
  * A restaurant with no menu document is a real, reportable state and stays on the
- * success path — it is not the same as being unable to ask.
+ * success path, it is not the same as being unable to ask.
  */
 const fetchRestaurantMenu = async (resId) => {
   const snapshot = await getDoc(doc(db, "menus", String(resId)));

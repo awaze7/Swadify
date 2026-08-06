@@ -8,6 +8,7 @@ import { FiChevronRight, FiRepeat, FiRefreshCw } from "react-icons/fi";
 import OrderDetailModal from "./OrderDetailModal";
 import EmptyState from "./EmptyState";
 import ErrorState from "./ErrorState";
+import Button from "./Button";
 
 /** Lightweight inline illustration for the "no orders yet" state. */
 const NoOrdersIllustration = () => (
@@ -35,25 +36,47 @@ const NoOrdersIllustration = () => (
   </svg>
 );
 
+/*
+ * Mirrors the real order card's box model rather than approximating it: the same
+ * `px-5 pt-5` header, the same `mt-4` metric row, and — the part that was missing
+ * — the bordered Reorder footer. Without that footer the placeholder was about
+ * 68px shorter per card, so the list jumped upward by roughly 200px the moment
+ * three real orders arrived.
+ */
 const OrderSkeleton = () => (
-  <div className="space-y-4" aria-hidden="true">
+  <ul className="space-y-4" aria-hidden="true">
     {[0, 1, 2].map((i) => (
-      <div key={i} className="rounded-2xl border border-gray-200 bg-white p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-2.5">
-            <div className="h-4 w-2/5 animate-pulse rounded bg-gray-200" />
-            <div className="h-3 w-1/3 animate-pulse rounded bg-gray-100" />
+      <li key={i} className="rounded-2xl border border-gray-200 bg-white">
+        <div className="px-5 pt-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              {/* h3 (font-semibold) then the date line, matching mt-0.5. */}
+              <div className="h-6 w-2/5 animate-pulse rounded bg-gray-200" />
+              <div className="mt-0.5 h-5 w-1/3 animate-pulse rounded bg-gray-100" />
+            </div>
+            {/* The status pill: px-2.5 py-1 text-xs. */}
+            <div className="h-6 w-20 flex-shrink-0 animate-pulse rounded-full bg-gray-100" />
           </div>
-          <div className="h-6 w-20 animate-pulse rounded-full bg-gray-100" />
+
+          {/* The Items / Total pair — a dt/dd stack each, not a 3-up grid. */}
+          <div className="mt-4 flex items-center gap-6">
+            {[0, 1].map((col) => (
+              <div key={col}>
+                <div className="h-4 w-10 animate-pulse rounded bg-gray-100" />
+                <div className="mt-0.5 h-6 w-12 animate-pulse rounded bg-gray-200" />
+              </div>
+            ))}
+            <div className="ml-auto h-5 w-16 animate-pulse rounded bg-gray-100" />
+          </div>
         </div>
-        <div className="mt-5 grid grid-cols-3 gap-4">
-          <div className="h-8 animate-pulse rounded bg-gray-100" />
-          <div className="h-8 animate-pulse rounded bg-gray-100" />
-          <div className="h-8 animate-pulse rounded bg-gray-100" />
+
+        {/* The Reorder row: py-3 around a 44px `size="sm"` button. */}
+        <div className="mt-4 border-t border-gray-100 px-5 py-3">
+          <div className="h-11 w-28 animate-pulse rounded-lg bg-gray-100" />
         </div>
-      </div>
+      </li>
     ))}
-  </div>
+  </ul>
 );
 
 const formatOrderDate = (createdAt) => {
@@ -244,15 +267,15 @@ const OrderHistorySection = ({
             </button>
 
             <div className="mt-4 border-t border-gray-100 px-5 py-3">
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => handleReorder(order)}
-                className="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-semibold text-gray-700 transition-colors duration-150 hover:bg-gray-900 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-1"
                 aria-label={`Reorder from ${order.restaurantName || "this restaurant"}`}
               >
                 <FiRepeat size={15} aria-hidden="true" />
                 Reorder
-              </button>
+              </Button>
             </div>
           </li>
         ))}

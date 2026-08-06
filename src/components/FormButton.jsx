@@ -21,6 +21,7 @@ const FormButton = ({ buttonText, isDirty, isValid, isSubmitting = false, pendin
     <div className="auth-field mt-2">
       <Button
         type="submit"
+        variant="primaryWarm"
         size="md"
         fullWidth
         disabled={failsValidation || isSubmitting}

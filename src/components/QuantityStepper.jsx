@@ -124,7 +124,10 @@ const QuantityStepper = ({
     }
   };
 
-  const boxClasses = compact ? "h-9 w-[104px]" : "h-10 w-[116px]";
+  // h-11 is 44px — the WCAG 2.5.8 minimum. These were h-9/h-10 (36px/40px),
+  // which made the add-to-cart control, the single most-tapped target in the
+  // app, undersized on touch. Widths grew in step to keep the pill proportion.
+  const boxClasses = compact ? "h-11 w-[124px]" : "h-11 w-[136px]";
   const labelSize = compact ? "text-sm" : "text-base";
 
   return (
@@ -154,7 +157,7 @@ const QuantityStepper = ({
             aria-label={
               count === 1 ? `Remove ${itemName} from cart` : `Decrease quantity of ${itemName}`
             }
-            className="flex w-9 items-center justify-center rounded-l-lg text-white/90 transition-colors duration-100 hover:bg-white/15 active:bg-white/25 focus:outline-none"
+            className="flex w-11 items-center justify-center rounded-l-lg text-white/90 transition-colors duration-100 hover:bg-white/15 active:bg-white/25 focus:outline-none focus-visible:bg-white/25 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500"
           >
             {count === 1 ? <FiTrash2 size={compact ? 14 : 15} /> : <FiMinus size={compact ? 15 : 16} />}
           </button>
@@ -184,7 +187,7 @@ const QuantityStepper = ({
                 : `Increase quantity of ${itemName}`
             }
             title={atMax ? `Limit of ${MAX_ITEM_QUANTITY} per item` : undefined}
-            className="flex w-9 items-center justify-center rounded-r-lg text-white/90 transition-colors duration-100 hover:bg-white/15 active:bg-white/25 focus:outline-none disabled:cursor-not-allowed disabled:text-white/35 disabled:hover:bg-transparent"
+            className="flex w-11 items-center justify-center rounded-r-lg text-white/90 transition-colors duration-100 hover:bg-white/15 active:bg-white/25 focus:outline-none focus-visible:bg-white/25 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500 disabled:cursor-not-allowed disabled:text-white/35 disabled:hover:bg-transparent"
           >
             <FiPlus size={compact ? 15 : 16} />
           </button>
