@@ -31,6 +31,8 @@ const RestaurantMenuView = ({ resId }) => {
     const { isLoading, errorInfo, notFound, refetch, isRefreshing } = resInfo;
     const menu = resInfo.resInfo;
 
+    // null until categories load; after that, 0 keeps the first category open
+    // by default unless a deep-link dishId overrides it below.
     const [showIndex, setShowIndex] = useState(null);
     const [highlightedDishId, setHighlightedDishId] = useState(null);
 
@@ -75,6 +77,19 @@ const RestaurantMenuView = ({ resId }) => {
 
         return [];
     }, [groupedCard, menu?.categories]);
+
+    // Open the first category by default as soon as data arrives.
+    // Uses the functional updater so it only sets to 0 when prev is still null
+    // (i.e. first load) — meaning user-initiated accordion clicks are never
+    // overridden. The dishId effect below will override this with the correct
+    // category if a deep-link is present.
+    useEffect(() => {
+        if (categories.length === 0) return;
+        const hasDishId = new URLSearchParams(location.search).has("dishId");
+        if (!hasDishId) {
+            setShowIndex((prev) => (prev === null ? 0 : prev));
+        }
+    }, [categories, location.search]);
 
     /**
      * Deep link from the AI assistant: open the dish's category, scroll it into

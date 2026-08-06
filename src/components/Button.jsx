@@ -44,6 +44,16 @@ const VARIANTS = {
   onYellow:
     "bg-gray-900 text-white hover:bg-black active:scale-[0.98] " +
     "focus-visible:ring-gray-900 focus-visible:ring-offset-yellow-300",
+  /*
+   * The auth screens and the CraveAI widget are built on the warm `stone-*`
+   * neutral to pair with the `crave` accent, and contain no `gray-*` at all.
+   * A `primary` button there dropped a cool gray-900 slab into an otherwise
+   * warm card, close enough to look like a mistake rather than a choice.
+   * Same role and metrics as `primary`, warm ramp.
+   */
+  primaryWarm:
+    "bg-stone-900 text-white shadow-sm hover:bg-black active:scale-[0.98] " +
+    "focus-visible:ring-crave",
 };
 
 /*
@@ -75,7 +85,7 @@ export const buttonClasses = ({
 
 /**
  * Renders a real `<button>`. For navigation use `buttonClasses` on a `<Link>`
- * instead — a router link styled as a button must stay an anchor so that
+ * instead, a router link styled as a button must stay an anchor so that
  * middle-click, modifier-click and "copy link address" keep working.
  */
 const Button = ({

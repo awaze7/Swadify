@@ -4,8 +4,8 @@ import { getCartItemUnitPrice } from "../priceUtils";
 /**
  * Upper bound on a single line item. Guards against a stuck "+" (or a corrupt
  * reorder payload) pushing an absurd quantity through to Firestore. Enforced in
- * the reducer rather than the component so every entry point — the menu stepper,
- * the cart page and "Reorder" — is capped identically.
+ * the reducer rather than the component so every entry point- the menu stepper,
+ * the cart page and "Reorder" is capped identically.
  */
 export const MAX_ITEM_QUANTITY = 20;
 
@@ -15,7 +15,7 @@ const clampCount = (count) => Math.min(Math.max(count, 0), MAX_ITEM_QUANTITY);
  * `total` is the item subtotal, recomputed after every mutation.
  *
  * It used to be pushed in via a `dispatch(updateTotal(...))` call made from
- * ItemList's render body — a dispatch during render, which triggered an extra
+ * ItemList's render body - a dispatch during render, which triggered an extra
  * render pass on every keystroke of cart activity. Deriving it here keeps Redux
  * internally consistent with zero component involvement.
  */

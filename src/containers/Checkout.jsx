@@ -234,7 +234,8 @@ const Checkout = () => {
   };
 
   return (
-    <div className="mx-auto my-8 w-full max-w-5xl rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
+    <div className="mx-auto w-full max-w-5xl px-4 pb-28 pt-8">
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
       <h1 className="mb-8 text-2xl font-bold text-gray-900 sm:text-3xl">Checkout</h1>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -391,6 +392,7 @@ const Checkout = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

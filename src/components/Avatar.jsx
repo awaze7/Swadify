@@ -4,7 +4,7 @@ import { useState } from "react";
  * User avatar with a deterministic initials fallback.
  *
  * ProfileHeader used to render an avatar fetched from
- * `api.github.com/users/awaze7` — the developer's own GitHub account — so every
+ * `api.github.com/users/awaze7`,the developer's own GitHub account. So every
  * signed-in user saw the same stranger's face. It also hit an unauthenticated,
  * rate-limited endpoint (60 req/hr per IP) on every mount with no caching.
  * The avatar now comes from the user's own `photoURL`, falling back to initials.

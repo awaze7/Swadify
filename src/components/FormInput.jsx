@@ -20,7 +20,7 @@ const FormInput = ({ name, label, type, register, errors }) => {
           className={`w-full rounded-xl border bg-stone-50 px-3.5 py-2.5 ${isPassword ? 'pr-10' : ''} text-sm text-stone-900 outline-none transition-colors duration-150 placeholder:text-stone-400 focus:bg-white focus:ring-2 ${
             updatedErrorMsg
               ? 'border-red-300 focus:border-red-400 focus:ring-red-200'
-              : 'border-stone-200 focus:border-[#FFC72C] focus:ring-[#FFC72C]/30'
+              : 'border-stone-200 focus:border-crave focus:ring-crave/30'
           }`}
           type={resolvedType}
           // Ties the validation message to the field, so a screen reader reads
@@ -40,7 +40,10 @@ const FormInput = ({ name, label, type, register, errors }) => {
             // to check what they had typed.
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             aria-pressed={showPassword}
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-stone-400 transition-colors hover:text-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C]"
+            // Sized as a real target rather than shrink-wrapping the 14px icon,
+            // which gave a ~14px tap area. The input reserves pr-10 for it, so
+            // the box grows inward around the icon without shifting the glyph.
+            className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-stone-400 transition-colors hover:text-stone-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-crave"
           >
             {showPassword ? <FaEyeSlash className="h-3.5 w-3.5" /> : <FaEye className="h-3.5 w-3.5" />}
           </button>

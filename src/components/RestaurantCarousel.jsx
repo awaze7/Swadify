@@ -39,30 +39,17 @@ const RestaurantCarousel = ({ restaurants }) => {
 
   return (
     <div className="block w-full max-w-full overflow-hidden">
-      <style>
-        {`
-          @keyframes infinite-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .animate-infinite-scroll {
-            display: flex;
-            width: max-content;
-            animation: infinite-scroll 90s linear infinite;
-          }
-          .animate-infinite-scroll:hover,
-          .animate-infinite-scroll:focus-within,
-          .animate-infinite-scroll.is-paused {
-            animation-play-state: paused;
-          }
-        `}
-      </style>
-
       <div className="relative w-full overflow-hidden">
         <div
           className={
             animated
-              ? `animate-infinite-scroll gap-6 pb-4 pt-2 ${paused ? "is-paused" : ""}`
+              ? // w-max lets the track be as wide as both copies of the list so
+                // the translate has somewhere to travel. Hover and focus-within
+                // pause it too, so tabbing into a card stops the strip sliding
+                // out from under the focus ring.
+                "flex w-max animate-infinite-scroll gap-6 pb-4 pt-2 " +
+                "hover:[animation-play-state:paused] focus-within:[animation-play-state:paused] " +
+                (paused ? "[animation-play-state:paused]" : "")
               : "flex gap-6 overflow-x-auto pb-4 pt-2"
           }
         >

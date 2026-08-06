@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { FiChevronDown } from "react-icons/fi";
+import Button from "./Button";
 
 const SORT_OPTIONS = [
   { id: "relevance", label: "Relevance (Default)" },
@@ -86,7 +87,17 @@ const SortDropdown = ({ selectedSort, onSortChange }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 z-50 mt-2 w-64 rounded-2xl border border-gray-100 bg-white p-5 shadow-2xl">
+        // The trigger advertises aria-haspopup="dialog", so the popover needs a
+        // matching role — without it a screen reader announced a dialog that,
+        // as far as the tree was concerned, never opened.
+        // origin-top makes the scale in the fadeIn keyframe grow downward out of
+        // the trigger instead of from the popover's centre. motion-reduce drops
+        // the animation for anyone who asked for less motion.
+        <div
+          role="dialog"
+          aria-label="Sort restaurants by"
+          className="absolute left-0 z-50 mt-2 w-64 origin-top animate-fadeIn rounded-2xl border border-gray-100 bg-white p-5 shadow-2xl motion-reduce:animate-none"
+        >
           <fieldset>
             <legend className="sr-only">Sort restaurants by</legend>
             <div className="space-y-1">
@@ -117,13 +128,9 @@ const SortDropdown = ({ selectedSort, onSortChange }) => {
             </div>
           </fieldset>
 
-          <button
-            type="button"
-            onClick={handleApply}
-            className="mt-6 w-full rounded-xl bg-gray-900 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-black active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
-          >
+          <Button fullWidth onClick={handleApply} className="mt-6">
             Apply
-          </button>
+          </Button>
         </div>
       )}
     </div>

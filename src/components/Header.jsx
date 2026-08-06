@@ -6,6 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import UserDropdown from "./UserDropdown";
 import Avatar from "./Avatar";
 import useLogout from "../utils/useLogout";
+import { buttonClasses } from "./Button";
 
 const NAV_LINKS = [
     { to: "/", label: "Home" },
@@ -72,7 +73,21 @@ const Header = () => {
                     aria-label="Swadify home"
                     className="rounded-lg transition-transform duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900"
                 >
-                    <img className="w-16 md:w-20" src={Logo} alt="Swadify" />
+                    {/*
+                      Intrinsic dimensions let the browser reserve the box before
+                      the image decodes. Without them this had width but no
+                      height, so the sticky header collapsed to the nav's height
+                      on first paint and everything below it jumped once the logo
+                      arrived. The source is square (1600x1600), so the ratio here
+                      matches the `w-16`/`w-20` + `h-16`/`h-20` sizing.
+                    */}
+                    <img
+                        className="h-16 w-16 md:h-20 md:w-20"
+                        src={Logo}
+                        alt="Swadify"
+                        width={1600}
+                        height={1600}
+                    />
                 </Link>
 
                 {/* Desktop navigation */}
@@ -108,7 +123,7 @@ const Header = () => {
                         ) : (
                             <Link
                                 to="/login"
-                                className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-all duration-150 hover:bg-black active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300"
+                                className={buttonClasses({ variant: "onYellow", size: "sm" })}
                             >
                                 Login
                             </Link>

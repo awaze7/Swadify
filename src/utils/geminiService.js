@@ -437,6 +437,12 @@ const buildHistoryTurns = (history = []) => {
     history.forEach((msg) => {
         if (!msg || !msg.role) return;
 
+        // Client-side failure notices ("something went sideways on my end") are
+        // written by the UI, not produced here. Replaying them as assistant
+        // history made the model believe it had failed on a turn it never saw,
+        // and it would then apologise for a request that had succeeded.
+        if (msg.transient) return;
+
         if (msg.type === "dishes") {
             const names = (Array.isArray(msg.content) ? msg.content : [])
                 .map((dish) => `${dish.name} (${dish.restaurant})`)
@@ -594,7 +600,7 @@ empty array when the conversation doesn't obviously continue.`,
 const resolveAiDishes = (parsed, allItems) => {
     // Keyed on (resId, id) rather than bare id. Bare-id lookups break when two
     // different restaurants happen to reuse the same numeric id (a real
-    // possibility in this menu data) — the model could ask for a Cafe Goodluck
+    // possibility in this menu data), the model could ask for a Cafe Goodluck
     // dish and silently get handed a same-numbered Faasos dish instead.
     const byKey = new Map(allItems.map((item) => [`${item.resId}::${item.id}`, item]));
     const byIdFallback = new Map(allItems.map((item) => [String(item.id), item]));

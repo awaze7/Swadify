@@ -17,6 +17,11 @@ const EDGE_MARGIN = 32; // keep clear of viewport edges
 const TOP_CLEARANCE = 110; // keep clear of the navbar/header at the top
 const LAUNCHER_FALLBACK_OFFSET = 20; // used if no footer is found on the page
 const LAUNCHER_FOOTER_GAP = 16; // breathing room between the launcher and the footer
+// Industry-standard FAB cap: the button never goes higher than this from the
+// viewport bottom, even when the full footer is in view. This matches Swiggy /
+// Zomato behaviour — the button floats above the footer's bottom strip but does
+// not ride up the multi-row content area. 80px clears the copyright bar.
+const LAUNCHER_MAX_OFFSET = 80;
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const pick = (options) => options[Math.floor(Math.random() * options.length)];
@@ -52,6 +57,7 @@ const CraveAIAssistant = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const launcherRef = useRef(null);
+  const panelRef = useRef(null);
 
   // `handleSend` reads the transcript, but must not be re-created every time a
   // message lands (it's called from the form, from chips, and from retry). A
@@ -93,11 +99,26 @@ const CraveAIAssistant = () => {
     const footerEl = document.getElementById('app-footer');
     if (!footerEl) return;
 
+    // Only the portion of the footer that's actually visible in the viewport
+    // matters for the fixed-position launcher. Using the footer's full rendered
+    // height (the old approach) caused the button to sit `footer_height + gap`
+    // pixels from the viewport bottom at all times — fine for a ~50px footer,
+    // but with the multi-column footer (~240px) that placed the button nearly
+    // halfway up the screen. The intrusion is 0 when the footer is fully below
+    // the fold, so the button stays at LAUNCHER_FALLBACK_OFFSET until the user
+    // scrolls far enough for the footer to appear.
     const updateOffset = () => {
-      setLauncherBottomOffset(footerEl.getBoundingClientRect().height + LAUNCHER_FOOTER_GAP);
+      const footerTop = footerEl.getBoundingClientRect().top;
+      const intrusion = Math.max(0, window.innerHeight - footerTop);
+      const raw = intrusion > 0 ? intrusion + LAUNCHER_FOOTER_GAP : LAUNCHER_FALLBACK_OFFSET;
+      setLauncherBottomOffset(Math.min(raw, LAUNCHER_MAX_OFFSET));
     };
     updateOffset();
 
+    // Scroll is the primary trigger — the intrusion changes as the user scrolls
+    // toward the footer. Resize and ResizeObserver handle viewport/footer-size
+    // changes.
+    window.addEventListener('scroll', updateOffset, { passive: true });
     window.addEventListener('resize', updateOffset);
     let ro;
     if (typeof ResizeObserver !== 'undefined') {
@@ -105,6 +126,7 @@ const CraveAIAssistant = () => {
       ro.observe(footerEl);
     }
     return () => {
+      window.removeEventListener('scroll', updateOffset);
       window.removeEventListener('resize', updateOffset);
       if (ro) ro.disconnect();
     };
@@ -171,6 +193,49 @@ const CraveAIAssistant = () => {
       return () => { document.body.style.overflow = original; };
     }
   }, [isMobileViewport, shouldRender]);
+
+  /*
+   * Trap Tab inside the sheet on mobile only.
+   *
+   * On mobile this is a true modal: it covers the viewport and the effect above
+   * locks body scroll, so Tab used to walk focus into the header and page behind
+   * it — links the user could focus, hear announced and activate while unable to
+   * see or scroll to them. Desktop is deliberately left untrapped: there the
+   * panel is a bounded float with no backdrop and the page stays fully usable,
+   * so reaching the rest of the page by keyboard is correct behaviour rather
+   * than a bug. That difference is also why `aria-modal` below is conditional.
+   */
+  useEffect(() => {
+    if (!isMobileViewport || !isOpen) return;
+
+    const onKeyDown = (e) => {
+      if (e.key !== 'Tab') return;
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      // Queried per keypress, not cached: the header's "new chat" button and the
+      // follow-up chips mount and unmount as the conversation progresses, so a
+      // list captured on open goes stale within a turn.
+      const focusable = panel.querySelectorAll(
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isMobileViewport, isOpen]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
@@ -296,7 +361,22 @@ const CraveAIAssistant = () => {
         );
       }
     } catch (error) {
-      dispatch(addMessage({ role: 'assistant', content: pick(ERROR_CLIENT_REPLIES), type: 'text' }));
+      /*
+       * `transient` marks this as a client-side apology, not something the model
+       * said. Without the flag it was indistinguishable from a real reply: it
+       * was written to localStorage and replayed to the model on the next turn
+       * as genuine assistant history, so the model saw itself "saying" it had
+       * failed and would sometimes apologise again for a request that had in
+       * fact succeeded.
+       */
+      dispatch(
+        addMessage({
+          role: 'assistant',
+          content: pick(ERROR_CLIENT_REPLIES),
+          type: 'text',
+          transient: true,
+        })
+      );
     } finally {
       setIsLoading(false);
     }
@@ -332,12 +412,12 @@ const CraveAIAssistant = () => {
           onClick={() => dispatch(toggleChat())}
           aria-label="Open CraveAI Assistant"
           style={{ bottom: launcherBottomOffset }}
-          className="group fixed right-5 z-40 flex items-center gap-2.5 rounded-full bg-stone-900 py-3.5 pl-3.5 pr-5 text-white shadow-[0_10px_30px_-8px_rgba(28,25,23,0.55)] transition-[transform,box-shadow] duration-200 hover:scale-105 hover:shadow-[0_14px_36px_-8px_rgba(28,25,23,0.6)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2 active:scale-95 sm:right-6"
+          className="group fixed right-5 z-40 flex items-center gap-2.5 rounded-full bg-stone-900 py-3.5 pl-3.5 pr-5 text-white shadow-[0_10px_30px_-8px_rgba(28,25,23,0.55)] transition-[transform,box-shadow,bottom] duration-300 ease-out hover:scale-105 hover:shadow-[0_14px_36px_-8px_rgba(28,25,23,0.6)] focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-offset-2 active:scale-95 sm:right-6"
         >
-          <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[#FFC72C] text-stone-900">
+          <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-crave text-stone-900">
             <IoFastFood className="h-4 w-4" />
             {!reducedMotion && (
-              <span className="absolute inset-0 rounded-full bg-[#FFC72C] opacity-75 [animation:ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite] group-hover:hidden" />
+              <span className="absolute inset-0 rounded-full bg-crave opacity-75 [animation:ping_2.5s_cubic-bezier(0,0,0.2,1)_infinite] group-hover:hidden" />
             )}
           </span>
           <span className="text-sm font-bold tracking-wide">Crave AI</span>
@@ -346,8 +426,11 @@ const CraveAIAssistant = () => {
 
       {shouldRender && (
         <div
+          ref={panelRef}
           role="dialog"
           aria-label="CraveAI Assistant chat"
+          // Only the mobile sheet is modal; see the focus-trap effect above.
+          aria-modal={isMobileViewport ? 'true' : undefined}
           style={panelStyle}
           className={[
             'fixed z-50 flex flex-col overflow-hidden bg-white shadow-[0_24px_70px_-15px_rgba(28,25,23,0.35)] ring-1 ring-stone-900/5',
@@ -374,7 +457,7 @@ const CraveAIAssistant = () => {
 
           <div className="flex shrink-0 items-center justify-between gap-3 bg-gradient-to-r from-stone-900 to-stone-800 px-4 py-3.5 text-white">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFC72C] text-stone-900">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-crave text-stone-900">
                 <IoFastFood className="h-4 w-4" />
               </span>
               <div className="min-w-0">
@@ -397,7 +480,7 @@ const CraveAIAssistant = () => {
                   }}
                   aria-label="Start a new conversation"
                   title="New chat"
-                  className="rounded-full p-2 text-stone-300 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C]"
+                  className="rounded-full p-2 text-stone-300 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-crave"
                 >
                   <FaRegEdit className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
@@ -406,7 +489,7 @@ const CraveAIAssistant = () => {
                 <button
                   onClick={toggleMaximize}
                   aria-label={isMaximized ? 'Restore size' : 'Expand'}
-                  className="rounded-full p-2 text-stone-300 transition-colors hover:bg-white/10 hover:text-white"
+                  className="rounded-full p-2 text-stone-300 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-crave"
                 >
                   {isMaximized ? <FaCompressAlt className="h-3.5 w-3.5" /> : <FaExpandAlt className="h-3.5 w-3.5" />}
                 </button>
@@ -414,7 +497,7 @@ const CraveAIAssistant = () => {
               <button
                 onClick={() => dispatch(toggleChat())}
                 aria-label="Close chat"
-                className="rounded-full p-2 text-stone-300 transition-colors hover:bg-white/10 hover:text-white"
+                className="rounded-full p-2 text-stone-300 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-crave"
               >
                 <FaTimes className="h-3.5 w-3.5" />
               </button>
@@ -462,12 +545,12 @@ const CraveAIAssistant = () => {
                           type="button"
                           key={`${dish.resId}-${dish.id}`}
                           onClick={() => handleDishClick(dish.resId, dish.id)}
-                          className="group flex w-full gap-3 rounded-2xl border border-stone-200 bg-white p-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-[#FFC72C] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2"
+                          className="group flex w-full gap-3 rounded-2xl border border-stone-200 bg-white p-2.5 text-left transition-all hover:-translate-y-0.5 hover:border-crave hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-offset-2"
                         >
                           {dish.imageId ? (
                             <img src={ITEM_IMG_CDN_URL + dish.imageId} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
                           ) : (
-                            <div aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#FFF6DD] text-2xl">🍽️</div>
+                            <div aria-hidden="true" className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-crave-tint text-2xl">🍽️</div>
                           )}
                           <div className="flex min-w-0 flex-col justify-center">
                             <p className="truncate text-sm font-bold text-stone-800">{dish.name}</p>
@@ -492,7 +575,7 @@ const CraveAIAssistant = () => {
                           key={suggestion}
                           type="button"
                           onClick={() => handleSend(suggestion)}
-                          className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 transition-colors hover:border-stone-900 hover:bg-stone-900 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2"
+                          className="rounded-full border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 transition-colors hover:border-stone-900 hover:bg-stone-900 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-offset-2"
                         >
                           {suggestion}
                         </button>
@@ -527,7 +610,7 @@ const CraveAIAssistant = () => {
               id="cravai-input"
               ref={inputRef}
               type="text"
-              className="flex-1 rounded-full border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition-colors focus:border-[#FFC72C] focus:bg-white focus:ring-2 focus:ring-[#FFC72C]/30"
+              className="flex-1 rounded-full border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-800 outline-none transition-colors focus:border-crave focus:bg-white focus:ring-2 focus:ring-crave/30"
               placeholder="Describe your perfect dish…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -536,7 +619,7 @@ const CraveAIAssistant = () => {
               type="submit"
               disabled={!input.trim() || isLoading}
               aria-label="Send"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition-all hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FFC72C] focus-visible:ring-offset-2 active:scale-95 disabled:opacity-40 disabled:hover:bg-stone-900"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition-all hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-offset-2 active:scale-95 disabled:opacity-40 disabled:hover:bg-stone-900"
             >
               <FaPaperPlane className="h-3.5 w-3.5" aria-hidden="true" />
             </button>

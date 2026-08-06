@@ -11,10 +11,10 @@ import AuthBg from "url:../utils/auth-background.webp";
  * Replaces the old side-by-side layout (small Swadify_img.png next to a
  * bare, uncarded form) that both pages used via FormImage.jsx.
  *
- * Usage: wrap the existing <form>/<FormMessage> exactly as before — the
+ * Usage: wrap the existing <form>/<FormMessage> exactly as before- the
  * fields themselves are untouched, only the surrounding chrome changes.
  * Increment `shakeSignal` (e.g. a counter in the parent's state) whenever
- * you want the card to shake — on failed validation or a rejected login.
+ * you want the card to shake - on failed validation or a rejected login.
  */
 const AuthLayout = ({ children, shakeSignal }) => {
   const rootRef = useRef(null);
@@ -62,7 +62,7 @@ const AuthLayout = ({ children, shakeSignal }) => {
 
   useEffect(() => {
     // Skip the run that happens on mount (shakeSignal starts at 0 with
-    // nothing wrong yet) — only react to it actually changing afterward.
+    // nothing wrong yet) - only react to it actually changing afterward.
     if (isFirstShake.current) {
       isFirstShake.current = false;
       return;
@@ -86,7 +86,7 @@ const AuthLayout = ({ children, shakeSignal }) => {
         className="relative w-full max-w-md rounded-[28px] border border-white/25 bg-white/95 p-7 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.65)] backdrop-blur-xl sm:p-10"
       >
         <div className="auth-field mb-5 flex items-center gap-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FFC72C] text-stone-900">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-crave text-stone-900">
             <IoFastFood className="h-4 w-4" />
           </span>
           <span className="text-xs font-bold uppercase tracking-[0.2em] text-stone-400">Swadify</span>

@@ -4,7 +4,7 @@ const STORAGE_KEY = 'ai_chat_messages';
 
 // The transcript is now sent to the model as conversation history, and it is
 // mirrored into localStorage on every message. Both of those grow without bound
-// otherwise — a long-lived chat could accumulate hundreds of turns and push
+// otherwise, a long-lived chat could accumulate hundreds of turns and push
 // past the localStorage quota, at which point every future write fails and
 // persistence silently stops. Keeping a recent window is enough: only the last
 // few turns are ever sent to the model anyway.
@@ -18,7 +18,14 @@ const GREETING = {
 
 const persist = (messages) => {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+        // `transient` messages are client-side failure notices, not part of the
+        // conversation. They stay in memory so the user sees them this session,
+        // but persisting them would resurrect a stale "something went wrong" on
+        // the next visit, above a transcript that had actually worked.
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(messages.filter((msg) => !msg?.transient))
+        );
     } catch (e) {
         // Quota or private-mode errors are non-fatal — the chat still works
         // in memory for this session.

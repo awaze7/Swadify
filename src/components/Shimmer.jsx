@@ -62,7 +62,7 @@ const Shimmer = () => {
         Loading restaurants
       </span>
       <div
-        className="min-h-screen w-full animate-pulse overflow-x-hidden bg-gray-50 pb-12"
+        className="min-h-screen w-full animate-pulse overflow-x-hidden bg-amber-50 pb-12"
         // The whole tree is decorative placeholder geometry; the status message
         // above is what assistive tech should hear instead.
         aria-hidden="true"

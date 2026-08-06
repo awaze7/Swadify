@@ -44,11 +44,11 @@ const fetchOrderHistory = async (userId) => {
  * Built on TanStack Query rather than raw useState/useEffect because this
  * particular fetch needs three things the hand-rolled version got wrong:
  *
- * 1. Race safety — the old version had no cancellation, so a slow response for
+ * 1. Race safety: the old version had no cancellation, so a slow response for
  *    user A could land after a fast response for user B and overwrite it.
- * 2. Error-aware retries — a transient `unavailable` deserves a retry with
+ * 2. Error-aware retries: a transient `unavailable` deserves a retry with
  *    backoff; a `permission-denied` never will succeed and must fail fast.
- * 3. Caching — navigating away from and back to Profile re-read the whole
+ * 3. Caching: navigating away from and back to Profile re-read the whole
  *    collection every time, which is billable. Now it serves from cache and
  *    revalidates in the background.
  */
