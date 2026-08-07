@@ -10,16 +10,16 @@ import Avatar from './Avatar';
 import Button from './Button';
 
 const FIELD_CLASSES =
-  'w-full rounded-lg border px-4 py-2.5 transition-all duration-150 focus:border-transparent focus:ring-2 focus:ring-gray-900';
+  'w-full rounded-lg border px-4 py-2.5 transition-all duration-150 focus:border-transparent focus:ring-2 focus:ring-gray-900 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:ring-yellow-500';
 
 const InfoRow = ({ icon: Icon, iconWrapper, label, value }) => (
-  <div className="flex items-start gap-4 rounded-lg bg-gray-50 p-3 transition-colors duration-150 hover:bg-gray-100">
+  <div className="flex items-start gap-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 p-3 transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-gray-700">
     <div className={`mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${iconWrapper}`}>
       <Icon size={18} aria-hidden="true" />
     </div>
     <div className="min-w-0">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</p>
-      <p className="mt-0.5 break-words font-medium text-gray-900">{value}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</p>
+      <p className="mt-0.5 break-words font-medium text-gray-900 dark:text-gray-100">{value}</p>
     </div>
   </div>
 );
@@ -120,11 +120,11 @@ const ProfileHeader = ({ user, isEditing, setIsEditing, orderCount = 0, orderCou
   if (isEditing) {
     return (
       <form onSubmit={handleSaveProfile} noValidate className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Edit Profile</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Edit Profile</h2>
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label htmlFor="profile-name" className="mb-2 block text-sm font-semibold text-gray-700">
+            <label htmlFor="profile-name" className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Full Name
             </label>
             <input
@@ -135,18 +135,18 @@ const ProfileHeader = ({ user, isEditing, setIsEditing, orderCount = 0, orderCou
               onChange={handleInputChange}
               aria-invalid={!!errors.displayName}
               aria-describedby={errors.displayName ? 'profile-name-error' : undefined}
-              className={`${FIELD_CLASSES} ${errors.displayName ? 'border-red-500' : 'border-gray-300'}`}
+              className={`${FIELD_CLASSES} ${errors.displayName ? 'border-red-500 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'}`}
               placeholder="Enter your full name"
             />
             {errors.displayName && (
-              <p id="profile-name-error" role="alert" className="mt-1 text-sm text-red-600">
+              <p id="profile-name-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {errors.displayName}
               </p>
             )}
           </div>
 
           <div>
-            <label htmlFor="profile-email" className="mb-2 block text-sm font-semibold text-gray-700">
+            <label htmlFor="profile-email" className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Email Address
             </label>
             <input
@@ -156,15 +156,15 @@ const ProfileHeader = ({ user, isEditing, setIsEditing, orderCount = 0, orderCou
               value={formData.email}
               disabled
               aria-describedby="profile-email-hint"
-              className="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-gray-600"
+              className="w-full cursor-not-allowed rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-700/50 px-4 py-2.5 text-gray-600 dark:text-gray-400"
             />
-            <p id="profile-email-hint" className="mt-1 text-xs text-gray-500">
+            <p id="profile-email-hint" className="mt-1 text-xs text-gray-500 dark:text-gray-500">
               Email cannot be changed
             </p>
           </div>
 
           <div>
-            <label htmlFor="profile-phone" className="mb-2 block text-sm font-semibold text-gray-700">
+            <label htmlFor="profile-phone" className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Phone Number
             </label>
             <input
@@ -175,18 +175,18 @@ const ProfileHeader = ({ user, isEditing, setIsEditing, orderCount = 0, orderCou
               onChange={handleInputChange}
               aria-invalid={!!errors.phoneNumber}
               aria-describedby={errors.phoneNumber ? 'profile-phone-error' : undefined}
-              className={`${FIELD_CLASSES} ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'}`}
+              className={`${FIELD_CLASSES} ${errors.phoneNumber ? 'border-red-500 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'}`}
               placeholder="+91 XXXXXXXXXX"
             />
             {errors.phoneNumber && (
-              <p id="profile-phone-error" role="alert" className="mt-1 text-sm text-red-600">
+              <p id="profile-phone-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {errors.phoneNumber}
               </p>
             )}
           </div>
 
           <div className="md:col-span-2">
-            <label htmlFor="profile-address" className="mb-2 block text-sm font-semibold text-gray-700">
+            <label htmlFor="profile-address" className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Delivery Address
             </label>
             <textarea
@@ -198,18 +198,18 @@ const ProfileHeader = ({ user, isEditing, setIsEditing, orderCount = 0, orderCou
               maxLength="500"
               aria-invalid={!!errors.address}
               aria-describedby={errors.address ? 'profile-address-error' : undefined}
-              className={`${FIELD_CLASSES} resize-none ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
+              className={`${FIELD_CLASSES} resize-none ${errors.address ? 'border-red-500 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'}`}
               placeholder="House / street / area, city, PIN"
             />
             {errors.address && (
-              <p id="profile-address-error" role="alert" className="mt-1 text-sm text-red-600">
+              <p id="profile-address-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">
                 {errors.address}
               </p>
             )}
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-gray-200 pt-5 sm:flex-row">
+        <div className="flex flex-col gap-3 border-t border-gray-200 dark:border-gray-700 pt-5 sm:flex-row">
           <Button
             type="submit"
             size="lg"
@@ -251,7 +251,7 @@ const ProfileHeader = ({ user, isEditing, setIsEditing, orderCount = 0, orderCou
       </div>
 
       <div className="min-w-0 flex-1">
-        <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">
           {user?.displayName || 'Your account'}
         </h1>
 
@@ -281,16 +281,16 @@ const ProfileHeader = ({ user, isEditing, setIsEditing, orderCount = 0, orderCou
           "Premium Member" badge, a fabricated "⭐ 4.8" rating and an "Active"
           tile — none of which were derived from anything.
         */}
-        <div className="mt-6 border-t border-gray-200 pt-5">
-          <div className="inline-flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-white">
+        <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-5">
+          <div className="inline-flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 px-4 py-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 dark:bg-yellow-500 text-white dark:text-gray-900">
               <FiShoppingBag size={18} aria-hidden="true" />
             </span>
             <span>
-              <span className="block text-xl font-bold tabular-nums text-gray-900">
+              <span className="block text-xl font-bold tabular-nums text-gray-900 dark:text-gray-100">
                 {orderCountKnown ? orderCount : '—'}
               </span>
-              <span className="block text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <span className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 {orderCount === 1 ? 'Order placed' : 'Orders placed'}
               </span>
             </span>

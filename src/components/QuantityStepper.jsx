@@ -147,7 +147,7 @@ const QuantityStepper = ({
           onKeyDown={handleKeyDown}
           role="group"
           aria-label={`Quantity for ${itemName}`}
-          className={`${boxClasses} flex items-stretch justify-between overflow-hidden rounded-lg bg-gray-900 text-white shadow-sm ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:ring-offset-1`}
+          className={`${boxClasses} flex items-stretch justify-between overflow-hidden rounded-lg bg-gray-900 text-white shadow-sm ring-1 ring-black/5 dark:ring-white/10 focus-within:ring-2 focus-within:ring-yellow-500 focus-within:ring-offset-1`}
         >
           <button
             type="button"
@@ -198,7 +198,7 @@ const QuantityStepper = ({
           type="button"
           onClick={onAdd}
           aria-label={`Add ${itemName} to cart`}
-          className={`${boxClasses} flex items-center justify-center rounded-lg bg-white font-semibold uppercase tracking-wide text-gray-900 shadow-sm ring-1 ring-gray-300 transition-all duration-150 hover:bg-gray-900 hover:text-white hover:ring-gray-900 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-1 ${labelSize}`}
+          className={`${boxClasses} flex items-center justify-center rounded-lg bg-white dark:bg-gray-800 font-semibold uppercase tracking-wide text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-gray-300 dark:ring-gray-600 transition-all duration-150 hover:bg-gray-900 hover:text-white dark:hover:bg-yellow-500 dark:hover:text-gray-900 dark:hover:ring-yellow-500 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-1 ${labelSize}`}
         >
           Add
         </button>

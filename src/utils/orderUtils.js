@@ -47,7 +47,7 @@ export const calculateOrderTotals = (items) => {
   return { totalItems, itemSubtotal, gst, platformFee, deliveryFee, total };
 };
 
-export const createOrder = (cartItems, user, deliveryAddress, specialInstructions, restaurantInfo) => {
+export const createOrder = (cartItems, user, deliveryAddress, specialInstructions, restaurantInfo, paymentMethod = 'cod') => {
   if (!cartItems || cartItems.length === 0 || !user) {
     throw new Error("Invalid order data: missing items or user");
   }
@@ -84,7 +84,7 @@ export const createOrder = (cartItems, user, deliveryAddress, specialInstruction
     deliveryAddress: deliveryAddress || "",
     phoneNumber: user.phoneNumber || "",
     specialInstructions: specialInstructions || "",
-    paymentMethod: "cod",
+    paymentMethod: paymentMethod || 'cod',
   };
 };
 

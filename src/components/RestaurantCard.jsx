@@ -23,7 +23,7 @@ const RestaurantCard = ({ resData }) => {
     // `w-[236px]` left it unable to fill its column at md/lg and nearly
     // overflowing at 320px. The hover scale lives on the parent <Link>, not
     // here — having it on both nested elements compounded the transform.
-    <div className="h-full overflow-hidden rounded-xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-lg">
+    <div className="h-full overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-sm transition-shadow duration-300 hover:shadow-lg dark:shadow-gray-950/40">
       <div className="relative">
         {veg && (
           <div className="absolute right-2 top-2 z-10 flex items-center justify-center rounded-md border border-white/15 bg-black/40 p-1 shadow-sm backdrop-blur-md">
@@ -58,26 +58,26 @@ const RestaurantCard = ({ resData }) => {
       </div>
 
       <div className="p-4">
-        <h3 className="mb-1 line-clamp-1 text-lg font-bold text-gray-900">{name}</h3>
+        <h3 className="mb-1 line-clamp-1 text-lg font-bold text-gray-900 dark:text-gray-100">{name}</h3>
 
         <div className="mb-1 flex items-center justify-between gap-2 font-bold">
           <span className="flex items-center gap-1">
-            <span className="text-xl text-red-900" aria-hidden="true">
+            <span className="text-xl text-red-900 dark:text-yellow-400" aria-hidden="true">
               &#10026;
             </span>
-            <span className="text-base">
+            <span className="text-base dark:text-gray-200">
               <span className="sr-only">Rated </span>
               {avgRating}
             </span>
           </span>
 
-          <p className="whitespace-nowrap text-base text-gray-800">{sla?.slaString}</p>
+          <p className="whitespace-nowrap text-base text-gray-800 dark:text-gray-300">{sla?.slaString}</p>
         </div>
 
-        <p className="mb-2 line-clamp-1 text-xs text-gray-600">
+        <p className="mb-2 line-clamp-1 text-xs text-gray-600 dark:text-gray-400">
           {cuisines?.length ? cuisines.join(", ") : ""}
         </p>
-        <p className="text-sm font-bold text-gray-900">{costForTwo}</p>
+        <p className="text-sm font-bold text-gray-900 dark:text-gray-200">{costForTwo}</p>
       </div>
     </div>
   );

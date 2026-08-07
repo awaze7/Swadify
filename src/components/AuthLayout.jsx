@@ -83,7 +83,7 @@ const AuthLayout = ({ children, shakeSignal }) => {
 
       <div
         ref={cardRef}
-        className="relative w-full max-w-md rounded-[28px] border border-white/25 bg-white/95 p-7 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.65)] backdrop-blur-xl sm:p-10"
+        className="relative w-full max-w-md rounded-[28px] border border-white/25 dark:border-white/10 bg-white/95 dark:bg-gray-800/95 p-7 shadow-[0_30px_90px_-20px_rgba(0,0,0,0.65)] backdrop-blur-xl sm:p-10"
       >
         <div className="auth-field mb-5 flex items-center gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-crave text-stone-900">

@@ -24,33 +24,23 @@ const BASE =
  */
 const VARIANTS = {
   primary:
-    "bg-gray-900 text-white shadow-sm hover:bg-black active:scale-[0.98] " +
+    "bg-gray-900 dark:bg-yellow-500 dark:text-gray-900 text-white shadow-sm hover:bg-black dark:hover:bg-yellow-400 active:scale-[0.98] " +
     "focus-visible:ring-yellow-500",
   secondary:
-    "border border-gray-300 bg-white text-gray-900 shadow-sm hover:bg-gray-100 " +
-    "active:scale-[0.98] focus-visible:ring-gray-900",
+    "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 " +
+    "active:scale-[0.98] focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400",
   danger:
     "bg-red-600 text-white shadow-sm hover:bg-red-700 active:scale-[0.98] " +
     "focus-visible:ring-red-600",
-  // Destructive, but not the page's main action — sits quietly until hovered.
-  // Used for "Clear cart" / "Log out": recoverable, so it shouldn't shout like
-  // solid `danger`, but it must not read as a neutral `secondary` either.
   dangerSubtle:
-    "border border-gray-300 text-gray-700 hover:border-red-300 hover:bg-red-50 " +
-    "hover:text-red-700 active:scale-[0.98] focus-visible:ring-red-500",
+    "border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-red-300 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 " +
+    "hover:text-red-700 dark:hover:text-red-400 active:scale-[0.98] focus-visible:ring-red-500",
   ghost:
-    "text-gray-700 hover:bg-gray-100 hover:text-gray-900 active:scale-[0.98] " +
-    "focus-visible:ring-gray-900",
+    "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 active:scale-[0.98] " +
+    "focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400",
   onYellow:
     "bg-gray-900 text-white hover:bg-black active:scale-[0.98] " +
     "focus-visible:ring-gray-900 focus-visible:ring-offset-yellow-300",
-  /*
-   * The auth screens and the CraveAI widget are built on the warm `stone-*`
-   * neutral to pair with the `crave` accent, and contain no `gray-*` at all.
-   * A `primary` button there dropped a cool gray-900 slab into an otherwise
-   * warm card, close enough to look like a mistake rather than a choice.
-   * Same role and metrics as `primary`, warm ramp.
-   */
   primaryWarm:
     "bg-stone-900 text-white shadow-sm hover:bg-black active:scale-[0.98] " +
     "focus-visible:ring-crave",

@@ -163,7 +163,7 @@ const UserDropdown = () => {
   const firstName = user.displayName?.split(' ')[0] || 'Account';
 
   const itemClasses =
-    'flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition-colors duration-100 focus:outline-none focus-visible:bg-gray-100';
+    'flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 transition-colors duration-100 focus:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-gray-700';
 
   return (
     <div className="relative" ref={containerRef}>
@@ -172,19 +172,19 @@ const UserDropdown = () => {
         type="button"
         onClick={() => setIsOpen((open) => !open)}
         onKeyDown={handleTriggerKeyDown}
-        className="group flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors duration-150 hover:bg-yellow-400/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300"
+        className="group flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors duration-150 hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-gray-900"
         aria-label={`Account menu for ${displayName}`}
         aria-expanded={isOpen}
         aria-haspopup="menu"
       >
         <Avatar user={user} size="sm" />
-        <span className="hidden max-w-[100px] truncate text-sm font-semibold text-gray-900 sm:inline">
+        <span className="hidden max-w-[100px] truncate text-sm font-semibold text-gray-900 dark:text-gray-100 sm:inline">
           {firstName}
         </span>
         <FiChevronDown
           size={16}
           aria-hidden="true"
-          className={`text-gray-700 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`text-gray-700 dark:text-gray-300 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
@@ -194,14 +194,14 @@ const UserDropdown = () => {
           role="menu"
           aria-label="Account"
           onKeyDown={handleMenuKeyDown}
-          className="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xl"
+          className="absolute right-0 z-50 mt-2 w-64 origin-top-right overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl dark:shadow-gray-950/60"
         >
           {/* Identity block */}
-          <div className="flex items-start gap-3 border-b border-gray-100 bg-gray-50 px-4 py-3.5">
+          <div className="flex items-start gap-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/60 px-4 py-3.5">
             <Avatar user={user} size="md" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-gray-900">{displayName}</p>
-              <div className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
+              <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">{displayName}</p>
+              <div className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
                 <FiMail size={12} className="flex-shrink-0" aria-hidden="true" />
                 <span className="truncate">{user.email}</span>
               </div>
@@ -214,34 +214,34 @@ const UserDropdown = () => {
               to="/profile"
               role="menuitem"
               onClick={() => close()}
-              className={`${itemClasses} hover:bg-gray-100 hover:text-gray-900`}
+              className={`${itemClasses} hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100`}
             >
-              <FiUser size={17} className="flex-shrink-0 text-gray-500" aria-hidden="true" />
+              <FiUser size={17} className="flex-shrink-0 text-gray-500 dark:text-gray-400" aria-hidden="true" />
               <span className="font-medium">My Profile</span>
             </Link>
 
             <Link
               ref={(el) => { itemRefs.current[1] = el; }}
-              to="/profile"
+              to="/profile/orders"
               role="menuitem"
               onClick={() => close()}
-              className={`${itemClasses} hover:bg-gray-100 hover:text-gray-900`}
+              className={`${itemClasses} hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100`}
             >
-              <FiShoppingBag size={17} className="flex-shrink-0 text-gray-500" aria-hidden="true" />
+              <FiShoppingBag size={17} className="flex-shrink-0 text-gray-500 dark:text-gray-400" aria-hidden="true" />
               <span className="font-medium">My Orders</span>
             </Link>
           </div>
 
-          <div className="border-t border-gray-100 py-1.5">
+          <div className="border-t border-gray-100 dark:border-gray-700 py-1.5">
             <button
               ref={(el) => { itemRefs.current[2] = el; }}
               type="button"
               role="menuitem"
               onClick={logout}
               disabled={isLoggingOut}
-              className={`${itemClasses} hover:bg-red-50 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60`}
+              className={`${itemClasses} hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-700 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-60`}
             >
-              <FiLogOut size={17} className="flex-shrink-0 text-gray-500" aria-hidden="true" />
+              <FiLogOut size={17} className="flex-shrink-0 text-gray-500 dark:text-gray-400" aria-hidden="true" />
               <span className="font-medium">{isLoggingOut ? 'Logging out…' : 'Logout'}</span>
             </button>
           </div>

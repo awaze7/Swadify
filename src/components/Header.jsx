@@ -1,12 +1,13 @@
 import Logo from "url:../utils/Logo.png";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { FiShoppingCart, FiMenu, FiX, FiLogOut, FiUser } from "react-icons/fi";
+import { FiShoppingCart, FiMenu, FiX, FiLogOut, FiUser, FiShoppingBag } from "react-icons/fi";
 import { useState, useEffect, useMemo } from "react";
 import UserDropdown from "./UserDropdown";
 import Avatar from "./Avatar";
 import useLogout from "../utils/useLogout";
 import { buttonClasses } from "./Button";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
     { to: "/", label: "Home" },
@@ -47,18 +48,22 @@ const Header = () => {
     }, [menuOpen]);
 
     const navLinkClasses = ({ isActive }) =>
-        `rounded-lg px-3 py-2 text-base font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 ${
-            isActive ? "bg-yellow-400 text-gray-900" : "text-gray-800 hover:bg-yellow-400/70"
+        `rounded-lg px-3 py-2 text-base font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-gray-900 ${
+            isActive
+              ? "bg-yellow-400 text-gray-900 dark:bg-yellow-500 dark:text-gray-900"
+              : "text-gray-800 dark:text-gray-200 hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
         }`;
 
     const mobileLinkClasses = ({ isActive }) =>
-        `block rounded-lg px-4 py-3 text-base font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 ${
-            isActive ? "bg-yellow-400 text-gray-900" : "text-gray-800 hover:bg-yellow-400/70"
+        `block rounded-lg px-4 py-3 text-base font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 ${
+            isActive
+              ? "bg-yellow-400 text-gray-900 dark:bg-yellow-500 dark:text-gray-900"
+              : "text-gray-800 dark:text-gray-200 hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
         }`;
 
     const cartBadge = cartCount > 0 && (
         <span
-            className="absolute -right-2 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-yellow-300"
+            className="absolute -right-2 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-yellow-300 dark:ring-gray-900"
             aria-hidden="true"
         >
             {cartCount > 99 ? "99+" : cartCount}
@@ -66,7 +71,7 @@ const Header = () => {
     );
 
     return (
-        <header className="sticky top-0 z-40 border-b-2 border-yellow-400 bg-gradient-to-r from-yellow-300 via-yellow-300 to-yellow-200 font-sans shadow-md">
+        <header className="sticky top-0 z-40 border-b-2 border-yellow-400 dark:border-yellow-500/60 bg-gradient-to-r from-yellow-300 via-yellow-300 to-yellow-200 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-sans shadow-md dark:shadow-gray-950/50">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
                 <Link
                     to="/"
@@ -101,8 +106,8 @@ const Header = () => {
                     <NavLink
                         to="/cart"
                         className={({ isActive }) =>
-                            `relative ml-1 rounded-lg p-2.5 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 ${
-                                isActive ? "bg-yellow-400" : "hover:bg-yellow-400/70"
+                            `relative ml-1 rounded-lg p-2.5 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-gray-900 ${
+                                isActive ? "bg-yellow-400 dark:bg-yellow-500/20" : "hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
                             }`
                         }
                         aria-label={
@@ -112,12 +117,16 @@ const Header = () => {
                         }
                     >
                         <span className="relative block">
-                            <FiShoppingCart size={22} className="text-gray-900" aria-hidden="true" />
+                            <FiShoppingCart size={22} className="text-gray-900 dark:text-gray-200" aria-hidden="true" />
                             {cartBadge}
                         </span>
                     </NavLink>
 
-                    <div className="ml-2">
+                    <div className="ml-1">
+                        <ThemeToggle />
+                    </div>
+
+                    <div className="ml-1">
                         {user ? (
                             <UserDropdown />
                         ) : (
@@ -133,9 +142,10 @@ const Header = () => {
 
                 {/* Mobile controls */}
                 <div className="flex items-center gap-1 md:hidden">
+                    <ThemeToggle />
                     <Link
                         to="/cart"
-                        className="relative rounded-lg p-2.5 transition-colors hover:bg-yellow-400/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900"
+                        className="relative rounded-lg p-2.5 transition-colors hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400"
                         aria-label={
                             cartCount > 0
                                 ? `Cart, ${cartCount} ${cartCount === 1 ? "item" : "items"}`
@@ -143,7 +153,7 @@ const Header = () => {
                         }
                     >
                         <span className="relative block">
-                            <FiShoppingCart size={22} className="text-gray-900" aria-hidden="true" />
+                            <FiShoppingCart size={22} className="text-gray-900 dark:text-gray-200" aria-hidden="true" />
                             {cartBadge}
                         </span>
                     </Link>
@@ -152,7 +162,7 @@ const Header = () => {
                         type="button"
                         id="menu-button"
                         onClick={() => setMenuOpen((open) => !open)}
-                        className="rounded-lg p-2.5 text-gray-900 transition-colors hover:bg-yellow-400/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900"
+                        className="rounded-lg p-2.5 text-gray-900 dark:text-gray-200 transition-colors hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400"
                         aria-label={menuOpen ? "Close menu" : "Open menu"}
                         aria-expanded={menuOpen}
                         aria-controls="mobile-menu"
@@ -167,16 +177,16 @@ const Header = () => {
                 <nav
                     id="mobile-menu"
                     aria-label="Mobile"
-                    className="border-t-2 border-yellow-400 bg-yellow-100 md:hidden"
+                    className="border-t-2 border-yellow-400 dark:border-yellow-500/40 bg-yellow-100 dark:bg-gray-800 md:hidden"
                 >
                     {user && (
-                        <div className="flex items-center gap-3 border-b border-yellow-300 px-4 py-3.5">
+                        <div className="flex items-center gap-3 border-b border-yellow-300 dark:border-gray-700 px-4 py-3.5">
                             <Avatar user={user} size="md" />
                             <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-gray-900">
+                                <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
                                     {user.displayName || "Your account"}
                                 </p>
-                                <p className="truncate text-xs text-gray-600">{user.email}</p>
+                                <p className="truncate text-xs text-gray-600 dark:text-gray-400">{user.email}</p>
                             </div>
                         </div>
                     )}
@@ -193,23 +203,23 @@ const Header = () => {
 
                         {user ? (
                             <>
-                                <NavLink to="/profile" className={mobileLinkClasses}>
+                                <NavLink to="/profile" end className={mobileLinkClasses}>
                                     <span className="flex items-center gap-2.5">
                                         <FiUser size={17} aria-hidden="true" />
                                         My Profile
                                     </span>
                                 </NavLink>
-                                {/*
-                                  This button previously only called
-                                  setMenuOpen(false) — it looked like a logout
-                                  control but did nothing at all. It now runs the
-                                  same shared logout as the desktop dropdown.
-                                */}
+                                <NavLink to="/profile/orders" className={mobileLinkClasses}>
+                                    <span className="flex items-center gap-2.5">
+                                        <FiShoppingBag size={17} aria-hidden="true" />
+                                        My Orders
+                                    </span>
+                                </NavLink>
                                 <button
                                     type="button"
                                     onClick={logout}
                                     disabled={isLoggingOut}
-                                    className="block w-full rounded-lg px-4 py-3 text-left text-base font-semibold text-red-700 transition-colors duration-150 hover:bg-red-100 disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+                                    className="block w-full rounded-lg px-4 py-3 text-left text-base font-semibold text-red-700 dark:text-red-400 transition-colors duration-150 hover:bg-red-100 dark:hover:bg-red-900/30 disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
                                 >
                                     <span className="flex items-center gap-2.5">
                                         <FiLogOut size={17} aria-hidden="true" />

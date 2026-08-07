@@ -10,13 +10,13 @@ const Terms = () => {
 
   return (
     <div className="mx-auto my-8 max-w-4xl px-4">
-      <div className="rounded-lg bg-white p-6 shadow-lg sm:p-10">
-        <h1 className="mb-6 text-center text-3xl font-bold text-gray-900">Terms of Service</h1>
-        <p className="mb-6 text-sm text-gray-500">Last updated: August 6, 2026</p>
+      <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg sm:p-10">
+        <h1 className="mb-6 text-center text-3xl font-bold text-gray-900 dark:text-gray-100">Terms of Service</h1>
+        <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">Last updated: August 6, 2026</p>
 
-        <div className="space-y-6 text-gray-700">
+        <div className="space-y-6 text-gray-700 dark:text-gray-300">
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-gray-900">1. Acceptance of Terms</h2>
+            <h2 className="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100">1. Acceptance of Terms</h2>
             <p className="leading-relaxed">
               By accessing and using Swadify, you accept and agree to be bound by these Terms of Service.
               If you do not agree to these terms, please do not use our platform.

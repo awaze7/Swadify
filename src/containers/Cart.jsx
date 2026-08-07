@@ -34,13 +34,13 @@ const Cart = () => {
     if (cartItems.length === 0) {
         return (
             <div className="mx-auto w-full max-w-lg px-4 pb-28 pt-12 sm:pt-16">
-                <div className="rounded-2xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm">
-                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100">
-                        <FiShoppingCart className="text-gray-400" size={34} aria-hidden="true" />
+                <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-14 text-center shadow-sm">
+                    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+                        <FiShoppingCart className="text-gray-400 dark:text-gray-500" size={34} aria-hidden="true" />
                     </div>
-                    <h1 className="mt-6 text-2xl font-bold text-gray-900">Your cart is empty</h1>
-                    <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
-                        Browse restaurants near you and add a few dishes — they'll show up right here.
+                    <h1 className="mt-6 text-2xl font-bold text-gray-900 dark:text-gray-100">Your cart is empty</h1>
+                    <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600 dark:text-gray-400">
+                        Browse restaurants near you and add a few dishes, they'll show up right here.
                     </p>
                     <Link to="/" className={buttonClasses({ size: "lg", className: "mt-7" })}>
                         Browse restaurants
@@ -54,8 +54,8 @@ const Cart = () => {
     return (
         <div className="mx-auto w-full max-w-5xl px-4 pb-28 pt-8">
             <div className="mb-6 flex items-baseline justify-between gap-4">
-                <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Your Cart</h1>
-                <p className="text-sm text-gray-600">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Your Cart</h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                     {totalItems} {totalItems === 1 ? "item" : "items"}
                 </p>
             </div>
@@ -63,7 +63,7 @@ const Cart = () => {
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 {/* Items */}
                 <div className="lg:col-span-2">
-                    <div className="rounded-2xl border border-gray-200 bg-white px-4 shadow-sm sm:px-6">
+                    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 shadow-sm sm:px-6">
                         <ItemList items={cartItems} inCart />
                     </div>
 
@@ -81,27 +81,27 @@ const Cart = () => {
 
                 {/* Summary */}
                 <div className="lg:col-span-1">
-                    <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5 shadow-sm lg:sticky lg:top-24">
-                        <h2 className="text-lg font-bold text-gray-900">Order Summary</h2>
+                    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-5 shadow-sm lg:sticky lg:top-24">
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Order Summary</h2>
 
                         <dl className="mt-4 space-y-2.5">
-                            <div className="flex justify-between text-sm text-gray-700">
+                            <div className="flex justify-between text-sm text-gray-700 dark:text-gray-300">
                                 <dt>Item total</dt>
                                 <dd className="tabular-nums">₹{itemSubtotal.toFixed(2)}</dd>
                             </div>
-                            <div className="flex justify-between text-sm text-gray-600">
+                            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                                 <dt>GST (5%)</dt>
                                 <dd className="tabular-nums">₹{gst.toFixed(2)}</dd>
                             </div>
-                            <div className="flex justify-between text-sm text-gray-600">
+                            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                                 <dt>Platform fee (5%)</dt>
                                 <dd className="tabular-nums">₹{platformFee.toFixed(2)}</dd>
                             </div>
-                            <div className="flex justify-between border-t border-gray-200 pt-2.5 text-sm text-gray-700">
+                            <div className="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2.5 text-sm text-gray-700 dark:text-gray-300">
                                 <dt>Delivery fee</dt>
                                 <dd className="tabular-nums">₹{deliveryFee.toFixed(2)}</dd>
                             </div>
-                            <div className="flex justify-between rounded-lg bg-white px-3 py-2.5 text-base font-bold text-gray-900 ring-1 ring-gray-200">
+                            <div className="flex justify-between rounded-lg bg-white dark:bg-gray-800 px-3 py-2.5 text-base font-bold text-gray-900 dark:text-gray-100 ring-1 ring-gray-200 dark:ring-gray-700">
                                 <dt>Grand total</dt>
                                 <dd className="tabular-nums">₹{total.toFixed(2)}</dd>
                             </div>
@@ -119,7 +119,7 @@ const Cart = () => {
 
                         <Link
                             to="/"
-                            className="mt-3 block rounded-lg py-2 text-center text-sm font-semibold text-gray-600 transition-colors hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+                            className="mt-3 block rounded-lg py-2 text-center text-sm font-semibold text-gray-600 dark:text-gray-400 transition-colors hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
                         >
                             Add more items
                         </Link>

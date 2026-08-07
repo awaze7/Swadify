@@ -4,11 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { addItem } from "../utils/Redux/cartSlice";
 import { getStatusLabel, getStatusColor } from "../utils/orderUtils";
 import { notify } from "../utils/notificationUtils";
-import { FiChevronRight, FiRepeat, FiRefreshCw } from "react-icons/fi";
+import { FiChevronRight, FiRepeat, FiRefreshCw, FiChevronDown } from "react-icons/fi";
 import OrderDetailModal from "./OrderDetailModal";
 import EmptyState from "./EmptyState";
 import ErrorState from "./ErrorState";
 import Button from "./Button";
+
+const PAGE_SIZE = 5;
 
 /** Lightweight inline illustration for the "no orders yet" state. */
 const NoOrdersIllustration = () => (
@@ -46,33 +48,29 @@ const NoOrdersIllustration = () => (
 const OrderSkeleton = () => (
   <ul className="space-y-4" aria-hidden="true">
     {[0, 1, 2].map((i) => (
-      <li key={i} className="rounded-2xl border border-gray-200 bg-white">
+      <li key={i} className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         <div className="px-5 pt-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              {/* h3 (font-semibold) then the date line, matching mt-0.5. */}
-              <div className="h-6 w-2/5 animate-pulse rounded bg-gray-200" />
-              <div className="mt-0.5 h-5 w-1/3 animate-pulse rounded bg-gray-100" />
+              <div className="h-6 w-2/5 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+              <div className="mt-0.5 h-5 w-1/3 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
             </div>
-            {/* The status pill: px-2.5 py-1 text-xs. */}
-            <div className="h-6 w-20 flex-shrink-0 animate-pulse rounded-full bg-gray-100" />
+            <div className="h-6 w-20 flex-shrink-0 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
           </div>
 
-          {/* The Items / Total pair — a dt/dd stack each, not a 3-up grid. */}
           <div className="mt-4 flex items-center gap-6">
             {[0, 1].map((col) => (
               <div key={col}>
-                <div className="h-4 w-10 animate-pulse rounded bg-gray-100" />
-                <div className="mt-0.5 h-6 w-12 animate-pulse rounded bg-gray-200" />
+                <div className="h-4 w-10 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
+                <div className="mt-0.5 h-6 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
               </div>
             ))}
-            <div className="ml-auto h-5 w-16 animate-pulse rounded bg-gray-100" />
+            <div className="ml-auto h-5 w-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
           </div>
         </div>
 
-        {/* The Reorder row: py-3 around a 44px `size="sm"` button. */}
-        <div className="mt-4 border-t border-gray-100 px-5 py-3">
-          <div className="h-11 w-28 animate-pulse rounded-lg bg-gray-100" />
+        <div className="mt-4 border-t border-gray-100 dark:border-gray-700 px-5 py-3">
+          <div className="h-11 w-28 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
         </div>
       </li>
     ))}
@@ -101,15 +99,13 @@ const OrderHistorySection = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  /*
-    The whole order object, not just its id. It used to be dispatched into Redux
-    for the modal to read back, but these orders carry `createdAt` /
-    `estimatedDelivery` as Date instances, and non-serialisable values in the
-    store break time-travel debugging and persistence (RTK's serializableCheck
-    threw on every card click). Nothing outside this subtree needs to know which
-    order is open, so it stays local.
-  */
   const [selectedOrder, setSelectedOrder] = useState(null);
+  // Start at PAGE_SIZE; each "Load more" adds another PAGE_SIZE.
+  // Resets to PAGE_SIZE whenever a fresh orders array lands (tab remounts).
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  const visibleOrders = orders.slice(0, visibleCount);
+  const hasMore = visibleCount < orders.length;
 
   const handleViewDetails = useCallback((order) => {
     setSelectedOrder(order);
@@ -166,12 +162,12 @@ const OrderHistorySection = ({
 
   const heading = (
     <div className="mb-4 flex items-center justify-between gap-3">
-      <h2 id="order-history-heading" className="text-xl font-bold text-gray-900 sm:text-2xl">
+      <h2 id="order-history-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">
         Order History
       </h2>
       {/* Background revalidation indicator — never replaces the list. */}
       {isRefreshing && (
-        <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
           <FiRefreshCw size={13} className="animate-spin" aria-hidden="true" />
           Updating
         </span>
@@ -212,11 +208,16 @@ const OrderHistorySection = ({
 
     // 4. Data.
     return (
-      <ul className="space-y-4">
-        {orders.map((order) => (
+      <>
+        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400" aria-live="polite">
+          Showing {visibleOrders.length} of {orders.length}{" "}
+          {orders.length === 1 ? "order" : "orders"}
+        </p>
+        <ul className="space-y-4">
+        {visibleOrders.map((order) => (
           <li
             key={order.id}
-            className="group rounded-2xl border border-gray-200 bg-white transition-all duration-150 hover:border-gray-300 hover:shadow-md"
+            className="group rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-150 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md"
           >
             {/*
               A single button owns the "open details" affordance. The card used to
@@ -232,10 +233,10 @@ const OrderHistorySection = ({
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="truncate font-semibold text-gray-900">
+                  <h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">
                     {order.restaurantName || "Unknown Restaurant"}
                   </h3>
-                  <p className="mt-0.5 text-sm text-gray-500">
+                  <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
                     {formatOrderDate(order.createdAt)}
                   </p>
                 </div>
@@ -248,25 +249,25 @@ const OrderHistorySection = ({
 
               <dl className="mt-4 flex items-center gap-6">
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-gray-500">Items</dt>
-                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Items</dt>
+                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900 dark:text-gray-100">
                     {order.items?.length || 0}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-gray-500">Total</dt>
-                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total</dt>
+                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900 dark:text-gray-100">
                     ₹{(order.total || 0).toFixed(2)}
                   </dd>
                 </div>
-                <span className="ml-auto flex items-center gap-1 text-sm font-medium text-gray-400 transition-colors group-hover:text-gray-700">
+                <span className="ml-auto flex items-center gap-1 text-sm font-medium text-gray-400 dark:text-gray-500 transition-colors group-hover:text-gray-700 dark:group-hover:text-gray-300">
                   Details
                   <FiChevronRight size={16} aria-hidden="true" />
                 </span>
               </dl>
             </button>
 
-            <div className="mt-4 border-t border-gray-100 px-5 py-3">
+            <div className="mt-4 border-t border-gray-100 dark:border-gray-700 px-5 py-3">
               <Button
                 variant="ghost"
                 size="sm"
@@ -279,7 +280,23 @@ const OrderHistorySection = ({
             </div>
           </li>
         ))}
-      </ul>
+        </ul>
+
+        {hasMore && (
+          <div className="mt-6 flex flex-col items-center gap-1.5">
+            <Button
+              variant="secondary"
+              onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+            >
+              <FiChevronDown size={16} aria-hidden="true" />
+              Load more orders
+            </Button>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              {orders.length - visibleCount} more to show
+            </p>
+          </div>
+        )}
+      </>
     );
   };
 

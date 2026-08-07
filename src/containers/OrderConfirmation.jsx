@@ -83,9 +83,9 @@ const OrderConfirmation = () => {
           Loading your order
         </span>
         <div className="space-y-4" aria-hidden="true">
-          <div className="mx-auto h-20 w-20 animate-pulse rounded-full bg-gray-200" />
-          <div className="mx-auto h-8 w-2/3 animate-pulse rounded bg-gray-200" />
-          <div className="h-64 w-full animate-pulse rounded-2xl bg-gray-100" />
+          <div className="mx-auto h-20 w-20 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
+          <div className="mx-auto h-8 w-2/3 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="h-64 w-full animate-pulse rounded-2xl bg-gray-100 dark:bg-gray-800" />
         </div>
       </div>
     );
@@ -94,9 +94,9 @@ const OrderConfirmation = () => {
   if (!user) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-16">
-        <div className="rounded-2xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm">
-          <h2 className="text-2xl font-bold text-gray-900">You're not signed in</h2>
-          <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600">
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-12 text-center shadow-sm">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">You're not signed in</h2>
+          <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600 dark:text-gray-400">
             Log in to view this order confirmation.
           </p>
           <Button
@@ -120,8 +120,8 @@ const OrderConfirmation = () => {
           Loading your order
         </span>
         <div className="space-y-4" aria-hidden="true">
-          <div className="mx-auto h-20 w-20 animate-pulse rounded-full bg-gray-200" />
-          <div className="h-64 w-full animate-pulse rounded-2xl bg-gray-100" />
+          <div className="mx-auto h-20 w-20 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
+          <div className="h-64 w-full animate-pulse rounded-2xl bg-gray-100 dark:bg-gray-800" />
         </div>
       </div>
     );
@@ -133,9 +133,9 @@ const OrderConfirmation = () => {
         {fetchError ? (
           <ErrorState errorInfo={fetchError} />
         ) : (
-          <div className="rounded-2xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm">
-            <h2 className="text-2xl font-bold text-gray-900">Order not found</h2>
-            <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600">
+          <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-12 text-center shadow-sm">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Order not found</h2>
+            <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600 dark:text-gray-400">
               We couldn't find this order on your account. It may belong to a different
               account.
             </p>
@@ -163,74 +163,74 @@ const OrderConfirmation = () => {
   const money = (value) => `₹${(Number(value) || 0).toFixed(2)}`;
 
   return (
-    <div className="bg-gradient-to-b from-blue-50 to-white px-4 pb-28 pt-10 sm:pt-12">
+    <div className="bg-gradient-to-b from-blue-50 dark:from-gray-900 to-white dark:to-gray-950 px-4 pb-28 pt-10 sm:pt-12">
       <div className="mx-auto w-full max-w-2xl">
         <div className="mb-10 text-center">
           <div className="mb-5 flex justify-center">
             <FiCheckCircle className="text-green-500" size={72} aria-hidden="true" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Order Confirmed!</h1>
-          <p className="mx-auto mt-3 max-w-md text-base text-gray-600 sm:text-lg">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 sm:text-4xl">Order Confirmed!</h1>
+          <p className="mx-auto mt-3 max-w-md text-base text-gray-600 dark:text-gray-400 sm:text-lg">
             Thank you for your order. Your food is on the way.
           </p>
         </div>
 
-        <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8">
+        <div className="mb-8 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-8">
           <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Order ID</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Order ID</p>
             <div className="mt-2 flex items-center gap-3">
-              <code className="min-w-0 flex-1 break-all rounded bg-gray-100 px-3 py-2 font-mono text-sm text-gray-900 sm:text-base">
+              <code className="min-w-0 flex-1 break-all rounded bg-gray-100 dark:bg-gray-700 px-3 py-2 font-mono text-sm text-gray-900 dark:text-gray-100 sm:text-base">
                 {order.id}
               </code>
               <button
                 type="button"
                 onClick={handleCopyOrderId}
                 aria-label={copied ? 'Order ID copied' : 'Copy order ID'}
-                className="flex-shrink-0 rounded-lg p-2.5 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+                className="flex-shrink-0 rounded-lg p-2.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
               >
                 {copied ? (
-                  <FiCheck className="text-green-600" size={20} aria-hidden="true" />
+                  <FiCheck className="text-green-600 dark:text-green-500" size={20} aria-hidden="true" />
                 ) : (
-                  <FiCopy className="text-gray-500" size={20} aria-hidden="true" />
+                  <FiCopy className="text-gray-500 dark:text-gray-400" size={20} aria-hidden="true" />
                 )}
               </button>
             </div>
           </div>
 
-          <div className="mb-8 grid grid-cols-1 gap-6 border-b border-gray-200 pb-8 sm:grid-cols-2">
+          <div className="mb-8 grid grid-cols-1 gap-6 border-b border-gray-200 dark:border-gray-700 pb-8 sm:grid-cols-2">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Restaurant
               </p>
-              <p className="mt-1 break-words text-lg font-semibold text-gray-900">
+              <p className="mt-1 break-words text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {order.restaurantName || 'Restaurant'}
               </p>
             </div>
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 Estimated delivery
               </p>
-              <p className="mt-1 text-lg font-semibold text-gray-900">
+              <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {formatTime(order.estimatedDelivery)}
               </p>
-              <p className="text-sm text-gray-600">(30–45 minutes)</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">(30–45 minutes)</p>
             </div>
           </div>
 
           {order.items?.length > 0 && (
             <div className="mb-8">
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Order items</h2>
+              <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Order items</h2>
               <ul className="space-y-3">
                 {order.items.map((item, idx) => (
                   <li
                     key={item.itemId ?? idx}
-                    className="flex items-start justify-between gap-4 border-b border-gray-100 py-2 last:border-b-0"
+                    className="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-700 py-2 last:border-b-0"
                   >
                     <div className="min-w-0">
-                      <p className="break-words font-medium text-gray-900">{item.name}</p>
-                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                      <p className="break-words font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Qty: {item.quantity}</p>
                     </div>
-                    <p className="flex-shrink-0 font-semibold tabular-nums text-gray-900">
+                    <p className="flex-shrink-0 font-semibold tabular-nums text-gray-900 dark:text-gray-100">
                       {money(item.price * item.quantity)}
                     </p>
                   </li>
@@ -239,11 +239,11 @@ const OrderConfirmation = () => {
             </div>
           )}
 
-          <div className="mb-8 border-b border-gray-200 pb-8">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <div className="mb-8 border-b border-gray-200 dark:border-gray-700 pb-8">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
               Delivery address
             </p>
-            <p className="mt-1 break-words text-gray-900">{order.deliveryAddress}</p>
+            <p className="mt-1 break-words text-gray-900 dark:text-gray-200">{order.deliveryAddress}</p>
           </div>
 
           {/*

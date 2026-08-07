@@ -13,8 +13,17 @@
         href="./src/utils/Logo.png"
         />
         <title>Swadify | Discover & Savor Delicious Meals</title>
+    <script>
+      (function() {
+        var stored = localStorage.getItem('swadify-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (stored === 'dark' || (!stored && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
     </head>
-    <body>
+    <body class="bg-amber-50 dark:bg-gray-950">
         <div id="root"></div>
         <script type="module" src="./src/App.js"></script>
     </body>
