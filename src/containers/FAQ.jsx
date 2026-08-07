@@ -162,9 +162,9 @@ const FAQ = () => {
 
   return (
     <div className="mx-auto my-8 max-w-4xl px-4">
-      <div className="rounded-lg bg-white p-6 shadow-lg sm:p-10">
-        <h1 className="mb-4 text-center text-3xl font-bold text-gray-900">Frequently Asked Questions</h1>
-        <p className="mb-8 text-center text-gray-600">
+      <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg sm:p-10">
+        <h1 className="mb-4 text-center text-3xl font-bold text-gray-900 dark:text-gray-100">Frequently Asked Questions</h1>
+        <p className="mb-8 text-center text-gray-600 dark:text-gray-400">
           Find answers to common questions about Swadify. Can't find what you're looking for?{' '}
           <a href="/contact" className="font-medium text-crave hover:underline">
             Contact us
@@ -174,28 +174,28 @@ const FAQ = () => {
         <div className="space-y-8">
           {FAQ_CATEGORIES.map((category, catIdx) => (
             <section key={catIdx}>
-              <h2 className="mb-4 text-xl font-semibold text-gray-900">{category.category}</h2>
+              <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">{category.category}</h2>
               <div className="space-y-3">
                 {category.items.map((item, itemIdx) => {
                   const key = `${catIdx}-${itemIdx}`;
                   const isExpanded = expandedItems[key];
                   return (
-                    <div key={itemIdx} className="rounded-lg border border-gray-200">
+                    <div key={itemIdx} className="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-700/30">
                       <button
                         onClick={() => toggleItem(catIdx, itemIdx)}
-                        className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-inset"
+                        className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-crave dark:focus-visible:ring-yellow-500 focus-visible:ring-inset"
                         aria-expanded={isExpanded}
                       >
-                        <span className="font-semibold text-gray-900">{item.q}</span>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">{item.q}</span>
                         {isExpanded ? (
-                          <FaChevronUp className="flex-shrink-0 text-gray-400" />
+                          <FaChevronUp className="flex-shrink-0 text-gray-400 dark:text-gray-500" />
                         ) : (
-                          <FaChevronDown className="flex-shrink-0 text-gray-400" />
+                          <FaChevronDown className="flex-shrink-0 text-gray-400 dark:text-gray-500" />
                         )}
                       </button>
                       {isExpanded && (
-                        <div className="border-t border-gray-100 px-4 pb-4 pt-3">
-                          <p className="text-sm leading-relaxed text-gray-600">{item.a}</p>
+                        <div className="border-t border-gray-100 dark:border-gray-700 px-4 pb-4 pt-3">
+                          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">{item.a}</p>
                         </div>
                       )}
                     </div>
@@ -206,14 +206,14 @@ const FAQ = () => {
           ))}
         </div>
 
-        <div className="mt-10 rounded-lg bg-gray-50 p-6 text-center">
-          <h2 className="mb-2 text-lg font-semibold text-gray-900">Still have questions?</h2>
-          <p className="mb-4 text-sm text-gray-600">
+        <div className="mt-10 rounded-lg bg-gray-50 dark:bg-gray-700/50 p-6 text-center">
+          <h2 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">Still have questions?</h2>
+          <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">
             Our support team is here to help. Reach out anytime.
           </p>
           <a
             href="/contact"
-            className="inline-block rounded-lg bg-crave px-6 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-crave/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-offset-2"
+            className="inline-block rounded-lg bg-crave px-6 py-2.5 text-sm font-semibold text-gray-900 transition-colors hover:bg-crave/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-800"
           >
             Contact Support
           </a>

@@ -87,9 +87,9 @@ const Contact = () => {
 
   return (
     <div className="mx-auto my-8 max-w-5xl px-4">
-      <div className="rounded-lg bg-white p-6 shadow-lg sm:p-10">
-        <h1 className="mb-4 text-center text-3xl font-bold text-gray-900">Contact Us</h1>
-        <p className="mb-8 text-center text-gray-600">
+      <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow-lg sm:p-10">
+        <h1 className="mb-4 text-center text-3xl font-bold text-gray-900 dark:text-gray-100">Contact Us</h1>
+        <p className="mb-8 text-center text-gray-600 dark:text-gray-400">
           We'd love to hear from you! Whether you have questions, feedback, or need support,
           we're here to help.
         </p>
@@ -97,7 +97,7 @@ const Contact = () => {
         <div className="grid gap-8 lg:grid-cols-5">
           {/* Contact Form */}
           <div className="lg:col-span-3">
-            <h2 className="mb-4 text-xl font-semibold text-gray-900">Send us a message</h2>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">Send us a message</h2>
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
               <FormInput
                 name="name"
@@ -121,16 +121,16 @@ const Contact = () => {
 
               {/* Textarea for message */}
               <div className="auth-field">
-                <label htmlFor="message" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500">
+                <label htmlFor="message" className="mb-1 block text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-gray-400">
                   Message
                 </label>
                 <textarea
                   id="message"
                   rows={5}
-                  className={`w-full rounded-xl border bg-stone-50 px-3.5 py-2.5 text-sm text-stone-900 outline-none transition-colors duration-150 placeholder:text-stone-400 focus:bg-white focus:ring-2 ${
+                  className={`w-full rounded-xl border bg-stone-50 dark:bg-gray-700 px-3.5 py-2.5 text-sm text-stone-900 dark:text-gray-100 outline-none transition-colors duration-150 placeholder:text-stone-400 dark:placeholder:text-gray-500 focus:bg-white dark:focus:bg-gray-700 focus:ring-2 ${
                     errors.message?.message
-                      ? 'border-red-300 focus:border-red-400 focus:ring-red-200'
-                      : 'border-stone-200 focus:border-crave focus:ring-crave/30'
+                      ? 'border-red-300 dark:border-red-600 focus:border-red-400 focus:ring-red-200 dark:focus:ring-red-900/40'
+                      : 'border-stone-200 dark:border-gray-600 focus:border-crave focus:ring-crave/30 dark:focus:border-yellow-500 dark:focus:ring-yellow-500/20'
                   }`}
                   aria-invalid={errors.message?.message ? true : undefined}
                   aria-describedby={errors.message?.message ? "message-error" : undefined}
@@ -154,16 +154,16 @@ const Contact = () => {
 
           {/* Support Info */}
           <div className="lg:col-span-2">
-            <h2 className="mb-4 text-xl font-semibold text-gray-900">Get in touch</h2>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">Get in touch</h2>
 
-            <div className="mb-6 space-y-4 rounded-lg bg-gray-50 p-4">
+            <div className="mb-6 space-y-4 rounded-lg bg-gray-50 dark:bg-gray-700/50 p-4">
               <div className="flex items-start gap-3">
                 <FaEnvelope className="mt-1 flex-shrink-0 text-crave" />
                 <div>
-                  <h3 className="mb-1 text-sm font-semibold text-gray-900">Email</h3>
+                  <h3 className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">Email</h3>
                   <a
                     href="mailto:info@swadify.com"
-                    className="text-sm text-gray-600 hover:text-crave focus:outline-none focus-visible:underline"
+                    className="text-sm text-gray-600 dark:text-gray-400 hover:text-crave focus:outline-none focus-visible:underline"
                   >
                     info@swadify.com
                   </a>
@@ -173,14 +173,14 @@ const Contact = () => {
               <div className="flex items-start gap-3">
                 <FaClock className="mt-1 flex-shrink-0 text-crave" />
                 <div>
-                  <h3 className="mb-1 text-sm font-semibold text-gray-900">Support Hours</h3>
-                  <p className="text-sm text-gray-600">Monday - Sunday</p>
-                  <p className="text-sm text-gray-600">9:00 AM - 9:00 PM IST</p>
+                  <h3 className="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-100">Support Hours</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Monday - Sunday</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">9:00 AM - 9:00 PM IST</p>
                 </div>
               </div>
             </div>
 
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Our customer support team typically responds within 24 hours during business hours.
               For urgent order-related issues, please include your order ID in your message.
             </p>
@@ -188,28 +188,28 @@ const Contact = () => {
         </div>
 
         {/* FAQ Section */}
-        <div className="mt-10 border-t border-gray-200 pt-10">
-          <h2 className="mb-6 text-2xl font-bold text-gray-900">Frequently Asked Questions</h2>
+        <div className="mt-10 border-t border-gray-200 dark:border-gray-700 pt-10">
+          <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-gray-100">Frequently Asked Questions</h2>
           <div className="space-y-3">
             {FAQ_ITEMS.map((item, idx) => {
               const isExpanded = expandedFaq === idx;
               return (
-                <div key={idx} className="rounded-lg border border-gray-200">
+                <div key={idx} className="rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-700/30">
                   <button
                     onClick={() => setExpandedFaq(isExpanded ? null : idx)}
-                    className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-inset"
+                    className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-crave dark:focus-visible:ring-yellow-500 focus-visible:ring-inset"
                     aria-expanded={isExpanded}
                   >
-                    <span className="font-semibold text-gray-900">{item.q}</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{item.q}</span>
                     {isExpanded ? (
-                      <FaChevronUp className="flex-shrink-0 text-gray-400" />
+                      <FaChevronUp className="flex-shrink-0 text-gray-400 dark:text-gray-500" />
                     ) : (
-                      <FaChevronDown className="flex-shrink-0 text-gray-400" />
+                      <FaChevronDown className="flex-shrink-0 text-gray-400 dark:text-gray-500" />
                     )}
                   </button>
                   {isExpanded && (
-                    <div className="border-t border-gray-100 px-4 pb-4 pt-3">
-                      <p className="text-sm leading-relaxed text-gray-600">{item.a}</p>
+                    <div className="border-t border-gray-100 dark:border-gray-700 px-4 pb-4 pt-3">
+                      <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">{item.a}</p>
                     </div>
                   )}
                 </div>

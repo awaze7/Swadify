@@ -45,7 +45,7 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer id="app-footer" className="mt-auto w-full bg-gray-900">
+    <footer id="app-footer" className="mt-auto w-full bg-gray-900 dark:bg-gray-950 dark:border-t dark:border-gray-800">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Top: brand + nav columns */}
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">

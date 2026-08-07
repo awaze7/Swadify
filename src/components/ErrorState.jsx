@@ -32,14 +32,14 @@ const ErrorState = ({ errorInfo, onRetry, isRetrying = false, className = "" }) 
     <div
       // `alert` so assistive tech announces the failure as soon as it appears.
       role="alert"
-      className={`rounded-2xl border border-red-200 bg-red-50 px-6 py-8 text-center ${className}`}
+      className={`rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-6 py-8 text-center ${className}`}
     >
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-        <Icon className="text-red-600" size={26} aria-hidden="true" />
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">
+        <Icon className="text-red-600 dark:text-red-400" size={26} aria-hidden="true" />
       </div>
 
-      <h3 className="mt-5 text-lg font-bold text-gray-900">{title}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-gray-700">{message}</p>
+      <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-gray-700 dark:text-gray-300">{message}</p>
 
       {(showRetry || needsLogin) && (
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">

@@ -97,27 +97,21 @@ const Body = () => {
   if (isLoading) return <Shimmer />;
 
   return (
-    <div className="w-full min-h-screen bg-amber-50 pb-12 overflow-x-hidden">
+    <div className="w-full min-h-screen bg-amber-50 dark:bg-gray-950 pb-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        
+
         <div className="mb-2">
-          {/*
-            This carousel used to open the page with an <h2> while the page's only
-            <h1> sat further down, above the grid — so the document began at
-            level 2 and a screen reader's heading outline had no top level at all.
-            The <h1> is now the page title and both section headings are <h2>.
-          */}
           <h1 className="sr-only">Order food online</h1>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Handpicked For Your Cravings
           </h2>
           <RestaurantCarousel restaurants={listOfRestaurants} />
         </div>
 
-        <hr className="border-gray-200 my-6 shadow-sm" />
+        <hr className="border-gray-200 dark:border-gray-700 my-6 shadow-sm" />
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
             Restaurants with online food delivery
           </h2>
 
@@ -128,51 +122,45 @@ const Body = () => {
                 e.preventDefault();
                 setActiveSearch(searchText.trim());
               }}
-              className="flex w-full items-center overflow-hidden rounded-full border border-gray-200 bg-white shadow-sm transition-all focus-within:border-gray-300 focus-within:shadow-md md:w-[420px]"
+              className="flex w-full items-center overflow-hidden rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition-all focus-within:border-gray-300 dark:focus-within:border-gray-500 focus-within:shadow-md md:w-[420px]"
             >
-              {/* Wrapping in a <form> is what makes Enter submit. Previously the
-                  input was bare, so pressing Enter did nothing at all and the
-                  search was mouse-only. */}
               <label htmlFor="restaurant-search" className="sr-only">
                 Search for restaurants or cuisines
               </label>
               <input
                 id="restaurant-search"
                 type="search"
-                className="w-full bg-transparent px-5 py-2.5 text-sm font-medium text-gray-700 outline-none placeholder:text-gray-400"
+                className="w-full bg-transparent px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Search for restaurants, cuisines..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
               <button
                 type="submit"
-                className="shrink-0 bg-gray-900 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-black focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500"
+                className="shrink-0 bg-gray-900 dark:bg-yellow-500 dark:text-gray-900 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-black dark:hover:bg-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500"
               >
                 Search
               </button>
             </form>
 
-            <SortDropdown 
-              selectedSort={selectedSort} 
-              onSortChange={setSelectedSort} 
+            <SortDropdown
+              selectedSort={selectedSort}
+              onSortChange={setSelectedSort}
             />
-
-            {/* Crave AI now has a persistent launcher rendered globally by
-                CraveAIAssistant.jsx (visible on every page, not just here) */}
 
             <button
               onClick={() => setIsTopRated(!isTopRated)}
               aria-pressed={isTopRated}
-              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border shadow-sm shrink-0 min-w-[138px] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 ${
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border shadow-sm shrink-0 min-w-[138px] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 ${
                 isTopRated
-                  ? 'bg-gray-900 text-yellow-400 border-gray-900 ring-2 ring-yellow-400/20'
-                  : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                  ? 'bg-gray-900 dark:bg-yellow-500 text-yellow-400 dark:text-gray-900 border-gray-900 dark:border-yellow-500 ring-2 ring-yellow-400/20'
+                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300'
               }`}
             >
               <span>Top Rated</span>
-              <FaStar className={isTopRated ? "text-yellow-400 text-xs shrink-0" : "text-amber-500 text-xs shrink-0"} />
+              <FaStar className={isTopRated ? "text-yellow-400 dark:text-gray-900 text-xs shrink-0" : "text-amber-500 text-xs shrink-0"} />
               {isTopRated && (
-                <span className="bg-gray-800 text-gray-300 rounded-full p-1 hover:text-white hover:bg-gray-700 transition-colors shrink-0">
+                <span className="bg-gray-800 dark:bg-gray-900 text-gray-300 rounded-full p-1 hover:text-white hover:bg-gray-700 transition-colors shrink-0">
                   <FaTimes className="text-[10px]" />
                 </span>
               )}
@@ -180,13 +168,6 @@ const Body = () => {
           </div>
         </div>
 
-        {/*
-          Search, sort and the Top Rated toggle all silently rewrote the grid:
-          the results changed with no announcement and no visible count, so a
-          screen-reader user pressing Search heard nothing at all and had no way
-          to tell a narrowed list from a broken one. Kept out of the isError
-          branch — ErrorState already carries role="alert".
-        */}
         <p role="status" aria-live="polite" className="sr-only">
           {isError
             ? ''
@@ -196,10 +177,6 @@ const Body = () => {
         </p>
 
         {isError ? (
-          /* A failed fetch used to fall through to the empty branch and read
-             "No restaurants found matching your criteria." — telling the user
-             their search was too narrow when in fact the request had failed and
-             offering no way to retry. */
           <ErrorState
             errorInfo={describeFirestoreError(error, "restaurants")}
             onRetry={refetch}
@@ -208,21 +185,17 @@ const Body = () => {
           />
         ) : filteredRestaurants.length === 0 ? (
           <div className="mb-20 mt-12 flex flex-col items-center justify-center">
-            <p className="text-lg font-semibold text-gray-500">
+            <p className="text-lg font-semibold text-gray-500 dark:text-gray-400">
               No restaurants found matching your criteria.
             </p>
           </div>
         ) : (
-          // Gaps match Shimmer's grid exactly, so the skeleton and the real
-          // cards occupy the same geometry and the page doesn't jump when data
-          // lands. (The spacing used to come from an `m-5` on the card itself,
-          // which was removed when the card was made fluid.)
           <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredRestaurants.map((restaurant) => (
               <Link
                 key={`grid-${restaurant.info.id}`}
                 to={"/restaurants/" + restaurant.info.id}
-                className="rounded-xl transition-transform duration-200 hover:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2"
+                className="rounded-xl transition-transform duration-200 hover:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2"
               >
                 <RestaurantCard resData={restaurant} />
               </Link>

@@ -61,7 +61,7 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
   const handleDecrement = useCallback((itemId) => dispatch(decrementItem(itemId)), [dispatch]);
 
   return (
-    <ul className="divide-y divide-gray-200">
+    <ul className="divide-y divide-gray-200 dark:divide-gray-700">
       {items.map((item) => {
         const info = item.card.info;
         const description = info.description || "";
@@ -78,7 +78,7 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
             // The highlight is a rendered prop, not a class mutated onto the
             // node from a timer, so React can never wipe it mid-animation.
             className={`flex items-start justify-between gap-4 rounded-lg py-4 text-left transition-colors duration-700 ${
-              isHighlighted ? "bg-yellow-50 px-3 ring-2 ring-yellow-400" : ""
+              isHighlighted ? "bg-yellow-50 dark:bg-yellow-900/20 px-3 ring-2 ring-yellow-400" : ""
             }`}
           >
             {/* Names the reason this row is highlighted, instead of leaving the
@@ -89,16 +89,16 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
               </span>
             )}
             <div className="min-w-0 flex-1">
-              <div className="text-base font-medium text-gray-900">{info.name}</div>
+              <div className="text-base font-medium text-gray-900 dark:text-gray-100">{info.name}</div>
 
               {unitPrice > 0 && (
-                <div className="mt-0.5 text-sm font-semibold text-gray-800">
+                <div className="mt-0.5 text-sm font-semibold text-gray-800 dark:text-gray-200">
                   ₹{unitPrice.toFixed(2)}
                 </div>
               )}
 
               {description && (
-                <div className="mt-1.5 text-sm font-normal text-gray-600">
+                <div className="mt-1.5 text-sm font-normal text-gray-600 dark:text-gray-400">
                   {isExpanded ? (
                     <p>{description}</p>
                   ) : (
@@ -108,7 +108,7 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
                         <button
                           type="button"
                           onClick={() => expandDescription(info.id)}
-                          className="ml-1 inline-block rounded font-semibold text-gray-900 underline decoration-gray-400 underline-offset-2 hover:decoration-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+                          className="ml-1 inline-block rounded font-semibold text-gray-900 dark:text-gray-100 underline decoration-gray-400 dark:decoration-gray-600 underline-offset-2 hover:decoration-gray-900 dark:hover:decoration-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
                           aria-label={`Read full description of ${info.name}`}
                         >
                           more
@@ -121,11 +121,11 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
 
               {/* Checkout review: quantity and line total as plain text. */}
               {inCart && readOnly && (
-                <div className="mt-2 text-sm text-gray-700">
+                <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
                   <span className="font-semibold tabular-nums">{item.count}</span>
-                  <span className="mx-1 text-gray-400">×</span>
+                  <span className="mx-1 text-gray-400 dark:text-gray-500">×</span>
                   <span className="tabular-nums">₹{unitPrice.toFixed(2)}</span>
-                  <span className="mx-1.5 text-gray-400">=</span>
+                  <span className="mx-1.5 text-gray-400 dark:text-gray-500">=</span>
                   <span className="font-semibold tabular-nums">
                     ₹{(unitPrice * item.count).toFixed(2)}
                   </span>

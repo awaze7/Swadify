@@ -20,12 +20,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import Profile from "./containers/Profile";
+import ProfileAccount from "./containers/ProfileAccount";
+import ProfileOrders from "./containers/ProfileOrders";
 import Checkout from "./containers/Checkout";
 import OrderConfirmation from "./containers/OrderConfirmation";
 import Terms from "./containers/Terms";
 import Privacy from "./containers/Privacy";
 import FAQ from "./containers/FAQ";
 import useAuthSync from "./utils/useAuthSync";
+import { ThemeProvider } from "./utils/ThemeContext";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -63,7 +66,7 @@ const AppLayout = () => {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen overflow-x-hidden w-full bg-amber-50">
+        <div className="flex flex-col min-h-screen overflow-x-hidden w-full bg-amber-50 dark:bg-gray-950">
             <ToastContainer autoClose={1500} />
             {/*
               The actual skip link. `<main id="main-content">` already existed with
@@ -129,6 +132,16 @@ const appRouter = createBrowserRouter([
             {
                 path: "/profile",
                 element: <Profile />,
+                children: [
+                    {
+                        index: true,
+                        element: <ProfileAccount />,
+                    },
+                    {
+                        path: "orders",
+                        element: <ProfileOrders />,
+                    },
+                ],
             },
             {
                 path: "/login",
@@ -169,7 +182,9 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
     <Provider store={appStore}>
         <QueryClientProvider client={queryClient}>
-            <RouterProvider router={appRouter} />
+            <ThemeProvider>
+                <RouterProvider router={appRouter} />
+            </ThemeProvider>
         </QueryClientProvider>
     </Provider>
 );

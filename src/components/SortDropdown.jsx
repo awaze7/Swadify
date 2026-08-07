@@ -75,8 +75,8 @@ const SortDropdown = ({ selectedSort, onSortChange }) => {
         aria-haspopup="dialog"
         className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2 ${
           selectedSort !== "relevance"
-            ? "border-gray-900 bg-gray-900 text-white"
-            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            ? "border-gray-900 bg-gray-900 text-white dark:border-yellow-500 dark:bg-yellow-500 dark:text-gray-900"
+            : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
         }`}
       >
         <span>{selectedSort === "relevance" ? "Sort By" : selectedOptionLabel}</span>
@@ -96,7 +96,7 @@ const SortDropdown = ({ selectedSort, onSortChange }) => {
         <div
           role="dialog"
           aria-label="Sort restaurants by"
-          className="absolute left-0 z-50 mt-2 w-64 origin-top animate-fadeIn rounded-2xl border border-gray-100 bg-white p-5 shadow-2xl motion-reduce:animate-none"
+          className="absolute left-0 z-50 mt-2 w-64 origin-top animate-fadeIn rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-2xl dark:shadow-gray-950/60 motion-reduce:animate-none"
         >
           <fieldset>
             <legend className="sr-only">Sort restaurants by</legend>
@@ -114,12 +114,12 @@ const SortDropdown = ({ selectedSort, onSortChange }) => {
                     onChange={() => setTempSelected(option.id)}
                     className="peer sr-only"
                   />
-                  <span className="text-sm font-medium text-gray-600 transition-colors group-hover:text-gray-900 peer-checked:font-bold peer-checked:text-gray-900">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400 transition-colors group-hover:text-gray-900 dark:group-hover:text-gray-100 peer-checked:font-bold peer-checked:text-gray-900 dark:peer-checked:text-gray-100">
                     {option.label}
                   </span>
                   <span
                     aria-hidden="true"
-                    className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 transition-all group-hover:border-gray-400 peer-checked:border-gray-900 peer-checked:bg-gray-900 peer-checked:[&>span]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-yellow-500 peer-focus-visible:ring-offset-2"
+                    className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 border-gray-300 dark:border-gray-600 transition-all group-hover:border-gray-400 dark:group-hover:border-gray-400 peer-checked:border-gray-900 dark:peer-checked:border-yellow-400 peer-checked:bg-gray-900 dark:peer-checked:bg-yellow-400 peer-checked:[&>span]:opacity-100 peer-focus-visible:ring-2 peer-focus-visible:ring-yellow-500 peer-focus-visible:ring-offset-2"
                   >
                     <span className="h-2 w-2 rounded-full bg-white opacity-0 transition-opacity" />
                   </span>

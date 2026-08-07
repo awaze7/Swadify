@@ -61,19 +61,19 @@ const ProfileActions = ({ onLogout, isLoggingOut = false }) => {
 
   return (
     <section aria-labelledby="session-heading">
-      <h2 id="session-heading" className="text-xl font-bold text-gray-900">
+      <h2 id="session-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100">
         Session
       </h2>
 
-      <div className="mt-4 rounded-xl border border-red-100 bg-red-50/60 p-5">
+      <div className="mt-4 rounded-xl border border-red-100 dark:border-red-900/40 bg-red-50/60 dark:bg-red-900/10 p-5">
         <div className="flex items-start gap-4">
-          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-red-100 text-red-600">
+          <span className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
             <FiAlertCircle size={22} aria-hidden="true" />
           </span>
 
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-gray-900">Log out of Swadify</h3>
-            <p className="mt-1 text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Log out of Swadify</h3>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               You'll need to sign in again to view your orders and saved address. Items in
               your cart stay on this device.
             </p>
@@ -81,7 +81,7 @@ const ProfileActions = ({ onLogout, isLoggingOut = false }) => {
             <div className="mt-4" aria-live="polite">
               {showConfirm ? (
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <p className="text-sm font-semibold text-red-800">Log out of your account?</p>
+                  <p className="text-sm font-semibold text-red-800 dark:text-red-400">Log out of your account?</p>
                   <div className="flex gap-2">
                     <Button
                       ref={confirmRef}
