@@ -113,7 +113,7 @@ export const describeFirestoreError = (error, context = "this content") => {
     },
     [ERROR_KIND.CONFIGURATION]: {
       title: "Something needs attention",
-      message: `We hit a problem loading ${context}. Our team has been notified — please try again shortly.`,
+      message: `We hit a problem loading ${context}. Our team has been notified. Please try again shortly.`,
       action: "Retry",
     },
     [ERROR_KIND.QUOTA]: {

@@ -50,10 +50,14 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
             ...item.card,
             restaurantId: restaurant?.id ?? item.card?.restaurantId ?? "",
             restaurantName: restaurant?.name ?? item.card?.restaurantName ?? "",
+            // Carried through so Checkout can set estimatedDelivery and drive
+            // the order-tracking timer schedule from the real restaurant ETA.
+            deliveryTimeMinutes:
+              restaurant?.deliveryTimeMinutes ?? item.card?.deliveryTimeMinutes ?? 30,
           },
         })
       ),
-    [dispatch, restaurant?.id, restaurant?.name]
+    [dispatch, restaurant?.id, restaurant?.name, restaurant?.deliveryTimeMinutes]
   );
   const handleIncrement = useCallback((itemId) => dispatch(incrementItem(itemId)), [dispatch]);
   // `decrementItem` removes the line itself when it reaches zero, so the UI
@@ -61,7 +65,7 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
   const handleDecrement = useCallback((itemId) => dispatch(decrementItem(itemId)), [dispatch]);
 
   return (
-    <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+    <ul className="divide-y divide-gray-200 dark:divide-zinc-700">
       {items.map((item) => {
         const info = item.card.info;
         const description = info.description || "";
@@ -85,20 +89,20 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
                 visual treatment as the only signal. */}
             {isHighlighted && (
               <span className="sr-only" role="status">
-                {info.name} — the dish CraveAI suggested
+                {info.name}, the dish CraveAI suggested
               </span>
             )}
             <div className="min-w-0 flex-1">
-              <div className="text-base font-medium text-gray-900 dark:text-gray-100">{info.name}</div>
+              <div className="text-base font-medium text-gray-900 dark:text-white">{info.name}</div>
 
               {unitPrice > 0 && (
-                <div className="mt-0.5 text-sm font-semibold text-gray-800 dark:text-gray-200">
+                <div className="mt-0.5 text-sm font-semibold text-gray-800 dark:text-zinc-200">
                   ₹{unitPrice.toFixed(2)}
                 </div>
               )}
 
               {description && (
-                <div className="mt-1.5 text-sm font-normal text-gray-600 dark:text-gray-400">
+                <div className="mt-1.5 text-sm font-normal text-gray-600 dark:text-zinc-400">
                   {isExpanded ? (
                     <p>{description}</p>
                   ) : (
@@ -108,7 +112,7 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
                         <button
                           type="button"
                           onClick={() => expandDescription(info.id)}
-                          className="ml-1 inline-block rounded font-semibold text-gray-900 dark:text-gray-100 underline decoration-gray-400 dark:decoration-gray-600 underline-offset-2 hover:decoration-gray-900 dark:hover:decoration-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
+                          className="ml-1 inline-block rounded font-semibold text-gray-900 dark:text-white underline decoration-gray-400 dark:decoration-gray-600 underline-offset-2 hover:decoration-gray-900 dark:hover:decoration-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500"
                           aria-label={`Read full description of ${info.name}`}
                         >
                           more
@@ -121,11 +125,11 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
 
               {/* Checkout review: quantity and line total as plain text. */}
               {inCart && readOnly && (
-                <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                <div className="mt-2 text-sm text-gray-700 dark:text-zinc-300">
                   <span className="font-semibold tabular-nums">{item.count}</span>
-                  <span className="mx-1 text-gray-400 dark:text-gray-500">×</span>
+                  <span className="mx-1 text-gray-400 dark:text-zinc-500">×</span>
                   <span className="tabular-nums">₹{unitPrice.toFixed(2)}</span>
-                  <span className="mx-1.5 text-gray-400 dark:text-gray-500">=</span>
+                  <span className="mx-1.5 text-gray-400 dark:text-zinc-500">=</span>
                   <span className="font-semibold tabular-nums">
                     ₹{(unitPrice * item.count).toFixed(2)}
                   </span>

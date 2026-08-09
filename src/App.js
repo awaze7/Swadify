@@ -22,8 +22,11 @@ import { db } from './firebase';
 import Profile from "./containers/Profile";
 import ProfileAccount from "./containers/ProfileAccount";
 import ProfileOrders from "./containers/ProfileOrders";
+import ProfileInsights from "./containers/ProfileInsights";
 import Checkout from "./containers/Checkout";
 import OrderConfirmation from "./containers/OrderConfirmation";
+import OrderTracking from "./containers/OrderTracking";
+import ActiveOrderBanner from "./components/ActiveOrderBanner";
 import Terms from "./containers/Terms";
 import Privacy from "./containers/Privacy";
 import FAQ from "./containers/FAQ";
@@ -66,7 +69,7 @@ const AppLayout = () => {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen overflow-x-hidden w-full bg-amber-50 dark:bg-gray-950">
+        <div className="flex flex-col min-h-screen overflow-x-hidden w-full bg-amber-50 dark:bg-zinc-950">
             <ToastContainer autoClose={1500} />
             {/*
               The actual skip link. `<main id="main-content">` already existed with
@@ -91,6 +94,7 @@ const AppLayout = () => {
                 <Outlet />
             </main>
             {showCraveAI && <CraveAIAssistant />}
+            <ActiveOrderBanner />
             <Footer />
         </div>
     )
@@ -130,6 +134,10 @@ const appRouter = createBrowserRouter([
                 element: <OrderConfirmation />,
             },
             {
+                path: "/order-tracking/:orderId",
+                element: <OrderTracking />,
+            },
+            {
                 path: "/profile",
                 element: <Profile />,
                 children: [
@@ -140,6 +148,10 @@ const appRouter = createBrowserRouter([
                     {
                         path: "orders",
                         element: <ProfileOrders />,
+                    },
+                    {
+                        path: "insights",
+                        element: <ProfileInsights />,
                     },
                 ],
             },

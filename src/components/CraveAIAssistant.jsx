@@ -27,8 +27,8 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const pick = (options) => options[Math.floor(Math.random() * options.length)];
 
 const ERROR_CLIENT_REPLIES = [
-  "Something went sideways on my end — mind trying that again?",
-  "Hit a snag there — give it another shot in a moment?",
+  "Something went sideways on my end. Mind trying that again?",
+  "Hit a snag there. Give it another shot in a moment?",
 ];
 
 /**
@@ -54,7 +54,7 @@ const CraveAIAssistant = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const messagesEndRef = useRef(null);
+  const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const launcherRef = useRef(null);
   const panelRef = useRef(null);
@@ -237,8 +237,25 @@ const CraveAIAssistant = () => {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [isMobileViewport, isOpen]);
 
+  // Keep the transcript pinned to the newest message. We scroll the list
+  // *container* itself rather than calling scrollIntoView on a trailing
+  // sentinel: scrollIntoView walks every scrollable/transformed ancestor, and
+  // the panel is a fixed element mid scale/translate entrance — so it nudged
+  // the whole widget and read as an abrupt "jump" the moment a message landed.
+  // scrollTop on the container can only ever move the container.
+  const wasVisibleRef = useRef(false);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+    const el = scrollRef.current;
+    if (!el || !isVisible) { wasVisibleRef.current = isVisible; return; }
+    // Instant jump on the first paint after opening (a smooth scroll from the
+    // top of the history on every open looks like the panel is "loading") and
+    // for reduced-motion users; smooth glide for live turns once settled.
+    const justOpened = !wasVisibleRef.current;
+    wasVisibleRef.current = true;
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: justOpened || reducedMotion ? 'auto' : 'smooth',
+    });
   }, [messages, isLoading, isVisible, reducedMotion]);
 
   const getMaxDimensions = () => ({
@@ -411,7 +428,10 @@ const CraveAIAssistant = () => {
           ref={launcherRef}
           onClick={() => dispatch(toggleChat())}
           aria-label="Open CraveAI Assistant"
-          style={{ bottom: launcherBottomOffset }}
+          // Lift above the ActiveOrderBanner when it's showing. The banner sets
+          // --aob-launcher-lift while visible (0px otherwise), so the launcher
+          // never overlaps the persistent order strip in the bottom-right.
+          style={{ bottom: `calc(${launcherBottomOffset}px + var(--aob-launcher-lift, 0px))` }}
           className="group fixed right-5 z-40 flex items-center gap-2.5 rounded-full bg-stone-900 py-3.5 pl-3.5 pr-5 text-white shadow-[0_10px_30px_-8px_rgba(28,25,23,0.55)] transition-[transform,box-shadow,bottom] duration-300 ease-out hover:scale-105 hover:shadow-[0_14px_36px_-8px_rgba(28,25,23,0.6)] focus:outline-none focus-visible:ring-2 focus-visible:ring-crave focus-visible:ring-offset-2 active:scale-95 sm:right-6"
         >
           <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-crave text-stone-900">
@@ -505,6 +525,7 @@ const CraveAIAssistant = () => {
           </div>
 
           <div
+            ref={scrollRef}
             className="flex flex-1 flex-col gap-3 overflow-y-auto bg-stone-50 px-4 py-4"
             // Assistant replies arrive asynchronously; without a live region a
             // screen-reader user got no indication an answer had appeared.
@@ -593,7 +614,6 @@ const CraveAIAssistant = () => {
                 <span aria-hidden="true" className="h-1.5 w-1.5 animate-bounce rounded-full bg-stone-400" />
               </div>
             )}
-            <div ref={messagesEndRef} />
           </div>
 
           <form

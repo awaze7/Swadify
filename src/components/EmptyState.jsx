@@ -22,7 +22,7 @@ const EmptyState = ({
 
   return (
     <div
-      className={`rounded-2xl border border-gray-200 dark:border-gray-700 bg-gradient-to-b from-gray-50 dark:from-gray-800 to-white dark:to-gray-800 px-6 py-12 text-center ${className}`}
+      className={`rounded-2xl border border-gray-200 dark:border-zinc-700 bg-gradient-to-b from-gray-50 dark:from-zinc-800 to-white dark:to-zinc-800 px-6 py-12 text-center ${className}`}
     >
       {illustration && (
         // Purely decorative — the heading below carries the meaning.
@@ -31,10 +31,10 @@ const EmptyState = ({
         </div>
       )}
 
-      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 sm:text-xl">{title}</h3>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">{title}</h3>
 
       {description && (
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-gray-600 dark:text-zinc-400">
           {description}
         </p>
       )}
@@ -51,7 +51,7 @@ const EmptyState = ({
           </Button>
         ))}
 
-      {secondary && <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">{secondary}</div>}
+      {secondary && <div className="mt-4 text-xs text-gray-500 dark:text-zinc-400">{secondary}</div>}
     </div>
   );
 };

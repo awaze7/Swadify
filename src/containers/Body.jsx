@@ -97,21 +97,21 @@ const Body = () => {
   if (isLoading) return <Shimmer />;
 
   return (
-    <div className="w-full min-h-screen bg-amber-50 dark:bg-gray-950 pb-12 overflow-x-hidden">
+    <div className="w-full min-h-screen bg-amber-50 dark:bg-zinc-950 pb-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
 
         <div className="mb-2">
           <h1 className="sr-only">Order food online</h1>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             Handpicked For Your Cravings
           </h2>
           <RestaurantCarousel restaurants={listOfRestaurants} />
         </div>
 
-        <hr className="border-gray-200 dark:border-gray-700 my-6 shadow-sm" />
+        <hr className="border-gray-200 dark:border-zinc-700 my-6 shadow-sm" />
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
             Restaurants with online food delivery
           </h2>
 
@@ -122,7 +122,7 @@ const Body = () => {
                 e.preventDefault();
                 setActiveSearch(searchText.trim());
               }}
-              className="flex w-full items-center overflow-hidden rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm transition-all focus-within:border-gray-300 dark:focus-within:border-gray-500 focus-within:shadow-md md:w-[420px]"
+              className="flex w-full items-center overflow-hidden rounded-full border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm transition-all focus-within:border-gray-300 dark:focus-within:border-zinc-500 focus-within:shadow-md md:w-[420px]"
             >
               <label htmlFor="restaurant-search" className="sr-only">
                 Search for restaurants or cuisines
@@ -130,14 +130,14 @@ const Body = () => {
               <input
                 id="restaurant-search"
                 type="search"
-                className="w-full bg-transparent px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                className="w-full bg-transparent px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-zinc-200 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Search for restaurants, cuisines..."
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
               />
               <button
                 type="submit"
-                className="shrink-0 bg-gray-900 dark:bg-yellow-500 dark:text-gray-900 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-black dark:hover:bg-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500"
+                className="shrink-0 bg-gray-900 dark:bg-yellow-500 dark:text-zinc-900 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-black dark:hover:bg-yellow-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yellow-500"
               >
                 Search
               </button>
@@ -153,14 +153,14 @@ const Body = () => {
               aria-pressed={isTopRated}
               className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-sm font-bold transition-all duration-200 border shadow-sm shrink-0 min-w-[138px] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 ${
                 isTopRated
-                  ? 'bg-gray-900 dark:bg-yellow-500 text-yellow-400 dark:text-gray-900 border-gray-900 dark:border-yellow-500 ring-2 ring-yellow-400/20'
-                  : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300'
+                  ? 'bg-gray-900 dark:bg-yellow-500 text-yellow-400 dark:text-zinc-900 border-gray-900 dark:border-yellow-500 ring-2 ring-yellow-400/20'
+                  : 'bg-white dark:bg-zinc-800 text-gray-800 dark:text-zinc-200 border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 hover:border-gray-300'
               }`}
             >
               <span>Top Rated</span>
-              <FaStar className={isTopRated ? "text-yellow-400 dark:text-gray-900 text-xs shrink-0" : "text-amber-500 text-xs shrink-0"} />
+              <FaStar className={isTopRated ? "text-yellow-400 dark:text-zinc-900 text-xs shrink-0" : "text-amber-500 text-xs shrink-0"} />
               {isTopRated && (
-                <span className="bg-gray-800 dark:bg-gray-900 text-gray-300 rounded-full p-1 hover:text-white hover:bg-gray-700 transition-colors shrink-0">
+                <span className="bg-gray-800 dark:bg-zinc-900 text-gray-300 rounded-full p-1 hover:text-white hover:bg-gray-700 transition-colors shrink-0">
                   <FaTimes className="text-[10px]" />
                 </span>
               )}
@@ -185,7 +185,7 @@ const Body = () => {
           />
         ) : filteredRestaurants.length === 0 ? (
           <div className="mb-20 mt-12 flex flex-col items-center justify-center">
-            <p className="text-lg font-semibold text-gray-500 dark:text-gray-400">
+            <p className="text-lg font-semibold text-gray-500 dark:text-zinc-400">
               No restaurants found matching your criteria.
             </p>
           </div>

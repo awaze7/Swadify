@@ -48,22 +48,22 @@ const Header = () => {
     }, [menuOpen]);
 
     const navLinkClasses = ({ isActive }) =>
-        `rounded-lg px-3 py-2 text-base font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-gray-900 ${
+        `rounded-lg px-3 py-2 text-base font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-zinc-900 ${
             isActive
-              ? "bg-yellow-400 text-gray-900 dark:bg-yellow-500 dark:text-gray-900"
-              : "text-gray-800 dark:text-gray-200 hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
+              ? "bg-yellow-400 text-gray-900 dark:bg-yellow-500 dark:text-zinc-900"
+              : "text-gray-800 dark:text-zinc-200 hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
         }`;
 
     const mobileLinkClasses = ({ isActive }) =>
         `block rounded-lg px-4 py-3 text-base font-semibold transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 ${
             isActive
-              ? "bg-yellow-400 text-gray-900 dark:bg-yellow-500 dark:text-gray-900"
-              : "text-gray-800 dark:text-gray-200 hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
+              ? "bg-yellow-400 text-gray-900 dark:bg-yellow-500 dark:text-zinc-900"
+              : "text-gray-800 dark:text-zinc-200 hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
         }`;
 
     const cartBadge = cartCount > 0 && (
         <span
-            className="absolute -right-2 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-yellow-300 dark:ring-gray-900"
+            className="absolute -right-2 -top-1.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-[11px] font-bold leading-none text-white ring-2 ring-yellow-300 dark:ring-zinc-900"
             aria-hidden="true"
         >
             {cartCount > 99 ? "99+" : cartCount}
@@ -71,7 +71,7 @@ const Header = () => {
     );
 
     return (
-        <header className="sticky top-0 z-40 border-b-2 border-yellow-400 dark:border-yellow-500/60 bg-gradient-to-r from-yellow-300 via-yellow-300 to-yellow-200 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 font-sans shadow-md dark:shadow-gray-950/50">
+        <header className="sticky top-0 z-40 border-b-2 border-yellow-400 dark:border-yellow-500/60 bg-gradient-to-r from-yellow-300 via-yellow-300 to-yellow-200 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 font-sans shadow-md dark:shadow-zinc-950/50">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2">
                 <Link
                     to="/"
@@ -106,7 +106,7 @@ const Header = () => {
                     <NavLink
                         to="/cart"
                         className={({ isActive }) =>
-                            `relative ml-1 rounded-lg p-2.5 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-gray-900 ${
+                            `relative ml-1 rounded-lg p-2.5 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400 focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-zinc-900 ${
                                 isActive ? "bg-yellow-400 dark:bg-yellow-500/20" : "hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20"
                             }`
                         }
@@ -117,7 +117,7 @@ const Header = () => {
                         }
                     >
                         <span className="relative block">
-                            <FiShoppingCart size={22} className="text-gray-900 dark:text-gray-200" aria-hidden="true" />
+                            <FiShoppingCart size={22} className="text-gray-900 dark:text-zinc-200" aria-hidden="true" />
                             {cartBadge}
                         </span>
                     </NavLink>
@@ -153,7 +153,7 @@ const Header = () => {
                         }
                     >
                         <span className="relative block">
-                            <FiShoppingCart size={22} className="text-gray-900 dark:text-gray-200" aria-hidden="true" />
+                            <FiShoppingCart size={22} className="text-gray-900 dark:text-zinc-200" aria-hidden="true" />
                             {cartBadge}
                         </span>
                     </Link>
@@ -162,7 +162,7 @@ const Header = () => {
                         type="button"
                         id="menu-button"
                         onClick={() => setMenuOpen((open) => !open)}
-                        className="rounded-lg p-2.5 text-gray-900 dark:text-gray-200 transition-colors hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400"
+                        className="rounded-lg p-2.5 text-gray-900 dark:text-zinc-200 transition-colors hover:bg-yellow-400/70 dark:hover:bg-yellow-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400"
                         aria-label={menuOpen ? "Close menu" : "Open menu"}
                         aria-expanded={menuOpen}
                         aria-controls="mobile-menu"
@@ -177,16 +177,16 @@ const Header = () => {
                 <nav
                     id="mobile-menu"
                     aria-label="Mobile"
-                    className="border-t-2 border-yellow-400 dark:border-yellow-500/40 bg-yellow-100 dark:bg-gray-800 md:hidden"
+                    className="border-t-2 border-yellow-400 dark:border-yellow-500/40 bg-yellow-100 dark:bg-zinc-800 md:hidden"
                 >
                     {user && (
-                        <div className="flex items-center gap-3 border-b border-yellow-300 dark:border-gray-700 px-4 py-3.5">
+                        <div className="flex items-center gap-3 border-b border-yellow-300 dark:border-zinc-700 px-4 py-3.5">
                             <Avatar user={user} size="md" />
                             <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                <p className="truncate text-sm font-semibold text-gray-900 dark:text-white">
                                     {user.displayName || "Your account"}
                                 </p>
-                                <p className="truncate text-xs text-gray-600 dark:text-gray-400">{user.email}</p>
+                                <p className="truncate text-xs text-gray-600 dark:text-zinc-400">{user.email}</p>
                             </div>
                         </div>
                     )}

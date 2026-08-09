@@ -16,7 +16,7 @@ const ProfileAccount = () => {
 
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-8">
+      <div className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 shadow-sm sm:p-8">
         <ProfileHeader
           user={user}
           isEditing={isEditing}
@@ -26,7 +26,7 @@ const ProfileAccount = () => {
         />
       </div>
 
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-8">
+      <div className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 shadow-sm sm:p-8">
         <ProfileActions onLogout={logout} isLoggingOut={isLoggingOut} />
       </div>
     </div>

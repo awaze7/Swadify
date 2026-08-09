@@ -534,7 +534,7 @@ How to pick dishes:
   from one restaurant (e.g. avoid returning "X", "X with side", and "X with
   side and drink" all at once — pick the one or two that best fit instead).
 
-Voice for "reply" — read this closely, it's the part that most needs work:
+Voice for "reply" (read this closely, it's the part that most needs work):
 Write like a friend who knows the local food scene and is texting back
 someone who just said what they're craving — not a system confirming a
 search query. React to what they actually said. Vary sentence shape and
@@ -547,17 +547,19 @@ Banned — do not write sentences shaped like these, ever:
 These are exactly the flat, robotic pattern to avoid.
 
 Instead, write like:
-- "Something cold sounds great right now — here's what's chilled and ready:"
+- "Something cold sounds great right now. Here's what's chilled and ready:"
 - "No vada pav on the menu today, but these street-food bites might scratch
   the itch:"
-- "Lighter it is — these won't sit as heavy:"
+- "Lighter it is. These won't sit as heavy:"
 - "Good call, that one's rich. Want me to stay veg, or open it up?"
 - "Spicy it is. A couple of these bring real heat:"
 
 Keep it to one, occasionally two, short sentences. At most one emoji, and
-only when it genuinely fits — don't decorate every reply with one. Sound
+only when it genuinely fits. Don't decorate every reply with one. Sound
 like a person who's actually looked at the options, not a template with the
-count and query swapped in.`,
+count and query swapped in.
+Never use em dashes (—) in "reply" or "followUps". Write with commas,
+periods, or parentheses instead. Em dashes read as machine-generated.`,
         turns: [
             ...historyTurns,
             {
@@ -576,7 +578,7 @@ Reply to the user's message above, continuing the conversation.
 Return JSON with this exact shape:
 {
   "isFoodQuery": true,
-  "reply": "short, in-context sentence — no greeting, no restating the question",
+  "reply": "short, in-context sentence, no greeting, no restating the question",
   "dishes": [
     { "id": "...", "name": "...", "restaurant": "...", "resId": "..." }
   ],
@@ -587,9 +589,9 @@ Include up to 4 dishes, prioritizing genuine relevance and variety over
 quantity. Return an empty dishes array when the turn doesn't call for
 suggestions (a clarifying question, or a reply to small talk).
 
-"followUps" is 0-3 very short replies written in the USER's voice — the
+"followUps" is 0-3 very short replies written in the USER's voice, the
 natural next things *they* might say, which you could actually act on. Think
-"Something spicier", "Only veg", "What's cheapest?" — not questions aimed at
+"Something spicier", "Only veg", "What's cheapest?", not questions aimed at
 the user, and not things you can't answer. Keep each under 5 words. Return an
 empty array when the conversation doesn't obviously continue.`,
             },
@@ -643,7 +645,7 @@ const REPLY_VARIANTS = {
         "Running on backup mode right now, here's what matched by keyword:",
     ],
     missingKeyNoSignal: [
-        "My smart matching is offline right now, and I couldn't find a keyword match either — try describing it differently?",
+        "My smart matching is offline right now, and I couldn't find a keyword match either. Try describing it differently?",
         "Running on backup mode and coming up empty here, could you rephrase that a bit?",
     ],
     rateLimitedWithSignal: [
@@ -656,7 +658,7 @@ const REPLY_VARIANTS = {
     ],
     unclearQuery: [
         "Not quite sure what you're picturing. A cuisine, mood, or dish name would help.",
-        "Give me a bit more to go on — what are you in the mood for?",
+        "Give me a bit more to go on. What are you in the mood for?",
     ],
     aiFoundNoReplyText: [
         "Here's what stood out for that one:",
@@ -701,12 +703,29 @@ const buildRetrievalQuery = (userQuery, history = []) => {
 // Sanitizes model-authored follow-up chips. These get rendered as tappable
 // buttons that send text as the user, so they need to be short and finite
 // regardless of what the model returns.
+// Hard guarantee against em dashes in AI-authored copy. The system prompt asks
+// the model not to use them, but generative output is never a certainty, so we
+// strip them at the parse boundary before anything renders. A spaced dash
+// becomes a comma (grammatical in casual prose almost everywhere); the ASCII
+// "--" people sometimes get is handled too, and we tidy any punctuation the
+// swap leaves doubled or floating.
+const deEmDash = (text) => {
+    if (typeof text !== "string") return text;
+    return text
+        .replace(/\s*[—–]\s*/g, ", ")     // em/en dash (spaced or not) -> comma
+        .replace(/\s*--\s*/g, ", ")        // ASCII double-hyphen dash -> comma
+        .replace(/,\s*,/g, ", ")           // collapse an accidental double comma
+        .replace(/,\s*([:.!?;])/g, "$1")   // ", ." or ", :" -> drop the stray comma
+        .replace(/\s+([,.!?;:])/g, "$1")   // no space before punctuation
+        .trim();
+};
+
 const normalizeFollowUps = (raw) => {
     if (!Array.isArray(raw)) return [];
     const seen = new Set();
     return raw
         .filter((s) => typeof s === "string")
-        .map((s) => s.trim().replace(/\s+/g, " "))
+        .map((s) => deEmDash(s.trim().replace(/\s+/g, " ")))
         .filter((s) => {
             if (s.length < 2 || s.length > 40) return false;
             const key = s.toLowerCase();
@@ -814,7 +833,7 @@ export const fetchAiResponse = async (userQuery, history = []) => {
 
             if (resolved.length > 0) {
                 return {
-                    reply: parsed?.reply || pickVariant(REPLY_VARIANTS.aiFoundNoReplyText),
+                    reply: deEmDash(parsed?.reply) || pickVariant(REPLY_VARIANTS.aiFoundNoReplyText),
                     dishes: formatDishes(resolved),
                     followUps,
                 };
@@ -826,7 +845,7 @@ export const fetchAiResponse = async (userQuery, history = []) => {
             // itself — trust that honest answer instead of papering over it
             // with an unrelated local match.
             if (parsed?.reply) {
-                return { reply: parsed.reply, dishes: [], followUps };
+                return { reply: deEmDash(parsed.reply), dishes: [], followUps };
             }
         }
 

@@ -35,7 +35,7 @@ const ThemeToggle = ({ className = '' }) => {
       className={[
         'group relative rounded-full focus:outline-none',
         'focus-visible:ring-2 focus-visible:ring-yellow-500 dark:focus-visible:ring-yellow-400',
-        'focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-gray-900',
+        'focus-visible:ring-offset-2 focus-visible:ring-offset-yellow-300 dark:focus-visible:ring-offset-zinc-900',
         className,
       ].join(' ')}
     >

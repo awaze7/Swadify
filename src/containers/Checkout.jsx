@@ -8,6 +8,7 @@ import Offline from './Offline';
 import ItemList from '../components/ItemList';
 import { createOrder, calculateOrderTotals } from '../utils/orderUtils';
 import { openRazorpayCheckout } from '../utils/razorpayService';
+import { initOrderTracking } from '../utils/orderTrackingService';
 import { clearCart } from '../utils/Redux/cartSlice';
 import { setCurrentOrder } from '../utils/Redux/orderSlice';
 import { notify, updateNotification } from '../utils/notificationUtils';
@@ -78,15 +79,15 @@ const PaymentMethodCard = ({ method, selected, onSelect }) => {
       className={[
         'flex w-full items-center gap-4 rounded-xl border px-4 py-3.5 text-left transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2',
         selected
-          ? 'border-gray-900 bg-gray-900 text-white shadow-md dark:border-yellow-500 dark:bg-yellow-500 dark:text-gray-900'
-          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm',
+          ? 'border-gray-900 bg-gray-900 text-white shadow-md dark:border-yellow-500 dark:bg-yellow-500 dark:text-zinc-900'
+          : 'border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-gray-800 dark:text-zinc-200 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-sm',
       ].join(' ')}
     >
       {/* Radio circle */}
       <span
         className={[
           'flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors',
-          selected ? 'border-white dark:border-gray-900' : 'border-gray-400 dark:border-gray-500',
+          selected ? 'border-white dark:border-zinc-900' : 'border-gray-400 dark:border-zinc-500',
         ].join(' ')}
         aria-hidden="true"
       >
@@ -103,7 +104,7 @@ const PaymentMethodCard = ({ method, selected, onSelect }) => {
             </span>
           )}
         </div>
-        <p className={`mt-0.5 text-xs ${selected ? 'text-gray-300 dark:text-gray-700' : 'text-gray-500 dark:text-gray-400'}`}>
+        <p className={`mt-0.5 text-xs ${selected ? 'text-gray-300 dark:text-zinc-700' : 'text-gray-500 dark:text-zinc-400'}`}>
           {method.subtitle}
         </p>
       </div>
@@ -114,7 +115,7 @@ const PaymentMethodCard = ({ method, selected, onSelect }) => {
           <Icon
             key={i}
             size={18}
-            className={selected ? 'text-gray-300 dark:text-gray-700' : 'text-gray-400 dark:text-gray-500'}
+            className={selected ? 'text-gray-300 dark:text-zinc-700' : 'text-gray-400 dark:text-zinc-500'}
             aria-hidden="true"
           />
         ))}
@@ -160,8 +161,8 @@ const Checkout = () => {
       <div className="mx-auto w-full max-w-5xl px-4 py-10">
         <span className="sr-only" role="status">Loading checkout</span>
         <div className="space-y-4" aria-hidden="true">
-          <div className="h-8 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-          <div className="h-64 w-full animate-pulse rounded-2xl bg-gray-100 dark:bg-gray-800" />
+          <div className="h-8 w-1/3 animate-pulse rounded bg-gray-200 dark:bg-zinc-700" />
+          <div className="h-64 w-full animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800" />
         </div>
       </div>
     );
@@ -170,9 +171,9 @@ const Checkout = () => {
   if (!user) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-16">
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-12 text-center shadow-sm">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">You're not signed in</h2>
-          <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600 dark:text-gray-400">
+        <div className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-6 py-12 text-center shadow-sm">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">You're not signed in</h2>
+          <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600 dark:text-zinc-400">
             Log in to confirm your delivery address and place this order. Your cart is saved.
           </p>
           <Button size="lg" className="mt-7" onClick={() => navigate('/login', { state: { from: '/checkout' } })}>
@@ -186,9 +187,9 @@ const Checkout = () => {
   if (cartItems.length === 0) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 py-16">
-        <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-12 text-center shadow-sm">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your cart is empty</h2>
-          <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600 dark:text-gray-400">Add a few dishes before checking out.</p>
+        <div className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-6 py-12 text-center shadow-sm">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your cart is empty</h2>
+          <p className="mx-auto mt-2 max-w-xs text-sm text-gray-600 dark:text-zinc-400">Add a few dishes before checking out.</p>
           <Button size="lg" className="mt-7" onClick={() => navigate('/')}>Browse restaurants</Button>
         </div>
       </div>
@@ -226,16 +227,23 @@ const Checkout = () => {
       cartItems, userData, formData.deliveryAddress,
       formData.specialInstructions, restaurantInfo, formData.paymentMethod
     );
-    const estimatedDelivery = new Date(Date.now() + 35 * 60000);
+    // Use the restaurant's actual delivery time (carried on every cart item).
+    // This drives the order-tracking timer schedule and the ETA shown on the
+    // confirmation screen — instead of a blanket hardcoded 35 minutes.
+    const deliveryTimeMinutes = cartItems[0]?.card?.deliveryTimeMinutes ?? 30;
+    const estimatedDelivery = new Date(Date.now() + deliveryTimeMinutes * 60_000);
     const ordersRef = collection(db, 'orders', user.uid, 'orders');
     const docRef = await addDoc(ordersRef, {
       ...orderData,
       ...paymentDetails,
       createdAt: serverTimestamp(),
       estimatedDelivery,
+      // Persisted so OrderTracking can schedule the correct timer intervals
+      // without having to re-fetch the restaurant's menu data.
+      deliveryTimeMinutes,
     });
-    if (!docRef?.id) throw new Error('Failed to create order — no ID returned');
-    return { docRef, orderData, estimatedDelivery };
+    if (!docRef?.id) throw new Error('Failed to create order, no ID returned');
+    return { docRef, orderData, estimatedDelivery, deliveryTimeMinutes };
   };
 
   const handleSubmit = async (e) => {
@@ -244,16 +252,13 @@ const Checkout = () => {
 
     setSubmitting(true);
     const isCOD = formData.paymentMethod === 'cod';
-    const toastId = notify.loading(isCOD ? 'Placing your order…' : 'Opening payment…');
+    let toastId = null;
 
     try {
       let paymentDetails = {};
 
       if (!isCOD) {
-        // Dismiss loading toast before Razorpay modal opens so it doesn't
-        // linger behind the overlay.
-        updateNotification(toastId, { render: 'Complete payment to confirm order', type: 'info', isLoading: false, autoClose: 2500 });
-
+        // Open Razorpay silently — no toast while the modal is open.
         const selectedMethod = PAYMENT_METHODS.find((m) => m.id === formData.paymentMethod);
         const response = await openRazorpayCheckout({
           amount: total,
@@ -266,10 +271,14 @@ const Checkout = () => {
           razorpay_payment_id: response.razorpay_payment_id,
           paymentStatus: 'paid',
         };
-        notify.loading('Confirming your order…');
       }
 
-      const { docRef, orderData, estimatedDelivery } = await placeOrderInFirestore(paymentDetails);
+      // Only show a loading toast once we're doing real async work (Firestore).
+      toastId = notify.loading(isCOD ? 'Placing your order…' : 'Confirming your order…');
+      const { docRef, orderData, estimatedDelivery, deliveryTimeMinutes } = await placeOrderInFirestore(paymentDetails);
+
+      // Initialize tracking fields immediately after order creation
+      await initOrderTracking(user.uid, docRef.id);
 
       dispatch(setCurrentOrder({
         ...orderData,
@@ -277,24 +286,29 @@ const Checkout = () => {
         id: docRef.id,
         estimatedDelivery: estimatedDelivery.toISOString(),
         createdAt: new Date().toISOString(),
+        deliveryTimeMinutes,
       }));
       dispatch(clearCart());
       queryClient.invalidateQueries({ queryKey: orderHistoryKey(user.uid) });
 
       updateNotification(toastId, { render: 'Order placed successfully!', type: 'success', isLoading: false, autoClose: 1500 });
-      navigate(`/order-confirmation/${docRef.id}`);
+      navigate(`/order-tracking/${docRef.id}`);
 
     } catch (error) {
       setSubmitting(false);
       if (error.message === 'Payment cancelled') {
-        updateNotification(toastId, { render: 'Payment cancelled — your cart is still saved.', type: 'info', isLoading: false, autoClose: 4000 });
+        notify.info('Payment cancelled. Your cart is still saved.');
         return;
       }
       const isFirestoreError = error?.code?.startsWith?.('firestore') || error?.name === 'FirebaseError';
       const message = isFirestoreError
         ? describeFirestoreError(error, 'your order').message
         : (error.message || 'Something went wrong. Please try again.');
-      updateNotification(toastId, { render: message, type: 'error', isLoading: false, autoClose: 6000 });
+      if (toastId) {
+        updateNotification(toastId, { render: message, type: 'error', isLoading: false, autoClose: 6000 });
+      } else {
+        notify.error(message);
+      }
     }
   };
 
@@ -303,7 +317,7 @@ const Checkout = () => {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 pb-28 pt-8">
-      <h1 className="mb-8 text-2xl font-bold text-gray-900 dark:text-gray-100 sm:text-3xl">Checkout</h1>
+      <h1 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white sm:text-3xl">Checkout</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* ── Left column: form ── */}
@@ -311,19 +325,19 @@ const Checkout = () => {
           <form onSubmit={handleSubmit} noValidate className="space-y-6">
 
             {/* Order items */}
-            <section className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-6">
-              <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">Your Order</h2>
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-900 p-4">
+            <section className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 shadow-sm sm:p-6">
+              <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Your Order</h2>
+              <div className="rounded-xl bg-gray-50 dark:bg-zinc-900 p-4">
                 <ItemList items={cartItems} inCart readOnly />
               </div>
             </section>
 
             {/* Delivery */}
-            <section className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-6">
-              <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">Delivery Details</h2>
+            <section className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 shadow-sm sm:p-6">
+              <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Delivery Details</h2>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="delivery-address" className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <label htmlFor="delivery-address" className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-zinc-300">
                     Delivery address <span className="text-red-500" aria-label="required">*</span>
                   </label>
                   <textarea
@@ -333,12 +347,12 @@ const Checkout = () => {
                     aria-describedby={errors.deliveryAddress ? 'address-error' : undefined}
                     value={formData.deliveryAddress} onChange={handleInputChange}
                     placeholder="House / street / area, city, PIN"
-                    className={`w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-yellow-500 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 ${errors.deliveryAddress ? 'border-red-400 bg-red-50 dark:bg-red-900/20 dark:border-red-500' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'}`}
+                    className={`w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-yellow-500 dark:bg-zinc-700 dark:text-white dark:placeholder-zinc-500 ${errors.deliveryAddress ? 'border-red-400 bg-red-50 dark:bg-red-900/20 dark:border-red-500' : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700'}`}
                   />
                   {errors.deliveryAddress && <p id="address-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.deliveryAddress}</p>}
                 </div>
                 <div>
-                  <label htmlFor="phone-number" className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <label htmlFor="phone-number" className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-zinc-300">
                     Phone number <span className="text-red-500" aria-label="required">*</span>
                   </label>
                   <input
@@ -347,28 +361,28 @@ const Checkout = () => {
                     aria-describedby={errors.phoneNumber ? 'phone-error' : undefined}
                     value={formData.phoneNumber} onChange={handleInputChange}
                     placeholder="+91 XXXXXXXXXX"
-                    className={`w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-yellow-500 dark:text-gray-100 dark:placeholder-gray-500 ${errors.phoneNumber ? 'border-red-400 bg-red-50 dark:bg-red-900/20 dark:border-red-500' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'}`}
+                    className={`w-full rounded-xl border px-4 py-3 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-yellow-500 dark:text-white dark:placeholder-zinc-500 ${errors.phoneNumber ? 'border-red-400 bg-red-50 dark:bg-red-900/20 dark:border-red-500' : 'border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700'}`}
                   />
                   {errors.phoneNumber && <p id="phone-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phoneNumber}</p>}
                 </div>
                 <div>
-                  <label htmlFor="special-instructions" className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Special instructions <span className="text-xs font-normal text-gray-400 dark:text-gray-500">(optional)</span>
+                  <label htmlFor="special-instructions" className="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-zinc-300">
+                    Special instructions <span className="text-xs font-normal text-gray-400 dark:text-zinc-500">(optional)</span>
                   </label>
                   <textarea
                     id="special-instructions" name="specialInstructions" rows="2" maxLength="300"
                     value={formData.specialInstructions} onChange={handleInputChange}
                     placeholder="e.g. No onions, extra spicy, ring the bell"
-                    className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 px-4 py-3 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-yellow-500"
+                    className="w-full rounded-xl border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 dark:text-white dark:placeholder-zinc-500 px-4 py-3 text-sm transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-yellow-500"
                   />
                 </div>
               </div>
             </section>
 
             {/* Payment */}
-            <section className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-6">
-              <h2 className="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100">Payment Method</h2>
-              <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">All transactions are secured and encrypted.</p>
+            <section className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 shadow-sm sm:p-6">
+              <h2 className="mb-1 text-lg font-bold text-gray-900 dark:text-white">Payment Method</h2>
+              <p className="mb-4 text-sm text-gray-500 dark:text-zinc-400">All transactions are secured and encrypted.</p>
               <div className="space-y-2.5" role="radiogroup" aria-label="Choose a payment method">
                 {PAYMENT_METHODS.map((method) => (
                   <PaymentMethodCard
@@ -379,7 +393,7 @@ const Checkout = () => {
                   />
                 ))}
               </div>
-              <div className="mt-4 flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+              <div className="mt-4 flex items-center gap-2 text-xs text-gray-400 dark:text-zinc-500">
                 <FiShield size={13} aria-hidden="true" />
                 <span>Powered by Razorpay · 256-bit SSL encryption</span>
               </div>
@@ -402,36 +416,38 @@ const Checkout = () => {
         {/* ── Right column: order summary ── */}
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-4 md:top-20">
-            <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-6">
-              <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-gray-100">Order Summary</h2>
+            <div className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 shadow-sm sm:p-6">
+              <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Order Summary</h2>
               <dl className="space-y-2.5 text-sm">
-                <div className="flex justify-between text-gray-700 dark:text-gray-300">
+                <div className="flex justify-between text-gray-700 dark:text-zinc-300">
                   <dt>Items ({totalItems})</dt>
                   <dd className="tabular-nums">₹{subtotal.toFixed(2)}</dd>
                 </div>
-                <div className="flex justify-between text-gray-500 dark:text-gray-400">
+                <div className="flex justify-between text-gray-500 dark:text-zinc-400">
                   <dt>GST (5%)</dt>
                   <dd className="tabular-nums">₹{gst.toFixed(2)}</dd>
                 </div>
-                <div className="flex justify-between text-gray-500 dark:text-gray-400">
+                <div className="flex justify-between text-gray-500 dark:text-zinc-400">
                   <dt>Platform fee</dt>
                   <dd className="tabular-nums">₹{platformFee.toFixed(2)}</dd>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 dark:border-gray-700 pt-2.5 text-gray-600 dark:text-gray-400">
+                <div className="flex justify-between border-t border-gray-100 dark:border-zinc-700 pt-2.5 text-gray-600 dark:text-zinc-400">
                   <dt>Delivery</dt>
                   <dd className="tabular-nums">₹{deliveryFee.toFixed(2)}</dd>
                 </div>
-                <div className="flex justify-between rounded-xl bg-gray-900 dark:bg-yellow-500 px-4 py-3 text-base font-bold text-white dark:text-gray-900">
+                <div className="flex justify-between rounded-xl bg-gray-900 dark:bg-yellow-500 px-4 py-3 text-base font-bold text-white dark:text-zinc-900">
                   <dt>Total</dt>
                   <dd className="tabular-nums">₹{total.toFixed(2)}</dd>
                 </div>
               </dl>
             </div>
 
-            {/* Delivery estimate */}
+            {/* Delivery estimate — derived from the restaurant's actual SLA */}
             <div className="rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4">
               <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Estimated delivery</p>
-              <p className="mt-0.5 text-sm text-blue-700 dark:text-blue-400">30–45 minutes</p>
+              <p className="mt-0.5 text-sm text-blue-700 dark:text-blue-400">
+                {cartItems[0]?.card?.deliveryTimeMinutes ?? 30} minutes
+              </p>
             </div>
 
             {/* Payment badge */}
