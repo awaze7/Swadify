@@ -24,19 +24,19 @@ const BASE =
  */
 const VARIANTS = {
   primary:
-    "bg-gray-900 dark:bg-yellow-500 dark:text-gray-900 text-white shadow-sm hover:bg-black dark:hover:bg-yellow-400 active:scale-[0.98] " +
+    "bg-gray-900 dark:bg-yellow-500 dark:text-zinc-900 text-white shadow-sm hover:bg-black dark:hover:bg-yellow-400 active:scale-[0.98] " +
     "focus-visible:ring-yellow-500",
   secondary:
-    "border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700 " +
+    "border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white shadow-sm hover:bg-gray-100 dark:hover:bg-zinc-700 " +
     "active:scale-[0.98] focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400",
   danger:
     "bg-red-600 text-white shadow-sm hover:bg-red-700 active:scale-[0.98] " +
     "focus-visible:ring-red-600",
   dangerSubtle:
-    "border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-red-300 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 " +
+    "border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-zinc-300 hover:border-red-300 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 " +
     "hover:text-red-700 dark:hover:text-red-400 active:scale-[0.98] focus-visible:ring-red-500",
   ghost:
-    "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 active:scale-[0.98] " +
+    "text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-700 hover:text-gray-900 dark:hover:text-white active:scale-[0.98] " +
     "focus-visible:ring-gray-900 dark:focus-visible:ring-yellow-400",
   onYellow:
     "bg-gray-900 text-white hover:bg-black active:scale-[0.98] " +

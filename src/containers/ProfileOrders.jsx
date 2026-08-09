@@ -9,7 +9,7 @@ const ProfileOrders = () => {
   );
 
   return (
-    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm sm:p-8">
+    <div className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 shadow-sm sm:p-8">
       <OrderHistorySection
         orders={orders}
         isLoading={isLoading}

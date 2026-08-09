@@ -61,12 +61,6 @@ export const openRazorpayCheckout = async (opts) => {
       handler: (response) => resolve(response),
     };
 
-    // Pre-select the payment method when the user already chose one,
-    // so the modal opens on the right tab instead of the default screen.
-    if (opts.method === 'upi') options.method = { upi: true };
-    if (opts.method === 'card') options.method = { card: true };
-    if (opts.method === 'netbanking') options.method = { netbanking: true };
-
     const rzp = new window.Razorpay(options);
     rzp.on('payment.failed', (response) =>
       reject(new Error(response?.error?.description || 'Payment failed'))

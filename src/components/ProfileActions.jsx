@@ -61,7 +61,7 @@ const ProfileActions = ({ onLogout, isLoggingOut = false }) => {
 
   return (
     <section aria-labelledby="session-heading">
-      <h2 id="session-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100">
+      <h2 id="session-heading" className="text-xl font-bold text-gray-900 dark:text-white">
         Session
       </h2>
 
@@ -72,8 +72,8 @@ const ProfileActions = ({ onLogout, isLoggingOut = false }) => {
           </span>
 
           <div className="min-w-0 flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Log out of Swadify</h3>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <h3 className="font-semibold text-gray-900 dark:text-white">Log out of Swadify</h3>
+            <p className="mt-1 text-sm text-gray-600 dark:text-zinc-400">
               You'll need to sign in again to view your orders and saved address. Items in
               your cart stay on this device.
             </p>

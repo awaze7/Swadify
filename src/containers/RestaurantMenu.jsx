@@ -208,8 +208,22 @@ const RestaurantMenuView = ({ resId }) => {
     const cuisinesList = Array.isArray(cuisines) ? cuisines.join(", ") : "";
 
     // Identity stamped onto every cart entry added from this menu, so the order
-    // written at checkout knows which restaurant it belongs to.
-    const restaurant = { id: String(resId), name };
+    // written at checkout knows which restaurant it belongs to and how long
+    // delivery should take (drives the order-tracking timer schedule).
+    const restaurant = {
+        id: String(resId),
+        name,
+        // sla.deliveryTime is the integer minutes shown on the restaurant card
+        // (e.g. 30 for "30 mins"). Fall back to 30 if the API omits it.
+        // Use the lower bound of the displayed range (minDeliveryTime).
+        // sla.deliveryTime is a separate internal field that can differ from
+        // the "20-25 mins" string — e.g. Domino's shows "20-25 mins" but
+        // sla.deliveryTime = 35, which would inflate the ETA by 15 minutes.
+        deliveryTimeMinutes:
+          resDetails?.sla?.minDeliveryTime
+          ?? resDetails?.sla?.deliveryTime
+          ?? 30,
+    };
 
     return (
         // Was `w-7/12` at every breakpoint — 58% of a 375px phone left a ~218px
@@ -226,19 +240,19 @@ const RestaurantMenuView = ({ resId }) => {
             <div className="my-4">
                 <div className="flex items-start gap-4">
                     <div className="min-w-0 flex-1">
-                        <h1 className="mt-6 text-xl font-bold text-gray-900 sm:text-2xl">{name}</h1>
-                        <p className="flex flex-col text-sm text-gray-500 sm:text-base">
+                        <h1 className="mt-6 text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">{name}</h1>
+                        <p className="flex flex-col text-sm text-gray-500 dark:text-zinc-400 sm:text-base">
                             <span>{cuisinesList}</span>
                             <span>{locality}</span>
                         </p>
                     </div>
-                    <div className="mb-4 mt-6 flex flex-shrink-0 flex-col items-center rounded-lg border border-solid px-2">
-                        <div className="text-red-900">
+                    <div className="mb-4 mt-6 flex flex-shrink-0 flex-col items-center rounded-lg border border-solid border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-2">
+                        <div className="text-green-700 dark:text-green-400">
                             <span className="pt-1 text-xl font-semibold">&#9733;</span>
                             <span className="pt-1 text-lg font-semibold"> {avgRating}</span>
                         </div>
-                        <div className="my-1.5 w-full border-b"></div>
-                        <span className="whitespace-nowrap pb-2 text-sm font-medium text-red-900">
+                        <div className="my-1.5 w-full border-b border-gray-300 dark:border-zinc-600"></div>
+                        <span className="whitespace-nowrap pb-2 text-sm font-medium text-gray-600 dark:text-zinc-400">
                             {totalRatingsString}
                         </span>
                     </div>
@@ -248,7 +262,7 @@ const RestaurantMenuView = ({ resId }) => {
                         alt=""
                         src= {BIKE_ICON}
                     />
-                    <span className="text-sm text-gray-500 sm:text-base" dangerouslySetInnerHTML={{ __html: feeDetails?.message || "" }} />
+                    <span className="text-sm text-gray-500 dark:text-zinc-400 sm:text-base" dangerouslySetInnerHTML={{ __html: feeDetails?.message || "" }} />
                 </div>
             </div>
 

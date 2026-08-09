@@ -38,8 +38,8 @@ const ErrorState = ({ errorInfo, onRetry, isRetrying = false, className = "" }) 
         <Icon className="text-red-600 dark:text-red-400" size={26} aria-hidden="true" />
       </div>
 
-      <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-gray-100">{title}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-gray-700 dark:text-gray-300">{message}</p>
+      <h3 className="mt-5 text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
+      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-gray-700 dark:text-zinc-300">{message}</p>
 
       {(showRetry || needsLogin) && (
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">

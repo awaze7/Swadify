@@ -48,29 +48,29 @@ const NoOrdersIllustration = () => (
 const OrderSkeleton = () => (
   <ul className="space-y-4" aria-hidden="true">
     {[0, 1, 2].map((i) => (
-      <li key={i} className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+      <li key={i} className="rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
         <div className="px-5 pt-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <div className="h-6 w-2/5 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
-              <div className="mt-0.5 h-5 w-1/3 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
+              <div className="h-6 w-2/5 animate-pulse rounded bg-gray-200 dark:bg-zinc-700" />
+              <div className="mt-0.5 h-5 w-1/3 animate-pulse rounded bg-gray-100 dark:bg-zinc-800" />
             </div>
-            <div className="h-6 w-20 flex-shrink-0 animate-pulse rounded-full bg-gray-100 dark:bg-gray-800" />
+            <div className="h-6 w-20 flex-shrink-0 animate-pulse rounded-full bg-gray-100 dark:bg-zinc-800" />
           </div>
 
           <div className="mt-4 flex items-center gap-6">
             {[0, 1].map((col) => (
               <div key={col}>
-                <div className="h-4 w-10 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
-                <div className="mt-0.5 h-6 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="h-4 w-10 animate-pulse rounded bg-gray-100 dark:bg-zinc-800" />
+                <div className="mt-0.5 h-6 w-12 animate-pulse rounded bg-gray-200 dark:bg-zinc-700" />
               </div>
             ))}
-            <div className="ml-auto h-5 w-16 animate-pulse rounded bg-gray-100 dark:bg-gray-800" />
+            <div className="ml-auto h-5 w-16 animate-pulse rounded bg-gray-100 dark:bg-zinc-800" />
           </div>
         </div>
 
-        <div className="mt-4 border-t border-gray-100 dark:border-gray-700 px-5 py-3">
-          <div className="h-11 w-28 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-700" />
+        <div className="mt-4 border-t border-gray-100 dark:border-zinc-700 px-5 py-3">
+          <div className="h-11 w-28 animate-pulse rounded-lg bg-gray-100 dark:bg-zinc-700" />
         </div>
       </li>
     ))}
@@ -152,7 +152,7 @@ const OrderHistorySection = ({
       const skipped = (order?.items?.length || 0) - validItems.length;
       notify.success(
         skipped > 0
-          ? `${validItems.length} item${validItems.length === 1 ? "" : "s"} added — ${skipped} unavailable`
+          ? `${validItems.length} item${validItems.length === 1 ? "" : "s"} added, ${skipped} unavailable`
           : `${validItems.length} item${validItems.length === 1 ? "" : "s"} added to your cart`
       );
       navigate("/cart");
@@ -162,12 +162,12 @@ const OrderHistorySection = ({
 
   const heading = (
     <div className="mb-4 flex items-center justify-between gap-3">
-      <h2 id="order-history-heading" className="text-xl font-bold text-gray-900 dark:text-gray-100 sm:text-2xl">
+      <h2 id="order-history-heading" className="text-xl font-bold text-gray-900 dark:text-white sm:text-2xl">
         Order History
       </h2>
       {/* Background revalidation indicator — never replaces the list. */}
       {isRefreshing && (
-        <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400">
+        <span className="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-zinc-400">
           <FiRefreshCw size={13} className="animate-spin" aria-hidden="true" />
           Updating
         </span>
@@ -209,7 +209,7 @@ const OrderHistorySection = ({
     // 4. Data.
     return (
       <>
-        <p className="mb-4 text-sm text-gray-500 dark:text-gray-400" aria-live="polite">
+        <p className="mb-4 text-sm text-gray-500 dark:text-zinc-400" aria-live="polite">
           Showing {visibleOrders.length} of {orders.length}{" "}
           {orders.length === 1 ? "order" : "orders"}
         </p>
@@ -217,7 +217,7 @@ const OrderHistorySection = ({
         {visibleOrders.map((order) => (
           <li
             key={order.id}
-            className="group rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-150 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md"
+            className="group rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 transition-all duration-150 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md"
           >
             {/*
               A single button owns the "open details" affordance. The card used to
@@ -233,10 +233,10 @@ const OrderHistorySection = ({
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="truncate font-semibold text-gray-900 dark:text-gray-100">
+                  <h3 className="truncate font-semibold text-gray-900 dark:text-white">
                     {order.restaurantName || "Unknown Restaurant"}
                   </h3>
-                  <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-0.5 text-sm text-gray-500 dark:text-zinc-400">
                     {formatOrderDate(order.createdAt)}
                   </p>
                 </div>
@@ -249,25 +249,25 @@ const OrderHistorySection = ({
 
               <dl className="mt-4 flex items-center gap-6">
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Items</dt>
-                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-zinc-400">Items</dt>
+                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900 dark:text-white">
                     {order.items?.length || 0}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total</dt>
-                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900 dark:text-gray-100">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-zinc-400">Total</dt>
+                  <dd className="mt-0.5 font-semibold tabular-nums text-gray-900 dark:text-white">
                     ₹{(order.total || 0).toFixed(2)}
                   </dd>
                 </div>
-                <span className="ml-auto flex items-center gap-1 text-sm font-medium text-gray-400 dark:text-gray-500 transition-colors group-hover:text-gray-700 dark:group-hover:text-gray-300">
+                <span className="ml-auto flex items-center gap-1 text-sm font-medium text-gray-400 dark:text-zinc-500 transition-colors group-hover:text-gray-700 dark:group-hover:text-zinc-300">
                   Details
                   <FiChevronRight size={16} aria-hidden="true" />
                 </span>
               </dl>
             </button>
 
-            <div className="mt-4 border-t border-gray-100 dark:border-gray-700 px-5 py-3">
+            <div className="mt-4 border-t border-gray-100 dark:border-zinc-700 px-5 py-3">
               <Button
                 variant="ghost"
                 size="sm"
@@ -291,7 +291,7 @@ const OrderHistorySection = ({
               <FiChevronDown size={16} aria-hidden="true" />
               Load more orders
             </Button>
-            <p className="text-xs text-gray-400 dark:text-gray-500">
+            <p className="text-xs text-gray-400 dark:text-zinc-500">
               {orders.length - visibleCount} more to show
             </p>
           </div>
