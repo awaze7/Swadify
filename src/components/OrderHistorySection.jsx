@@ -2,10 +2,12 @@ import { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addItem } from "../utils/Redux/cartSlice";
+import useCartConflict from "../utils/useCartConflict";
 import { getStatusLabel, getStatusColor } from "../utils/orderUtils";
 import { notify } from "../utils/notificationUtils";
 import { FiChevronRight, FiRepeat, FiRefreshCw, FiChevronDown } from "react-icons/fi";
 import OrderDetailModal from "./OrderDetailModal";
+import CartConflictModal from "./CartConflictModal";
 import EmptyState from "./EmptyState";
 import ErrorState from "./ErrorState";
 import Button from "./Button";
@@ -99,6 +101,7 @@ const OrderHistorySection = ({
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { conflict, guardedAdd, confirmReplace, cancel } = useCartConflict();
   const [selectedOrder, setSelectedOrder] = useState(null);
   // Start at PAGE_SIZE; each "Load more" adds another PAGE_SIZE.
   // Resets to PAGE_SIZE whenever a fresh orders array lands (tab remounts).
@@ -124,40 +127,48 @@ const OrderHistorySection = ({
         return;
       }
 
-      validItems.forEach((item) => {
-        dispatch(
-          addItem({
-            card: {
-              // Carried through so a reordered cart still knows which restaurant
-              // it came from; without it, checking out a reorder wrote the new
-              // order back as "Unknown Restaurant".
-              restaurantId: order.restaurantId || "",
-              restaurantName: order.restaurantName || "",
-              info: {
-                id: item.itemId,
-                name: item.name,
-                price: item.price || 0,
-                defaultPrice: item.price || 0,
-                category: item.category || "General",
+      // The actual work, deferred so the cart guard can gate it: reordering
+      // from a restaurant while the cart holds another restaurant's items is
+      // the same mixing case as a menu add, so it runs only once the cart is
+      // clear (either already this restaurant, or after a confirmed replace).
+      const performReorder = () => {
+        validItems.forEach((item) => {
+          dispatch(
+            addItem({
+              card: {
+                // Carried through so a reordered cart still knows which restaurant
+                // it came from; without it, checking out a reorder wrote the new
+                // order back as "Unknown Restaurant".
+                restaurantId: order.restaurantId || "",
+                restaurantName: order.restaurantName || "",
+                info: {
+                  id: item.itemId,
+                  name: item.name,
+                  price: item.price || 0,
+                  defaultPrice: item.price || 0,
+                  category: item.category || "General",
+                },
               },
-            },
-            // One dispatch per line rather than one per unit — reordering a
-            // quantity of 5 used to fire five separate dispatches and five
-            // re-renders.
-            quantity: item.quantity || 1,
-          })
-        );
-      });
+              // One dispatch per line rather than one per unit — reordering a
+              // quantity of 5 used to fire five separate dispatches and five
+              // re-renders.
+              quantity: item.quantity || 1,
+            })
+          );
+        });
 
-      const skipped = (order?.items?.length || 0) - validItems.length;
-      notify.success(
-        skipped > 0
-          ? `${validItems.length} item${validItems.length === 1 ? "" : "s"} added, ${skipped} unavailable`
-          : `${validItems.length} item${validItems.length === 1 ? "" : "s"} added to your cart`
-      );
-      navigate("/cart");
+        const skipped = (order?.items?.length || 0) - validItems.length;
+        notify.success(
+          skipped > 0
+            ? `${validItems.length} item${validItems.length === 1 ? "" : "s"} added, ${skipped} unavailable`
+            : `${validItems.length} item${validItems.length === 1 ? "" : "s"} added to your cart`
+        );
+        navigate("/cart");
+      };
+
+      guardedAdd(order.restaurantId || "", order.restaurantName || "", performReorder);
     },
-    [dispatch, navigate]
+    [dispatch, navigate, guardedAdd]
   );
 
   const heading = (
@@ -318,6 +329,8 @@ const OrderHistorySection = ({
           onReorder={handleReorder}
         />
       )}
+
+      <CartConflictModal conflict={conflict} onCancel={cancel} onReplace={confirmReplace} />
     </section>
   );
 };

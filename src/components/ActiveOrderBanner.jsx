@@ -13,6 +13,15 @@ import { IoHome } from 'react-icons/io5';
 // Statuses that mean the order is still in flight and worth surfacing.
 const ACTIVE_STATUSES = ['received', 'preparing', 'out_for_delivery'];
 
+// Layout: how the strip clears the footer. Mirrors the CraveAI launcher, which
+// measures the footer's intrusion into the viewport and floats above it instead
+// of sitting flush at bottom-0 (where it overlapped the footer's links).
+const BANNER_FALLBACK_OFFSET = 16; // resting gap from the viewport bottom
+const BANNER_FOOTER_GAP = 16;      // breathing room above the footer's top edge
+// Vertical space the launcher must leave above the strip so the two never stack
+// on narrow screens (strip height ~72px + a small gap).
+const BANNER_LIFT_CLEARANCE = 88;
+
 // Display copy per status — labels match the OrderTracking timeline exactly.
 const STATUS_META = {
   received:         { label: 'Order Accepted',   caption: 'Restaurant has your order',   Icon: FiPackage,        accent: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
@@ -87,6 +96,36 @@ const ActiveOrderBanner = () => {
     return () => mq.removeEventListener('change', apply);
   }, []);
 
+  // How far above the viewport bottom the strip floats. It used to be pinned to
+  // bottom-0, so at the foot of a page it sat on top of the footer's copyright
+  // and legal links. Measuring the footer's live intrusion into the viewport
+  // (exactly like the CraveAI launcher) lets the strip ride up and rest just
+  // above the footer instead of overlapping it. Stays at the small resting gap
+  // until the footer actually scrolls into view.
+  const [bottomOffset, setBottomOffset] = useState(BANNER_FALLBACK_OFFSET);
+  useEffect(() => {
+    const footerEl = document.getElementById('app-footer');
+    if (!footerEl) return;
+    const updateOffset = () => {
+      const footerTop = footerEl.getBoundingClientRect().top;
+      const intrusion = Math.max(0, window.innerHeight - footerTop);
+      setBottomOffset(intrusion > 0 ? intrusion + BANNER_FOOTER_GAP : BANNER_FALLBACK_OFFSET);
+    };
+    updateOffset();
+    window.addEventListener('scroll', updateOffset, { passive: true });
+    window.addEventListener('resize', updateOffset);
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(updateOffset);
+      ro.observe(footerEl);
+    }
+    return () => {
+      window.removeEventListener('scroll', updateOffset);
+      window.removeEventListener('resize', updateOffset);
+      if (ro) ro.disconnect();
+    };
+  }, []);
+
   // 1 ─ Decide which order to track. Redux (fresh placement) wins; otherwise
   // fall back to a one-shot fetch of the most recent order.
   useEffect(() => {
@@ -150,7 +189,10 @@ const ActiveOrderBanner = () => {
   // on hide/unmount so the launcher drops back to its normal position.
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty('--aob-launcher-lift', visible && narrow ? '5.5rem' : '0px');
+    root.style.setProperty(
+      '--aob-launcher-lift',
+      visible && narrow ? `${BANNER_LIFT_CLEARANCE}px` : '0px'
+    );
     return () => root.style.setProperty('--aob-launcher-lift', '0px');
   }, [visible, narrow]);
 
@@ -167,7 +209,10 @@ const ActiveOrderBanner = () => {
   };
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 px-3 pb-3 sm:px-4 sm:pb-4 pointer-events-none">
+    <div
+      className="fixed inset-x-0 z-30 px-3 sm:px-4 pointer-events-none transition-[bottom] duration-150 ease-out"
+      style={{ bottom: bottomOffset }}
+    >
       <div className="aob-enter pointer-events-auto mx-auto flex max-w-3xl items-center gap-3 rounded-2xl border border-gray-200 dark:border-zinc-700 bg-white/95 dark:bg-zinc-900/95 px-4 py-3 shadow-2xl backdrop-blur sm:gap-4 sm:px-5">
         {/* Status icon with a live pulse dot while in flight */}
         <div className="relative flex-shrink-0">

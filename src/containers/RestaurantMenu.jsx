@@ -3,6 +3,7 @@ import { MenuShimmer } from "../components/Shimmer";
 import { useParams, useLocation } from "react-router-dom"; // Added useLocation
 import useRestaurantMenu from "../utils/useRestaurantMenu";
 import RestaurantCategory from "../components/RestaurantCategory";
+import FrequentlyOrdered from "../components/FrequentlyOrdered";
 import { BIKE_ICON } from "../utils/constants";
 import useOnlineStatus from "../utils/useOnlineStatus";
 import useReducedMotion from "../utils/useReducedMotion";
@@ -77,6 +78,20 @@ const RestaurantMenuView = ({ resId }) => {
 
         return [];
     }, [groupedCard, menu?.categories]);
+
+    // Flat index of every live menu item by id, so `FrequentlyOrdered` can match
+    // the user's past order items against dishes that still exist on the menu and
+    // render them with current price/image (delisted items simply do not match).
+    const menuItemsById = useMemo(() => {
+        const map = new Map();
+        categories.forEach((category) => {
+            (category?.card?.card?.itemCards || []).forEach((itemCard) => {
+                const id = itemCard?.card?.info?.id;
+                if (id != null) map.set(String(id), itemCard);
+            });
+        });
+        return map;
+    }, [categories]);
 
     // Open the first category by default as soon as data arrives.
     // Uses the functional updater so it only sets to 0 when prev is still null
@@ -265,6 +280,12 @@ const RestaurantMenuView = ({ resId }) => {
                     <span className="text-sm text-gray-500 dark:text-zinc-400 sm:text-base" dangerouslySetInnerHTML={{ __html: feeDetails?.message || "" }} />
                 </div>
             </div>
+
+            <FrequentlyOrdered
+                resId={resId}
+                restaurant={restaurant}
+                menuItemsById={menuItemsById}
+            />
 
             {categories
                 .filter((category) => (category?.card?.card?.itemCards?.length || 0) > 0)

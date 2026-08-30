@@ -9,6 +9,7 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useQuery } from '@tanstack/react-query';
 import RestaurantCarousel from "../components/RestaurantCarousel";
+import OrderAgainRail from "../components/OrderAgainRail";
 import SortDropdown from "../components/SortDropdown";
 import ErrorState from "../components/ErrorState";
 import { describeFirestoreError } from "../utils/firestoreErrors";
@@ -133,7 +134,16 @@ const Body = () => {
                 className="w-full bg-transparent px-5 py-2.5 text-sm font-medium text-gray-700 dark:text-zinc-200 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 placeholder="Search for restaurants, cuisines..."
                 value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setSearchText(next);
+                  // The native type="search" clear (×) fires onChange with an
+                  // empty value but never submits, so results used to persist
+                  // after clearing. Reset the active query the moment the field
+                  // empties (by ×, select-all-delete, or Escape) so the grid
+                  // returns to showing every restaurant.
+                  if (next === "") setActiveSearch("");
+                }}
               />
               <button
                 type="submit"
@@ -167,6 +177,14 @@ const Body = () => {
             </button>
           </div>
         </div>
+
+        {/* Personalized shortcut for returning users. Only in the resting
+            state: an active search or the "Top Rated" filter acts on the grid
+            below, and a rail that ignored those controls would read as broken
+            sitting between them and the results. */}
+        {!activeSearch && !isTopRated && (
+          <OrderAgainRail restaurants={listOfRestaurants} />
+        )}
 
         <p role="status" aria-live="polite" className="sr-only">
           {isError
