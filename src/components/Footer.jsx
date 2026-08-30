@@ -36,7 +36,6 @@ const NAV_SECTIONS = [
     links: [
       { label: 'Support', to: '/contact' },
       { label: 'How It Works', to: '/about#how-it-works' },
-      { label: 'FAQ', to: '/faq' },
     ],
   },
 ];

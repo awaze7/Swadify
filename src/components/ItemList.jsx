@@ -3,7 +3,9 @@ import { addItem, incrementItem, decrementItem } from "../utils/Redux/cartSlice"
 import { ITEM_IMG_CDN_URL } from "../utils/constants";
 import { useState, useMemo, useCallback } from "react";
 import { getUnitPrice } from "../utils/priceUtils";
+import useCartConflict from "../utils/useCartConflict";
 import QuantityStepper from "./QuantityStepper";
+import CartConflictModal from "./CartConflictModal";
 
 /**
  * Renders a list of menu items.
@@ -23,6 +25,7 @@ import QuantityStepper from "./QuantityStepper";
 const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) => {
   const dispatch = useDispatch();
   const cartItems = useSelector((store) => store.cart.items);
+  const { conflict, guardedAdd, confirmReplace, cancel } = useCartConflict();
 
   // Tracks which descriptions the user has expanded via the "more" affordance.
   const [expandedDescriptions, setExpandedDescriptions] = useState({});
@@ -41,23 +44,29 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
   // written to Firestore had no way to name its restaurant — Checkout read
   // `cartItems[0].card.restaurantId`, which nothing ever set, so every single
   // order was persisted as "Unknown Restaurant".
+  //
+  // The add is routed through `guardedAdd`: a cart holds one restaurant's order
+  // at a time, so if the cart already belongs to a different restaurant this
+  // surfaces the confirm-and-replace modal instead of silently mixing the two.
   const handleAdd = useCallback(
-    (item) =>
-      dispatch(
-        addItem({
-          ...item,
-          card: {
-            ...item.card,
-            restaurantId: restaurant?.id ?? item.card?.restaurantId ?? "",
-            restaurantName: restaurant?.name ?? item.card?.restaurantName ?? "",
-            // Carried through so Checkout can set estimatedDelivery and drive
-            // the order-tracking timer schedule from the real restaurant ETA.
-            deliveryTimeMinutes:
-              restaurant?.deliveryTimeMinutes ?? item.card?.deliveryTimeMinutes ?? 30,
-          },
-        })
-      ),
-    [dispatch, restaurant?.id, restaurant?.name, restaurant?.deliveryTimeMinutes]
+    (item) => {
+      const resId = restaurant?.id ?? item.card?.restaurantId ?? "";
+      const resName = restaurant?.name ?? item.card?.restaurantName ?? "";
+      const enriched = {
+        ...item,
+        card: {
+          ...item.card,
+          restaurantId: resId,
+          restaurantName: resName,
+          // Carried through so Checkout can set estimatedDelivery and drive
+          // the order-tracking timer schedule from the real restaurant ETA.
+          deliveryTimeMinutes:
+            restaurant?.deliveryTimeMinutes ?? item.card?.deliveryTimeMinutes ?? 30,
+        },
+      };
+      guardedAdd(resId, resName, () => dispatch(addItem(enriched)));
+    },
+    [dispatch, guardedAdd, restaurant?.id, restaurant?.name, restaurant?.deliveryTimeMinutes]
   );
   const handleIncrement = useCallback((itemId) => dispatch(incrementItem(itemId)), [dispatch]);
   // `decrementItem` removes the line itself when it reaches zero, so the UI
@@ -65,6 +74,7 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
   const handleDecrement = useCallback((itemId) => dispatch(decrementItem(itemId)), [dispatch]);
 
   return (
+    <>
     <ul className="divide-y divide-gray-200 dark:divide-zinc-700">
       {items.map((item) => {
         const info = item.card.info;
@@ -168,6 +178,8 @@ const ItemList = ({ items, inCart, readOnly, restaurant, highlightedDishId }) =>
         );
       })}
     </ul>
+    <CartConflictModal conflict={conflict} onCancel={cancel} onReplace={confirmReplace} />
+    </>
   );
 };
 
